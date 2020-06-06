@@ -1,0 +1,52 @@
+# Demo pig
+# These commands are intended to be run in the pig grunt shell 
+
+# Change to data whitehouse
+cd ~/data/whitehouse
+ls
+tail -n 10 whitehouse_visits.txt
+
+# Start up pig shell
+pig
+sh ls 
+
+# Make directory whitehouse and load data
+ls
+mkdir whitehouse
+copyFromLocal /home/centos/data/whitehouse/whitehouse_visits.txt whitehouse/visits.txt
+ls whitehouse
+
+# Extract data with TextLoader
+A = LOAD '/user/centos/whitehouse/' USING TextLoader();
+DESCRIBE A;
+
+A_limit = LIMIT A 5;
+DUMP A_limit;
+
+# Extract data with schema
+B = LOAD '/user/centos/whitehouse/visits.txt' USING
+PigStorage(',') AS (
+   lname:chararray,
+   fname:chararray,
+   mname:chararray,
+   id:chararray,
+   status:chararray,
+   state:chararray,
+   arrival:chararray
+);
+describe B;
+B_limit = LIMIT B 5;
+DUMP B_limit;
+
+# Load data back as tab delimited
+store B into 'whouse_tab' using PigStorage('\t');
+ls whouse_tab
+cat whouse_tab/part-v000-o000-r-00001
+
+# Load data back as json file format
+store B into 'whouse_json' using JsonStorage();
+ls whouse_json
+cat whouse_json/part-v000-o000-r-00000
+
+# Exit
+quit

@@ -1,0 +1,16 @@
+# These are standard settings for Hive
+        hive.execution.engine=tez;
+        hive.auto.convert.join=true;
+        hive.auto.convert.join.noconditionaltask=true;
+        hive.auto.convert.join.noconditionaltask.size=405306368;
+        hive.vectorized.execution.enabled=true;
+        hive.vectorized.execution.reduce.enabled =true;
+        hive.cbo.enable=true;
+        hive.compute.query.using.stats=true;
+        hive.stats.fetch.column.stats=true;
+        hive.stats.fetch.partition.stats=true;
+        hive.merge.mapfiles =true;
+        hive.merge.mapredfiles=true;
+        hive.merge.size.per.task=134217728;
+        hive.merge.smallfiles.avgsize=44739242;
+        mapreduce.job.reduce.slowstart.completedmaps=0.8

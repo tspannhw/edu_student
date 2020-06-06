@@ -1,0 +1,491 @@
+stderr: 
+
+ stdout:
+2020-02-18 01:24:26,981 - Execute[(u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/ranger_credential_helper.py', '-l', u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/install/lib/*', '-f', '/etc/ranger/tantor_atlas/cred.jceks', '-k', 'sslKeyStore', '-v', [PROTECTED], '-c', '1')] {'logoutput': True, 'environment': {'JAVA_HOME': u'/usr/java/default'}, 'sudo': True}
+Using Java:/usr/java/default/bin/java
+Alias sslKeyStore created successfully!
+2020-02-18 01:24:27,559 - Execute[(u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/ranger_credential_helper.py', '-l', u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/install/lib/*', '-f', '/etc/ranger/tantor_atlas/cred.jceks', '-k', 'sslTrustStore', '-v', [PROTECTED], '-c', '1')] {'logoutput': True, 'environment': {'JAVA_HOME': u'/usr/java/default'}, 'sudo': True}
+Using Java:/usr/java/default/bin/java
+Alias sslTrustStore created successfully!
+2020-02-18 01:24:28,124 - File['/etc/ranger/tantor_atlas/cred.jceks'] {'owner': 'atlas', 'group': 'hadoop', 'mode': 0640}
+2020-02-18 01:24:28,125 - File['/etc/ranger/tantor_atlas/.cred.jceks.crc'] {'owner': 'atlas', 'only_if': 'test -e /etc/ranger/tantor_atlas/.cred.jceks.crc', 'group': 'hadoop', 'mode': 0640}
+2020-02-18 01:24:28,128 - Stack Feature Version Info: Cluster Stack=3.1, Command Stack=None, Command Version=3.1.0.0-78 -> 3.1.0.0-78
+2020-02-18 01:24:28,131 - Execute['cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n'] {'tries': 5, 'user': 'hbase', 'try_sleep': 10}
+
+
+
+
+
+Traceback (most recent call last):
+  File "/usr/lib/ambari-agent/lib/resource_management/core/shell.py", line 150, in _call_wrapper
+    result = _call(command, **kwargs_copy)
+  File "/usr/lib/ambari-agent/lib/resource_management/core/shell.py", line 314, in _call
+    raise ExecutionFailed(err_msg, code, out, err)
+ExecutionFailed: Execution of 'cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n' returned 1. SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/phoenix/phoenix-5.0.0.3.1.0.0-78-server.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/hadoop/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+atlas_janus
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.3543 seconds
+
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.0056 seconds
+
+Took 17.2043 secondsjava exception
+ERROR Java::OrgApacheHadoopHbaseIpc::RemoteWithExtrasException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2966)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableDescriptors(MasterRpcServices.java:988)
+	at org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:413)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:131)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:324)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:304)
+
+The above exception was the cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/lib/ambari-agent/cache/stacks/HDP/3.0/services/ATLAS/package/scripts/metadata_server.py", line 254, in <module>
+    MetadataServer().execute()
+  File "/usr/lib/ambari-agent/lib/resource_management/libraries/script/script.py", line 352, in execute
+    method(env)
+  File "/usr/lib/ambari-agent/lib/resource_management/libraries/script/script.py", line 1006, in restart
+    self.start(env, upgrade_type=upgrade_type)
+  File "/var/lib/ambari-agent/cache/stacks/HDP/3.0/services/ATLAS/package/scripts/metadata_server.py", line 102, in start
+    user=params.hbase_user
+  File "/usr/lib/ambari-agent/lib/resource_management/core/base.py", line 166, in __init__
+    self.env.run()
+  File "/usr/lib/ambari-agent/lib/resource_management/core/environment.py", line 160, in run
+    self.run_action(resource, action)
+  File "/usr/lib/ambari-agent/lib/resource_management/core/environment.py", line 124, in run_action
+    provider_action()
+  File "/usr/lib/ambari-agent/lib/resource_management/core/providers/system.py", line 263, in action_run
+    returns=self.resource.returns)
+  File "/usr/lib/ambari-agent/lib/resource_management/core/shell.py", line 72, in inner
+    result = function(command, **kwargs)
+  File "/usr/lib/ambari-agent/lib/resource_management/core/shell.py", line 102, in checked_call
+    tries=tries, try_sleep=try_sleep, timeout_kill_strategy=timeout_kill_strategy, returns=returns)
+  File "/usr/lib/ambari-agent/lib/resource_management/core/shell.py", line 150, in _call_wrapper
+    result = _call(command, **kwargs_copy)
+  File "/usr/lib/ambari-agent/lib/resource_management/core/shell.py", line 314, in _call
+    raise ExecutionFailed(err_msg, code, out, err)
+resource_management.core.exceptions.ExecutionFailed: Execution of 'cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n' returned 1. SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/phoenix/phoenix-5.0.0.3.1.0.0-78-server.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/hadoop/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+atlas_janus
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.3218 seconds
+
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.0069 seconds
+
+Took 17.2891 secondsjava exception
+ERROR Java::OrgApacheHadoopHbaseIpc::RemoteWithExtrasException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2966)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableDescriptors(MasterRpcServices.java:988)
+	at org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:413)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:131)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:324)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:304)
+stdout:   /var/lib/ambari-agent/data/output-9052.txt
+
+2020-02-18 01:24:21,700 - Stack Feature Version Info: Cluster Stack=3.1, Command Stack=None, Command Version=3.1.0.0-78 -> 3.1.0.0-78
+2020-02-18 01:24:21,716 - Using hadoop conf dir: /usr/hdp/3.1.0.0-78/hadoop/conf
+2020-02-18 01:24:21,898 - Stack Feature Version Info: Cluster Stack=3.1, Command Stack=None, Command Version=3.1.0.0-78 -> 3.1.0.0-78
+2020-02-18 01:24:21,902 - Using hadoop conf dir: /usr/hdp/3.1.0.0-78/hadoop/conf
+2020-02-18 01:24:21,903 - Group['livy'] {}
+2020-02-18 01:24:21,905 - Group['spark'] {}
+2020-02-18 01:24:21,905 - Group['ranger'] {}
+2020-02-18 01:24:21,905 - Group['nifiregistry'] {}
+2020-02-18 01:24:21,905 - Group['hdfs'] {}
+2020-02-18 01:24:21,905 - Group['zeppelin'] {}
+2020-02-18 01:24:21,906 - Group['hadoop'] {}
+2020-02-18 01:24:21,906 - Group['nifi'] {}
+2020-02-18 01:24:21,906 - Group['users'] {}
+2020-02-18 01:24:21,906 - Group['knox'] {}
+2020-02-18 01:24:21,906 - User['yarn-ats'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,908 - User['hive'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,908 - User['infra-solr'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,909 - User['zookeeper'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,910 - User['oozie'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop', 'users'], 'uid': None}
+2020-02-18 01:24:21,911 - User['atlas'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,912 - User['ams'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,913 - User['ranger'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['ranger', 'hadoop'], 'uid': None}
+2020-02-18 01:24:21,913 - User['tez'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop', 'users'], 'uid': None}
+2020-02-18 01:24:21,914 - User['nifiregistry'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['nifiregistry'], 'uid': None}
+2020-02-18 01:24:21,915 - User['zeppelin'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['zeppelin', 'hadoop'], 'uid': None}
+2020-02-18 01:24:21,916 - User['nifi'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['nifi'], 'uid': None}
+2020-02-18 01:24:21,917 - User['logsearch'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,918 - User['livy'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['livy', 'hadoop'], 'uid': None}
+2020-02-18 01:24:21,918 - User['druid'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,919 - User['spark'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['spark', 'hadoop'], 'uid': None}
+2020-02-18 01:24:21,920 - User['ambari-qa'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop', 'users'], 'uid': None}
+2020-02-18 01:24:21,921 - User['kafka'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,922 - User['hdfs'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hdfs', 'hadoop'], 'uid': None}
+2020-02-18 01:24:21,923 - User['sqoop'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,924 - User['yarn'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,924 - User['mapred'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,925 - User['hbase'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop'], 'uid': None}
+2020-02-18 01:24:21,926 - User['knox'] {'gid': 'hadoop', 'fetch_nonlocal_groups': True, 'groups': ['hadoop', 'knox'], 'uid': None}
+2020-02-18 01:24:21,927 - File['/var/lib/ambari-agent/tmp/changeUid.sh'] {'content': StaticFile('changeToSecureUid.sh'), 'mode': 0555}
+2020-02-18 01:24:21,929 - Execute['/var/lib/ambari-agent/tmp/changeUid.sh ambari-qa /tmp/hadoop-ambari-qa,/tmp/hsperfdata_ambari-qa,/home/ambari-qa,/tmp/ambari-qa,/tmp/sqoop-ambari-qa 0'] {'not_if': '(test $(id -u ambari-qa) -gt 1000) || (false)'}
+2020-02-18 01:24:21,933 - Skipping Execute['/var/lib/ambari-agent/tmp/changeUid.sh ambari-qa /tmp/hadoop-ambari-qa,/tmp/hsperfdata_ambari-qa,/home/ambari-qa,/tmp/ambari-qa,/tmp/sqoop-ambari-qa 0'] due to not_if
+2020-02-18 01:24:21,934 - Directory['/tmp/hbase-hbase'] {'owner': 'hbase', 'create_parents': True, 'mode': 0775, 'cd_access': 'a'}
+2020-02-18 01:24:21,934 - File['/var/lib/ambari-agent/tmp/changeUid.sh'] {'content': StaticFile('changeToSecureUid.sh'), 'mode': 0555}
+2020-02-18 01:24:21,936 - File['/var/lib/ambari-agent/tmp/changeUid.sh'] {'content': StaticFile('changeToSecureUid.sh'), 'mode': 0555}
+2020-02-18 01:24:21,937 - call['/var/lib/ambari-agent/tmp/changeUid.sh hbase'] {}
+2020-02-18 01:24:21,944 - call returned (0, '1018')
+2020-02-18 01:24:21,944 - Execute['/var/lib/ambari-agent/tmp/changeUid.sh hbase /home/hbase,/tmp/hbase,/usr/bin/hbase,/var/log/hbase,/tmp/hbase-hbase 1018'] {'not_if': '(test $(id -u hbase) -gt 1000) || (false)'}
+2020-02-18 01:24:21,948 - Skipping Execute['/var/lib/ambari-agent/tmp/changeUid.sh hbase /home/hbase,/tmp/hbase,/usr/bin/hbase,/var/log/hbase,/tmp/hbase-hbase 1018'] due to not_if
+2020-02-18 01:24:21,948 - Group['hdfs'] {}
+2020-02-18 01:24:21,949 - User['hdfs'] {'fetch_nonlocal_groups': True, 'groups': ['hdfs', 'hadoop', u'hdfs']}
+2020-02-18 01:24:21,949 - FS Type: HDFS
+2020-02-18 01:24:21,949 - Directory['/etc/hadoop'] {'mode': 0755}
+2020-02-18 01:24:21,962 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/hadoop-env.sh'] {'content': InlineTemplate(...), 'owner': 'hdfs', 'group': 'hadoop'}
+2020-02-18 01:24:21,962 - Directory['/var/lib/ambari-agent/tmp/hadoop_java_io_tmpdir'] {'owner': 'hdfs', 'group': 'hadoop', 'mode': 01777}
+2020-02-18 01:24:21,978 - Execute[('setenforce', '0')] {'not_if': '(! which getenforce ) || (which getenforce && getenforce | grep -q Disabled)', 'sudo': True, 'only_if': 'test -f /selinux/enforce'}
+2020-02-18 01:24:21,984 - Skipping Execute[('setenforce', '0')] due to not_if
+2020-02-18 01:24:21,984 - Directory['/var/log/hadoop'] {'owner': 'root', 'create_parents': True, 'group': 'hadoop', 'mode': 0775, 'cd_access': 'a'}
+2020-02-18 01:24:21,987 - Directory['/var/run/hadoop'] {'owner': 'root', 'create_parents': True, 'group': 'root', 'cd_access': 'a'}
+2020-02-18 01:24:21,987 - Directory['/var/run/hadoop/hdfs'] {'owner': 'hdfs', 'cd_access': 'a'}
+2020-02-18 01:24:21,988 - Directory['/tmp/hadoop-hdfs'] {'owner': 'hdfs', 'create_parents': True, 'cd_access': 'a'}
+2020-02-18 01:24:21,992 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/commons-logging.properties'] {'content': Template('commons-logging.properties.j2'), 'owner': 'hdfs'}
+2020-02-18 01:24:21,993 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/health_check'] {'content': Template('health_check.j2'), 'owner': 'hdfs'}
+2020-02-18 01:24:21,998 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/log4j.properties'] {'content': InlineTemplate(...), 'owner': 'hdfs', 'group': 'hadoop', 'mode': 0644}
+2020-02-18 01:24:22,006 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/hadoop-metrics2.properties'] {'content': InlineTemplate(...), 'owner': 'hdfs', 'group': 'hadoop'}
+2020-02-18 01:24:22,007 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/task-log4j.properties'] {'content': StaticFile('task-log4j.properties'), 'mode': 0755}
+2020-02-18 01:24:22,008 - File['/usr/hdp/3.1.0.0-78/hadoop/conf/configuration.xsl'] {'owner': 'hdfs', 'group': 'hadoop'}
+2020-02-18 01:24:22,011 - File['/etc/hadoop/conf/topology_mappings.data'] {'owner': 'hdfs', 'content': Template('topology_mappings.data.j2'), 'only_if': 'test -d /etc/hadoop/conf', 'group': 'hadoop', 'mode': 0644}
+2020-02-18 01:24:22,015 - File['/etc/hadoop/conf/topology_script.py'] {'content': StaticFile('topology_script.py'), 'only_if': 'test -d /etc/hadoop/conf', 'mode': 0755}
+2020-02-18 01:24:22,019 - Skipping unlimited key JCE policy check and setup since the Java VM is not managed by Ambari
+2020-02-18 01:24:22,346 - Stack Feature Version Info: Cluster Stack=3.1, Command Stack=None, Command Version=3.1.0.0-78 -> 3.1.0.0-78
+2020-02-18 01:24:22,351 - Using hadoop conf dir: /usr/hdp/3.1.0.0-78/hadoop/conf
+2020-02-18 01:24:22,372 - Execute['source /usr/hdp/current/atlas-server/conf/atlas-env.sh; /usr/hdp/current/atlas-server/bin/atlas_stop.py'] {'user': 'atlas'}
+2020-02-18 01:24:22,456 - File['/var/run/atlas/atlas.pid'] {'action': ['delete']}
+2020-02-18 01:24:22,457 - Pid file /var/run/atlas/atlas.pid is empty or does not exist
+2020-02-18 01:24:22,459 - Directory['/usr/hdp/current/atlas-server/conf'] {'owner': 'atlas', 'group': 'hadoop', 'create_parents': True, 'mode': 0755, 'cd_access': 'a'}
+2020-02-18 01:24:22,460 - Directory['/var/run/atlas'] {'owner': 'atlas', 'group': 'hadoop', 'create_parents': True, 'mode': 0755, 'cd_access': 'a'}
+2020-02-18 01:24:22,460 - Directory['/usr/hdp/current/atlas-server/conf/solr'] {'group': 'hadoop', 'cd_access': 'a', 'create_parents': True, 'mode': 0755, 'owner': 'atlas', 'recursive_ownership': True}
+2020-02-18 01:24:22,461 - Directory['/var/log/atlas'] {'owner': 'atlas', 'group': 'hadoop', 'create_parents': True, 'mode': 0755, 'cd_access': 'a'}
+2020-02-18 01:24:22,462 - Directory['/usr/hdp/current/atlas-server/data'] {'owner': 'atlas', 'group': 'hadoop', 'create_parents': True, 'mode': 0644, 'cd_access': 'a'}
+2020-02-18 01:24:22,462 - Changing permission for /usr/hdp/current/atlas-server/data from 755 to 644
+2020-02-18 01:24:22,462 - Directory['/usr/hdp/current/atlas-server/server/webapp'] {'owner': 'atlas', 'group': 'hadoop', 'create_parents': True, 'mode': 0644, 'cd_access': 'a'}
+2020-02-18 01:24:22,462 - Changing permission for /usr/hdp/current/atlas-server/server/webapp from 755 to 644
+2020-02-18 01:24:22,463 - Execute[('cp', u'/usr/hdp/current/atlas-server/server/webapp/atlas.war', u'/usr/hdp/current/atlas-server/server/webapp/atlas.war')] {'not_if': True, 'sudo': True}
+2020-02-18 01:24:22,463 - Skipping Execute[('cp', u'/usr/hdp/current/atlas-server/server/webapp/atlas.war', u'/usr/hdp/current/atlas-server/server/webapp/atlas.war')] due to not_if
+2020-02-18 01:24:22,467 - File['/usr/hdp/current/atlas-server/conf/atlas-log4j.xml'] {'content': InlineTemplate(...), 'owner': 'atlas', 'group': 'hadoop', 'mode': 0644}
+2020-02-18 01:24:22,472 - File['/usr/hdp/current/atlas-server/conf/atlas-env.sh'] {'content': InlineTemplate(...), 'owner': 'atlas', 'group': 'hadoop', 'mode': 0755}
+2020-02-18 01:24:22,473 - ModifyPropertiesFile['/usr/hdp/current/atlas-server/conf/users-credentials.properties'] {'owner': 'atlas', 'properties': {u'sysadmin': 'ROLE_ADMIN::0501e3b7e29bb40ad8ba0b1045163afdeed34eb3cd1cc2629c8c2fbb297309af'}}
+2020-02-18 01:24:22,473 - Modifying existing properties file: /usr/hdp/current/atlas-server/conf/users-credentials.properties
+2020-02-18 01:24:22,474 - File['/usr/hdp/current/atlas-server/conf/users-credentials.properties'] {'owner': 'atlas', 'content': '#username=group::sha256-password\nadmin=ADMIN::8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918\nrangertagsync=RANGER_TAG_SYNC::e3f67240f5117d1753c940dae9eea772d36ed5fe9bd9c94a300e40413f1afb9d\n\nsysadmin=ROLE_ADMIN::0501e3b7e29bb40ad8ba0b1045163afdeed34eb3cd1cc2629c8c2fbb297309af\n', 'group': None, 'mode': None, 'encoding': 'utf-8'}
+2020-02-18 01:24:22,474 - Execute[('chown', u'atlas:hadoop', u'/usr/hdp/current/atlas-server/conf/atlas-simple-authz-policy.json')] {'sudo': True}
+2020-02-18 01:24:22,479 - Execute[('chmod', '640', u'/usr/hdp/current/atlas-server/conf/atlas-simple-authz-policy.json')] {'sudo': True}
+2020-02-18 01:24:22,483 - Execute[('chown', u'atlas:hadoop', u'/usr/hdp/current/atlas-server/conf/users-credentials.properties')] {'sudo': True}
+2020-02-18 01:24:22,488 - Execute[('chmod', '640', u'/usr/hdp/current/atlas-server/conf/users-credentials.properties')] {'sudo': True}
+2020-02-18 01:24:22,499 - File['/usr/hdp/current/atlas-server/conf/solr/solrconfig.xml'] {'content': InlineTemplate(...), 'owner': 'atlas', 'group': 'hadoop', 'mode': 0644}
+2020-02-18 01:24:22,502 - Directory['/usr/lib/ambari-logsearch-logfeeder/conf'] {'create_parents': True, 'mode': 0755, 'cd_access': 'a'}
+2020-02-18 01:24:22,502 - Generate Log Feeder config file: /usr/lib/ambari-logsearch-logfeeder/conf/input.config-atlas.json
+2020-02-18 01:24:22,502 - File['/usr/lib/ambari-logsearch-logfeeder/conf/input.config-atlas.json'] {'content': Template('input.config-atlas.json.j2'), 'mode': 0644}
+2020-02-18 01:24:22,503 - PropertiesFile['/usr/hdp/current/atlas-server/conf/atlas-application.properties'] {'owner': 'atlas', 'group': 'hadoop', 'mode': 0600, 'properties': ...}
+2020-02-18 01:24:22,506 - Generating properties file: /usr/hdp/current/atlas-server/conf/atlas-application.properties
+2020-02-18 01:24:22,506 - File['/usr/hdp/current/atlas-server/conf/atlas-application.properties'] {'owner': 'atlas', 'content': InlineTemplate(...), 'group': 'hadoop', 'mode': 0600, 'encoding': 'UTF-8'}
+2020-02-18 01:24:22,540 - Writing File['/usr/hdp/current/atlas-server/conf/atlas-application.properties'] because contents don't match
+2020-02-18 01:24:22,540 - Directory['/var/log/ambari-infra-solr-client'] {'create_parents': True, 'mode': 0755, 'cd_access': 'a'}
+2020-02-18 01:24:22,541 - Directory['/usr/lib/ambari-infra-solr-client'] {'recursive_ownership': True, 'create_parents': True, 'mode': 0755, 'cd_access': 'a'}
+2020-02-18 01:24:22,541 - File['/usr/lib/ambari-infra-solr-client/solrCloudCli.sh'] {'content': StaticFile('/usr/lib/ambari-infra-solr-client/solrCloudCli.sh'), 'mode': 0755}
+2020-02-18 01:24:22,545 - File['/usr/lib/ambari-infra-solr-client/log4j.properties'] {'content': ..., 'mode': 0644}
+2020-02-18 01:24:22,545 - File['/var/log/ambari-infra-solr-client/solr-client.log'] {'content': '', 'mode': 0664}
+2020-02-18 01:24:22,545 - Writing File['/var/log/ambari-infra-solr-client/solr-client.log'] because contents don't match
+2020-02-18 01:24:22,546 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181 --znode /infra-solr --check-znode --retry 5 --interval 10'] {}
+2020-02-18 01:24:22,837 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --download-config --config-dir /var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208 --config-set atlas_configs --retry 30 --interval 5'] {'only_if': 'ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --check-config --config-set atlas_configs --retry 30 --interval 5'}
+2020-02-18 01:24:23,400 - File['/var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208/solrconfig.xml'] {'content': InlineTemplate(...), 'only_if': 'test -d /var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208'}
+2020-02-18 01:24:23,404 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --upload-config --config-dir /var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208 --config-set atlas_configs --retry 30 --interval 5'] {'only_if': 'test -d /var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208'}
+2020-02-18 01:24:23,720 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --upload-config --config-dir /usr/hdp/current/atlas-server/conf/solr --config-set atlas_configs --retry 30 --interval 5'] {'not_if': 'test -d /var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208'}
+2020-02-18 01:24:23,724 - Skipping Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --upload-config --config-dir /usr/hdp/current/atlas-server/conf/solr --config-set atlas_configs --retry 30 --interval 5'] due to not_if
+2020-02-18 01:24:23,724 - Directory['/var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208'] {'action': ['delete'], 'create_parents': True}
+2020-02-18 01:24:23,725 - Removing directory Directory['/var/lib/ambari-agent/tmp/solr_config_atlas_configs_0.293567722208'] and all its content
+2020-02-18 01:24:23,725 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --create-collection --collection vertex_index --config-set atlas_configs --shards 1 --replication 1 --max-shards 1 --retry 5 --interval 10'] {}
+2020-02-18 01:24:24,595 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --create-collection --collection edge_index --config-set atlas_configs --shards 1 --replication 1 --max-shards 1 --retry 5 --interval 10'] {}
+2020-02-18 01:24:25,466 - Execute['ambari-sudo.sh JAVA_HOME=/usr/java/default /usr/lib/ambari-infra-solr-client/solrCloudCli.sh --zookeeper-connect-string master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181/infra-solr --create-collection --collection fulltext_index --config-set atlas_configs --shards 1 --replication 1 --max-shards 1 --retry 5 --interval 10'] {}
+2020-02-18 01:24:26,356 - File['/var/lib/ambari-agent/tmp/atlas_hbase_setup.rb'] {'content': Template('atlas_hbase_setup.rb.j2'), 'owner': 'hbase', 'group': 'hadoop'}
+2020-02-18 01:24:26,357 - Stack Feature Version Info: Cluster Stack=3.1, Command Stack=None, Command Version=3.1.0.0-78 -> 3.1.0.0-78
+2020-02-18 01:24:26,361 - XmlConfig['hdfs-site.xml'] {'group': 'hadoop', 'conf_dir': '/usr/hdp/current/atlas-server/conf', 'mode': 0644, 'configuration_attributes': {u'final': {u'dfs.datanode.failed.volumes.tolerated': u'true', u'dfs.datanode.data.dir': u'true', u'dfs.namenode.name.dir': u'true', u'dfs.webhdfs.enabled': u'true'}}, 'owner': 'atlas', 'configurations': ...}
+2020-02-18 01:24:26,373 - Generating config: /usr/hdp/current/atlas-server/conf/hdfs-site.xml
+2020-02-18 01:24:26,373 - File['/usr/hdp/current/atlas-server/conf/hdfs-site.xml'] {'owner': 'atlas', 'content': InlineTemplate(...), 'group': 'hadoop', 'mode': 0644, 'encoding': 'UTF-8'}
+2020-02-18 01:24:26,412 - XmlConfig['core-site.xml'] {'group': 'hadoop', 'conf_dir': '/usr/hdp/current/atlas-server/conf', 'xml_include_file': None, 'mode': 0644, 'configuration_attributes': {u'final': {u'fs.defaultFS': u'true'}}, 'owner': 'atlas', 'configurations': ...}
+2020-02-18 01:24:26,418 - Generating config: /usr/hdp/current/atlas-server/conf/core-site.xml
+2020-02-18 01:24:26,418 - File['/usr/hdp/current/atlas-server/conf/core-site.xml'] {'owner': 'atlas', 'content': InlineTemplate(...), 'group': 'hadoop', 'mode': 0644, 'encoding': 'UTF-8'}
+2020-02-18 01:24:26,445 - Directory['/usr/hdp/current/atlas-server/'] {'owner': 'atlas', 'group': 'hadoop', 'recursive_ownership': True}
+2020-02-18 01:24:26,450 - Atlas plugin is enabled, configuring Atlas plugin.
+2020-02-18 01:24:26,450 - ATLAS: Setup ranger: command retry not enabled thus skipping if ranger admin is down !
+2020-02-18 01:24:26,450 - HdfsResource['/ranger/audit'] {'security_enabled': False, 'hadoop_bin_dir': '/usr/hdp/3.1.0.0-78/hadoop/bin', 'keytab': [EMPTY], 'dfs_type': 'HDFS', 'default_fs': 'hdfs://tantorha', 'user': 'hdfs', 'hdfs_resource_ignore_file': '/var/lib/ambari-agent/data/.hdfs_resource_ignore', 'hdfs_site': ..., 'kinit_path_local': '/usr/bin/kinit', 'principal_name': [EMPTY], 'recursive_chmod': True, 'owner': 'atlas', 'group': 'hadoop', 'hadoop_conf_dir': '/etc/hadoop/conf', 'type': 'directory', 'action': ['create_on_execute'], 'immutable_paths': [u'/mr-history/done', u'/warehouse/tablespace/managed/hive', u'/warehouse/tablespace/external/hive', u'/app-logs', u'/tmp'], 'mode': 0755}
+2020-02-18 01:24:26,453 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -s '"'"'http://master01.tantor.net:50070/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem'"'"' 1>/tmp/tmpF6xv_k 2>/tmp/tmp6b1lAi''] {'quiet': False}
+2020-02-18 01:24:26,530 - call returned (0, '')
+2020-02-18 01:24:26,530 - get_user_call_output returned (0, u'{\n  "beans" : [ {\n    "name" : "Hadoop:service=NameNode,name=FSNamesystem",\n    "modelerType" : "FSNamesystem",\n    "tag.Context" : "dfs",\n    "tag.HAState" : "standby",\n    "tag.TotalSyncTimes" : "",\n    "tag.Hostname" : "master01.tantor.net",\n    "MissingBlocks" : 0,\n    "MissingReplOneBlocks" : 0,\n    "ExpiredHeartbeats" : 0,\n    "TransactionsSinceLastCheckpoint" : 938,\n    "TransactionsSinceLastLogRoll" : 0,\n    "LastWrittenTransactionId" : 965168,\n    "LastCheckpointTime" : 1581986725259,\n    "CapacityTotal" : 1248786790400,\n    "CapacityTotalGB" : 1163.0,\n    "CapacityUsed" : 50877412443,\n    "CapacityUsedGB" : 47.0,\n    "CapacityRemaining" : 459554039106,\n    "ProvidedCapacityTotal" : 0,\n    "CapacityRemainingGB" : 428.0,\n    "CapacityUsedNonDFS" : 734250836901,\n    "TotalLoad" : 70,\n    "SnapshottableDirectories" : 0,\n    "Snapshots" : 0,\n    "NumEncryptionZones" : 0,\n    "LockQueueLength" : 0,\n    "BlocksTotal" : 3081,\n    "NumFilesUnderConstruction" : 13,\n    "NumActiveClients" : 9,\n    "FilesTotal" : 5271,\n    "PendingReplicationBlocks" : 0,\n    "PendingReconstructionBlocks" : 0,\n    "UnderReplicatedBlocks" : 0,\n    "LowRedundancyBlocks" : 0,\n    "CorruptBlocks" : 0,\n    "ScheduledReplicationBlocks" : 0,\n    "PendingDeletionBlocks" : 0,\n    "LowRedundancyReplicatedBlocks" : 0,\n    "CorruptReplicatedBlocks" : 0,\n    "MissingReplicatedBlocks" : 0,\n    "MissingReplicationOneBlocks" : 0,\n    "HighestPriorityLowRedundancyReplicatedBlocks" : 0,\n    "HighestPriorityLowRedundancyECBlocks" : 0,\n    "BytesInFutureReplicatedBlocks" : 0,\n    "PendingDeletionReplicatedBlocks" : 0,\n    "TotalReplicatedBlocks" : 3081,\n    "LowRedundancyECBlockGroups" : 0,\n    "CorruptECBlockGroups" : 0,\n    "MissingECBlockGroups" : 0,\n    "BytesInFutureECBlockGroups" : 0,\n    "PendingDeletionECBlocks" : 0,\n    "TotalECBlockGroups" : 0,\n    "ExcessBlocks" : 0,\n    "NumTimedOutPendingReconstructions" : 0,\n    "PostponedMisreplicatedBlocks" : 0,\n    "PendingDataNodeMessageCount" : 0,\n    "MillisSinceLastLoadedEdits" : 52118,\n    "BlockCapacity" : 2097152,\n    "NumLiveDataNodes" : 5,\n    "NumDeadDataNodes" : 0,\n    "NumDecomLiveDataNodes" : 0,\n    "NumDecomDeadDataNodes" : 0,\n    "VolumeFailuresTotal" : 0,\n    "EstimatedCapacityLostTotal" : 0,\n    "NumDecommissioningDataNodes" : 0,\n    "StaleDataNodes" : 0,\n    "NumStaleStorages" : 0,\n    "TotalSyncCount" : 0,\n    "NumInMaintenanceLiveDataNodes" : 0,\n    "NumInMaintenanceDeadDataNodes" : 0,\n    "NumEnteringMaintenanceDataNodes" : 0\n  } ]\n}', u'')
+2020-02-18 01:24:26,531 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -s '"'"'http://master03.tantor.net:50070/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem'"'"' 1>/tmp/tmpTJpQPY 2>/tmp/tmpAXGZ61''] {'quiet': False}
+2020-02-18 01:24:26,601 - call returned (0, '')
+2020-02-18 01:24:26,601 - get_user_call_output returned (0, u'{\n  "beans" : [ {\n    "name" : "Hadoop:service=NameNode,name=FSNamesystem",\n    "modelerType" : "FSNamesystem",\n    "tag.Context" : "dfs",\n    "tag.HAState" : "active",\n    "tag.TotalSyncTimes" : "24 17 ",\n    "tag.Hostname" : "master03.tantor.net",\n    "MissingBlocks" : 0,\n    "MissingReplOneBlocks" : 0,\n    "ExpiredHeartbeats" : 0,\n    "TransactionsSinceLastCheckpoint" : 957,\n    "TransactionsSinceLastLogRoll" : 19,\n    "LastWrittenTransactionId" : 973948,\n    "LastCheckpointTime" : 1581986725614,\n    "CapacityTotal" : 1248786790400,\n    "CapacityTotalGB" : 1163.0,\n    "CapacityUsed" : 50877412443,\n    "CapacityUsedGB" : 47.0,\n    "CapacityRemaining" : 459540763970,\n    "ProvidedCapacityTotal" : 0,\n    "CapacityRemainingGB" : 428.0,\n    "CapacityUsedNonDFS" : 734264112037,\n    "TotalLoad" : 70,\n    "SnapshottableDirectories" : 0,\n    "Snapshots" : 0,\n    "NumEncryptionZones" : 0,\n    "LockQueueLength" : 0,\n    "BlocksTotal" : 3083,\n    "NumFilesUnderConstruction" : 13,\n    "NumActiveClients" : 9,\n    "FilesTotal" : 5271,\n    "PendingReplicationBlocks" : 0,\n    "PendingReconstructionBlocks" : 0,\n    "UnderReplicatedBlocks" : 0,\n    "LowRedundancyBlocks" : 0,\n    "CorruptBlocks" : 0,\n    "ScheduledReplicationBlocks" : 0,\n    "PendingDeletionBlocks" : 0,\n    "LowRedundancyReplicatedBlocks" : 0,\n    "CorruptReplicatedBlocks" : 0,\n    "MissingReplicatedBlocks" : 0,\n    "MissingReplicationOneBlocks" : 0,\n    "HighestPriorityLowRedundancyReplicatedBlocks" : 0,\n    "HighestPriorityLowRedundancyECBlocks" : 0,\n    "BytesInFutureReplicatedBlocks" : 0,\n    "PendingDeletionReplicatedBlocks" : 0,\n    "TotalReplicatedBlocks" : 3083,\n    "LowRedundancyECBlockGroups" : 0,\n    "CorruptECBlockGroups" : 0,\n    "MissingECBlockGroups" : 0,\n    "BytesInFutureECBlockGroups" : 0,\n    "PendingDeletionECBlocks" : 0,\n    "TotalECBlockGroups" : 0,\n    "ExcessBlocks" : 0,\n    "NumTimedOutPendingReconstructions" : 0,\n    "PostponedMisreplicatedBlocks" : 0,\n    "PendingDataNodeMessageCount" : 0,\n    "MillisSinceLastLoadedEdits" : 0,\n    "BlockCapacity" : 2097152,\n    "NumLiveDataNodes" : 5,\n    "NumDeadDataNodes" : 0,\n    "NumDecomLiveDataNodes" : 0,\n    "NumDecomDeadDataNodes" : 0,\n    "VolumeFailuresTotal" : 0,\n    "EstimatedCapacityLostTotal" : 0,\n    "NumDecommissioningDataNodes" : 0,\n    "StaleDataNodes" : 0,\n    "NumStaleStorages" : 0,\n    "TotalSyncCount" : 19,\n    "NumInMaintenanceLiveDataNodes" : 0,\n    "NumInMaintenanceDeadDataNodes" : 0,\n    "NumEnteringMaintenanceDataNodes" : 0\n  } ]\n}', u'')
+2020-02-18 01:24:26,602 - NameNode HA states: active_namenodes = [(u'nn2', 'master03.tantor.net:50070')], standby_namenodes = [(u'nn1', 'master01.tantor.net:50070')], unknown_namenodes = []
+2020-02-18 01:24:26,603 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -sS -L -w '"'"'%{http_code}'"'"' -X GET -d '"'"''"'"' -H '"'"'Content-Length: 0'"'"' '"'"'http://master03.tantor.net:50070/webhdfs/v1/ranger/audit?op=GETFILESTATUS&user.name=hdfs'"'"' 1>/tmp/tmpH9zC23 2>/tmp/tmpfaGaSi''] {'logoutput': None, 'quiet': False}
+2020-02-18 01:24:26,649 - call returned (0, '')
+2020-02-18 01:24:26,650 - get_user_call_output returned (0, u'{"FileStatus":{"accessTime":0,"blockSize":0,"childrenNum":7,"fileId":20179,"group":"hdfs","length":0,"modificationTime":1572963231416,"owner":"hdfs","pathSuffix":"","permission":"755","replication":0,"storagePolicy":0,"type":"DIRECTORY"}}200', u'')
+2020-02-18 01:24:26,651 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -sS -L -w '"'"'%{http_code}'"'"' -X PUT -d '"'"''"'"' -H '"'"'Content-Length: 0'"'"' '"'"'http://master03.tantor.net:50070/webhdfs/v1/ranger/audit?op=SETOWNER&owner=atlas&group=hadoop&user.name=hdfs'"'"' 1>/tmp/tmphX7uNx 2>/tmp/tmpGXaCn_''] {'logoutput': None, 'quiet': False}
+2020-02-18 01:24:26,698 - call returned (0, '')
+2020-02-18 01:24:26,698 - get_user_call_output returned (0, u'200', u'')
+2020-02-18 01:24:26,699 - HdfsResource['/ranger/audit/atlas'] {'security_enabled': False, 'hadoop_bin_dir': '/usr/hdp/3.1.0.0-78/hadoop/bin', 'keytab': [EMPTY], 'dfs_type': 'HDFS', 'default_fs': 'hdfs://tantorha', 'user': 'hdfs', 'hdfs_resource_ignore_file': '/var/lib/ambari-agent/data/.hdfs_resource_ignore', 'hdfs_site': ..., 'kinit_path_local': '/usr/bin/kinit', 'principal_name': [EMPTY], 'recursive_chmod': True, 'owner': 'atlas', 'group': 'hadoop', 'hadoop_conf_dir': '/etc/hadoop/conf', 'type': 'directory', 'action': ['create_on_execute'], 'immutable_paths': [u'/mr-history/done', u'/warehouse/tablespace/managed/hive', u'/warehouse/tablespace/external/hive', u'/app-logs', u'/tmp'], 'mode': 0700}
+2020-02-18 01:24:26,699 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -s '"'"'http://master01.tantor.net:50070/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem'"'"' 1>/tmp/tmpI7dDIg 2>/tmp/tmptTTR9z''] {'quiet': False}
+2020-02-18 01:24:26,765 - call returned (0, '')
+2020-02-18 01:24:26,766 - get_user_call_output returned (0, u'{\n  "beans" : [ {\n    "name" : "Hadoop:service=NameNode,name=FSNamesystem",\n    "modelerType" : "FSNamesystem",\n    "tag.Context" : "dfs",\n    "tag.HAState" : "standby",\n    "tag.TotalSyncTimes" : "",\n    "tag.Hostname" : "master01.tantor.net",\n    "MissingBlocks" : 0,\n    "MissingReplOneBlocks" : 0,\n    "ExpiredHeartbeats" : 0,\n    "TransactionsSinceLastCheckpoint" : 938,\n    "TransactionsSinceLastLogRoll" : 0,\n    "LastWrittenTransactionId" : 965168,\n    "LastCheckpointTime" : 1581986725259,\n    "CapacityTotal" : 1248786790400,\n    "CapacityTotalGB" : 1163.0,\n    "CapacityUsed" : 50877412443,\n    "CapacityUsedGB" : 47.0,\n    "CapacityRemaining" : 459554039106,\n    "ProvidedCapacityTotal" : 0,\n    "CapacityRemainingGB" : 428.0,\n    "CapacityUsedNonDFS" : 734250836901,\n    "TotalLoad" : 70,\n    "SnapshottableDirectories" : 0,\n    "Snapshots" : 0,\n    "NumEncryptionZones" : 0,\n    "LockQueueLength" : 0,\n    "BlocksTotal" : 3081,\n    "NumFilesUnderConstruction" : 13,\n    "NumActiveClients" : 9,\n    "FilesTotal" : 5271,\n    "PendingReplicationBlocks" : 0,\n    "PendingReconstructionBlocks" : 0,\n    "UnderReplicatedBlocks" : 0,\n    "LowRedundancyBlocks" : 0,\n    "CorruptBlocks" : 0,\n    "ScheduledReplicationBlocks" : 0,\n    "PendingDeletionBlocks" : 0,\n    "LowRedundancyReplicatedBlocks" : 0,\n    "CorruptReplicatedBlocks" : 0,\n    "MissingReplicatedBlocks" : 0,\n    "MissingReplicationOneBlocks" : 0,\n    "HighestPriorityLowRedundancyReplicatedBlocks" : 0,\n    "HighestPriorityLowRedundancyECBlocks" : 0,\n    "BytesInFutureReplicatedBlocks" : 0,\n    "PendingDeletionReplicatedBlocks" : 0,\n    "TotalReplicatedBlocks" : 3081,\n    "LowRedundancyECBlockGroups" : 0,\n    "CorruptECBlockGroups" : 0,\n    "MissingECBlockGroups" : 0,\n    "BytesInFutureECBlockGroups" : 0,\n    "PendingDeletionECBlocks" : 0,\n    "TotalECBlockGroups" : 0,\n    "ExcessBlocks" : 0,\n    "NumTimedOutPendingReconstructions" : 0,\n    "PostponedMisreplicatedBlocks" : 0,\n    "PendingDataNodeMessageCount" : 0,\n    "MillisSinceLastLoadedEdits" : 52118,\n    "BlockCapacity" : 2097152,\n    "NumLiveDataNodes" : 5,\n    "NumDeadDataNodes" : 0,\n    "NumDecomLiveDataNodes" : 0,\n    "NumDecomDeadDataNodes" : 0,\n    "VolumeFailuresTotal" : 0,\n    "EstimatedCapacityLostTotal" : 0,\n    "NumDecommissioningDataNodes" : 0,\n    "StaleDataNodes" : 0,\n    "NumStaleStorages" : 0,\n    "TotalSyncCount" : 0,\n    "NumInMaintenanceLiveDataNodes" : 0,\n    "NumInMaintenanceDeadDataNodes" : 0,\n    "NumEnteringMaintenanceDataNodes" : 0\n  } ]\n}', u'')
+2020-02-18 01:24:26,767 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -s '"'"'http://master03.tantor.net:50070/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem'"'"' 1>/tmp/tmpPoXW9C 2>/tmp/tmpKyX7Ko''] {'quiet': False}
+2020-02-18 01:24:26,812 - call returned (0, '')
+2020-02-18 01:24:26,813 - get_user_call_output returned (0, u'{\n  "beans" : [ {\n    "name" : "Hadoop:service=NameNode,name=FSNamesystem",\n    "modelerType" : "FSNamesystem",\n    "tag.Context" : "dfs",\n    "tag.HAState" : "active",\n    "tag.TotalSyncTimes" : "24 17 ",\n    "tag.Hostname" : "master03.tantor.net",\n    "MissingBlocks" : 0,\n    "MissingReplOneBlocks" : 0,\n    "ExpiredHeartbeats" : 0,\n    "TransactionsSinceLastCheckpoint" : 957,\n    "TransactionsSinceLastLogRoll" : 19,\n    "LastWrittenTransactionId" : 973948,\n    "LastCheckpointTime" : 1581986725614,\n    "CapacityTotal" : 1248786790400,\n    "CapacityTotalGB" : 1163.0,\n    "CapacityUsed" : 50877412443,\n    "CapacityUsedGB" : 47.0,\n    "CapacityRemaining" : 459540763970,\n    "ProvidedCapacityTotal" : 0,\n    "CapacityRemainingGB" : 428.0,\n    "CapacityUsedNonDFS" : 734264112037,\n    "TotalLoad" : 70,\n    "SnapshottableDirectories" : 0,\n    "Snapshots" : 0,\n    "NumEncryptionZones" : 0,\n    "LockQueueLength" : 0,\n    "BlocksTotal" : 3083,\n    "NumFilesUnderConstruction" : 13,\n    "NumActiveClients" : 9,\n    "FilesTotal" : 5271,\n    "PendingReplicationBlocks" : 0,\n    "PendingReconstructionBlocks" : 0,\n    "UnderReplicatedBlocks" : 0,\n    "LowRedundancyBlocks" : 0,\n    "CorruptBlocks" : 0,\n    "ScheduledReplicationBlocks" : 0,\n    "PendingDeletionBlocks" : 0,\n    "LowRedundancyReplicatedBlocks" : 0,\n    "CorruptReplicatedBlocks" : 0,\n    "MissingReplicatedBlocks" : 0,\n    "MissingReplicationOneBlocks" : 0,\n    "HighestPriorityLowRedundancyReplicatedBlocks" : 0,\n    "HighestPriorityLowRedundancyECBlocks" : 0,\n    "BytesInFutureReplicatedBlocks" : 0,\n    "PendingDeletionReplicatedBlocks" : 0,\n    "TotalReplicatedBlocks" : 3083,\n    "LowRedundancyECBlockGroups" : 0,\n    "CorruptECBlockGroups" : 0,\n    "MissingECBlockGroups" : 0,\n    "BytesInFutureECBlockGroups" : 0,\n    "PendingDeletionECBlocks" : 0,\n    "TotalECBlockGroups" : 0,\n    "ExcessBlocks" : 0,\n    "NumTimedOutPendingReconstructions" : 0,\n    "PostponedMisreplicatedBlocks" : 0,\n    "PendingDataNodeMessageCount" : 0,\n    "MillisSinceLastLoadedEdits" : 0,\n    "BlockCapacity" : 2097152,\n    "NumLiveDataNodes" : 5,\n    "NumDeadDataNodes" : 0,\n    "NumDecomLiveDataNodes" : 0,\n    "NumDecomDeadDataNodes" : 0,\n    "VolumeFailuresTotal" : 0,\n    "EstimatedCapacityLostTotal" : 0,\n    "NumDecommissioningDataNodes" : 0,\n    "StaleDataNodes" : 0,\n    "NumStaleStorages" : 0,\n    "TotalSyncCount" : 19,\n    "NumInMaintenanceLiveDataNodes" : 0,\n    "NumInMaintenanceDeadDataNodes" : 0,\n    "NumEnteringMaintenanceDataNodes" : 0\n  } ]\n}', u'')
+2020-02-18 01:24:26,813 - NameNode HA states: active_namenodes = [(u'nn2', 'master03.tantor.net:50070')], standby_namenodes = [(u'nn1', 'master01.tantor.net:50070')], unknown_namenodes = []
+2020-02-18 01:24:26,814 - call['ambari-sudo.sh su hdfs -l -s /bin/bash -c 'curl -sS -L -w '"'"'%{http_code}'"'"' -X GET -d '"'"''"'"' -H '"'"'Content-Length: 0'"'"' '"'"'http://master03.tantor.net:50070/webhdfs/v1/ranger/audit/atlas?op=GETFILESTATUS&user.name=hdfs'"'"' 1>/tmp/tmpqObY9S 2>/tmp/tmpBTSPud''] {'logoutput': None, 'quiet': False}
+2020-02-18 01:24:26,873 - call returned (0, '')
+2020-02-18 01:24:26,874 - get_user_call_output returned (0, u'{"FileStatus":{"accessTime":0,"blockSize":0,"childrenNum":4,"fileId":21385,"group":"hadoop","length":0,"modificationTime":1581460893943,"owner":"atlas","pathSuffix":"","permission":"700","replication":0,"storagePolicy":0,"type":"DIRECTORY"}}200', u'')
+2020-02-18 01:24:26,874 - HdfsResource[None] {'security_enabled': False, 'hadoop_bin_dir': '/usr/hdp/3.1.0.0-78/hadoop/bin', 'keytab': [EMPTY], 'dfs_type': 'HDFS', 'default_fs': 'hdfs://tantorha', 'hdfs_resource_ignore_file': '/var/lib/ambari-agent/data/.hdfs_resource_ignore', 'hdfs_site': ..., 'kinit_path_local': '/usr/bin/kinit', 'principal_name': [EMPTY], 'user': 'hdfs', 'action': ['execute'], 'hadoop_conf_dir': '/etc/hadoop/conf', 'immutable_paths': [u'/mr-history/done', u'/warehouse/tablespace/managed/hive', u'/warehouse/tablespace/external/hive', u'/app-logs', u'/tmp']}
+2020-02-18 01:24:26,874 - Ranger KMS is not ssl enabled, skipping ssl-client for hdfs audits.
+2020-02-18 01:24:26,876 - call['ambari-python-wrap /usr/bin/hdp-select status atlas-server'] {'timeout': 20}
+2020-02-18 01:24:26,895 - call returned (0, 'atlas-server - 3.1.0.0-78')
+2020-02-18 01:24:26,896 - RangeradminV2: Skip ranger admin if it's down !
+2020-02-18 01:24:26,924 - amb_ranger_admin user already exists.
+2020-02-18 01:24:26,940 - Atlas Repository tantor_atlas exist
+2020-02-18 01:24:26,941 - File['/usr/hdp/current/atlas-server/conf/ranger-security.xml'] {'content': InlineTemplate(...), 'owner': 'atlas', 'group': 'hadoop', 'mode': 0644}
+2020-02-18 01:24:26,942 - Writing File['/usr/hdp/current/atlas-server/conf/ranger-security.xml'] because contents don't match
+2020-02-18 01:24:26,942 - Directory['/etc/ranger/tantor_atlas'] {'owner': 'atlas', 'create_parents': True, 'group': 'hadoop', 'mode': 0775, 'cd_access': 'a'}
+2020-02-18 01:24:26,943 - Directory['/etc/ranger/tantor_atlas/policycache'] {'owner': 'atlas', 'group': 'hadoop', 'create_parents': True, 'mode': 0775, 'cd_access': 'a'}
+2020-02-18 01:24:26,943 - File['/etc/ranger/tantor_atlas/policycache/atlas_tantor_atlas.json'] {'owner': 'atlas', 'group': 'hadoop', 'mode': 0644}
+2020-02-18 01:24:26,943 - XmlConfig['ranger-atlas-audit.xml'] {'group': 'hadoop', 'conf_dir': '/usr/hdp/current/atlas-server/conf', 'mode': 0744, 'configuration_attributes': {}, 'owner': 'atlas', 'configurations': ...}
+2020-02-18 01:24:26,950 - Generating config: /usr/hdp/current/atlas-server/conf/ranger-atlas-audit.xml
+2020-02-18 01:24:26,950 - File['/usr/hdp/current/atlas-server/conf/ranger-atlas-audit.xml'] {'owner': 'atlas', 'content': InlineTemplate(...), 'group': 'hadoop', 'mode': 0744, 'encoding': 'UTF-8'}
+2020-02-18 01:24:26,956 - XmlConfig['ranger-atlas-security.xml'] {'group': 'hadoop', 'conf_dir': '/usr/hdp/current/atlas-server/conf', 'mode': 0744, 'configuration_attributes': {}, 'owner': 'atlas', 'configurations': ...}
+2020-02-18 01:24:26,964 - Generating config: /usr/hdp/current/atlas-server/conf/ranger-atlas-security.xml
+2020-02-18 01:24:26,964 - File['/usr/hdp/current/atlas-server/conf/ranger-atlas-security.xml'] {'owner': 'atlas', 'content': InlineTemplate(...), 'group': 'hadoop', 'mode': 0744, 'encoding': 'UTF-8'}
+2020-02-18 01:24:26,969 - XmlConfig['ranger-policymgr-ssl.xml'] {'group': 'hadoop', 'conf_dir': '/usr/hdp/current/atlas-server/conf', 'mode': 0744, 'configuration_attributes': {}, 'owner': 'atlas', 'configurations': ...}
+2020-02-18 01:24:26,977 - Generating config: /usr/hdp/current/atlas-server/conf/ranger-policymgr-ssl.xml
+2020-02-18 01:24:26,977 - File['/usr/hdp/current/atlas-server/conf/ranger-policymgr-ssl.xml'] {'owner': 'atlas', 'content': InlineTemplate(...), 'group': 'hadoop', 'mode': 0744, 'encoding': 'UTF-8'}
+2020-02-18 01:24:26,981 - Execute[(u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/ranger_credential_helper.py', '-l', u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/install/lib/*', '-f', '/etc/ranger/tantor_atlas/cred.jceks', '-k', 'sslKeyStore', '-v', [PROTECTED], '-c', '1')] {'logoutput': True, 'environment': {'JAVA_HOME': u'/usr/java/default'}, 'sudo': True}
+Using Java:/usr/java/default/bin/java
+Alias sslKeyStore created successfully!
+2020-02-18 01:24:27,559 - Execute[(u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/ranger_credential_helper.py', '-l', u'/usr/hdp/3.1.0.0-78/ranger-atlas-plugin/install/lib/*', '-f', '/etc/ranger/tantor_atlas/cred.jceks', '-k', 'sslTrustStore', '-v', [PROTECTED], '-c', '1')] {'logoutput': True, 'environment': {'JAVA_HOME': u'/usr/java/default'}, 'sudo': True}
+Using Java:/usr/java/default/bin/java
+Alias sslTrustStore created successfully!
+2020-02-18 01:24:28,124 - File['/etc/ranger/tantor_atlas/cred.jceks'] {'owner': 'atlas', 'group': 'hadoop', 'mode': 0640}
+2020-02-18 01:24:28,125 - File['/etc/ranger/tantor_atlas/.cred.jceks.crc'] {'owner': 'atlas', 'only_if': 'test -e /etc/ranger/tantor_atlas/.cred.jceks.crc', 'group': 'hadoop', 'mode': 0640}
+2020-02-18 01:24:28,128 - Stack Feature Version Info: Cluster Stack=3.1, Command Stack=None, Command Version=3.1.0.0-78 -> 3.1.0.0-78
+2020-02-18 01:24:28,131 - Execute['cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n'] {'tries': 5, 'user': 'hbase', 'try_sleep': 10}
+2020-02-18 01:24:51,986 - Retrying after 10 seconds. Reason: Execution of 'cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n' returned 1. SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/phoenix/phoenix-5.0.0.3.1.0.0-78-server.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/hadoop/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+atlas_janus
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.3030 seconds
+
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.0036 seconds
+
+Took 17.1702 secondsjava exception
+ERROR Java::OrgApacheHadoopHbaseIpc::RemoteWithExtrasException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2966)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableDescriptors(MasterRpcServices.java:988)
+	at org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:413)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:131)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:324)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:304)
+2020-02-18 01:25:27,476 - Retrying after 10 seconds. Reason: Execution of 'cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n' returned 1. SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/phoenix/phoenix-5.0.0.3.1.0.0-78-server.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/hadoop/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+atlas_janus
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.3237 seconds
+
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.0048 seconds
+
+Took 18.8153 secondsjava exception
+ERROR Java::OrgApacheHadoopHbaseIpc::RemoteWithExtrasException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2966)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableDescriptors(MasterRpcServices.java:988)
+	at org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:413)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:131)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:324)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:304)
+2020-02-18 01:26:02,284 - Retrying after 10 seconds. Reason: Execution of 'cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n' returned 1. SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/phoenix/phoenix-5.0.0.3.1.0.0-78-server.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/hadoop/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+atlas_janus
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.2760 seconds
+
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.0038 seconds
+
+Took 17.1325 secondsjava exception
+ERROR Java::OrgApacheHadoopHbaseIpc::RemoteWithExtrasException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2966)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableDescriptors(MasterRpcServices.java:988)
+	at org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:413)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:131)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:324)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:304)
+2020-02-18 01:26:37,033 - Retrying after 10 seconds. Reason: Execution of 'cat /var/lib/ambari-agent/tmp/atlas_hbase_setup.rb | hbase shell -n' returned 1. SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/phoenix/phoenix-5.0.0.3.1.0.0-78-server.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/hdp/3.1.0.0-78/hadoop/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+atlas_janus
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.3543 seconds
+
+TABLE
+ATLAS_ENTITY_AUDIT_EVENTS
+atlas_janus
+hbase_dc
+3 row(s)
+Took 0.0056 seconds
+
+Took 17.2043 secondsjava exception
+ERROR Java::OrgApacheHadoopHbaseIpc::RemoteWithExtrasException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+	at org.apache.hadoop.hbase.master.HMaster.checkInitialized(HMaster.java:2966)
+	at org.apache.hadoop.hbase.master.MasterRpcServices.getTableDescriptors(MasterRpcServices.java:988)
+	at org.apache.hadoop.hbase.shaded.protobuf.generated.MasterProtos$MasterService$2.callBlockingMethod(MasterProtos.java)
+	at org.apache.hadoop.hbase.ipc.RpcServer.call(RpcServer.java:413)
+	at org.apache.hadoop.hbase.ipc.CallRunner.run(CallRunner.java:131)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:324)
+	at org.apache.hadoop.hbase.ipc.RpcExecutor$Handler.run(RpcExecutor.java:304)
+2020-02-18 01:27:13,022 - Execute['find /var/log/atlas -maxdepth 1 -type f -name '*' -exec echo '==> {} <==' \; -exec tail -n 40 {} \;'] {'logoutput': True, 'ignore_failures': True, 'user': 'atlas'}
+
+Command failed after 1 tries
+Do not show this dialog again when starting a background operation
+
+
+
+
+2020-02-18 01:23:00,942 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:23:02,943 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:23:06,943 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:23:14,944 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:23:30,944 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:23:32,468 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:23:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:23:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:24:00,469 INFO  [ReadOnlyZKClient-master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181@0x38b102ba-EventThread] zookeeper.ClientCnxn: EventThread shut down
+2020-02-18 01:24:00,469 INFO  [ReadOnlyZKClient-master01.tantor.net:2181,master02.tantor.net:2181,master03.tantor.net:2181@0x38b102ba] zookeeper.ZooKeeper: Session: 0x2705476b67b02c7 closed
+2020-02-18 01:24:03,915 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:24:59,635 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:24:59,635 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:24:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:24:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:25:08,400 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:25:11,585 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:25:44,676 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:25:59,636 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:25:59,636 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:25:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:25:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:26:17,950 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:26:52,455 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:26:59,636 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:26:59,636 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:26:59,919 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:26:59,920 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:27:21,902 WARN  [Thread-16] master.HMaster: hbase:namespace,,1572918594555.a1192cc24e9a8e2769bd2314b99ccd4e. is NOT online; state={a1192cc24e9a8e2769bd2314b99ccd4e state=OPENING, ts=1581988979724, server=worker05.tantor.net,16020,1581433979052}; ServerCrashProcedures=true. Master startup cannot progress, in holding-pattern until region onlined.
+2020-02-18 01:27:56,661 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:27:59,637 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:27:59,637 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:27:59,920 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:27:59,920 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:28:12,730 WARN  [master/master03:16000.Chore.1] master.CatalogJanitor: CatalogJanitor is disabled! Enabled=true, maintenanceMode=false, am=org.apache.hadoop.hbase.master.assignment.AssignmentManager@54ad6f14, metaLoaded=true, hasRIT=true clusterShutDown=false
+2020-02-18 01:28:59,637 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:28:59,637 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:28:59,920 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:28:59,920 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:29:03,009 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:29:35,749 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+2020-02-18 01:29:59,638 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:29:59,638 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:29:59,921 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker05.tantor.net,16020,1581433979052, table=hbase:namespace, region=a1192cc24e9a8e2769bd2314b99ccd4e
+2020-02-18 01:29:59,921 WARN  [ProcExecTimeout] assignment.AssignmentManager: STUCK Region-In-Transition rit=OPENING, location=worker02.tantor.net,16020,1581433978982, table=atlas_janus, region=805ce8d8b6013fa0950556ec2573b35c
+2020-02-18 01:30:08,478 INFO  [master/master03:16000.splitLogManager..Chore.1] hbase.ScheduledChore: Chore: SplitLogManager Timeout Monitor missed its start time
+
+
+stop Hbase
+log to zookeeper-client as root
+execute command rmr /hbase-unsecure/meta-region-server
+start Hbase
+
+
+Also tried to stop worker05 and mark it as in maintenance mode with a restart of the master.
+
+
+Vivek fixed this with:
+% hbase clean --clean all

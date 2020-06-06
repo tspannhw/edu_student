@@ -1,0 +1,15 @@
+admin01.cloudair.lan
+client01.cloudair.lan
+client02.cloudair.lan
+client03.cloudair.lan
+master01.cloudair.lan
+master02.cloudair.lan
+master03.cloudair.lan
+worker01.cloudair.lan
+worker02.cloudair.lan
+worker03.cloudair.lan
+worker04.cloudair.lan
+worker05.cloudair.lan
+flow01.cloudair.lan
+flow02.cloudair.lan
+flow03.cloudair.lan

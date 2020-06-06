@@ -1,0 +1,25 @@
+This is a reoccuring problem. Here is how I fix it
+Hortonworks Docs
+
+# Remove ats-hbase before swtiching between clusters
+# This is for unsecured, if you are running Kerberos you will need kinit
+
+su - yarn-ats
+yarn app -destroy ats-hbase
+hdfs dfs -rm -r -skipTrash ./3.1.0.0-78/*  # stack version
+exit
+
+su - hdfs
+hdfs dfs -rm -r -skipTrash /services/sync/yarn-ats/hbase.yarnfile
+
+# And you may have to remove the zookeeper file
+
+zookeeper-client 
+ls /
+rmr /atsv2-hbase-unsecure
+quit
+
+# Restart
+Ambari > Yarn > stop 
+Ambari > Yarn > start
+

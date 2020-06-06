@@ -1,0 +1,82 @@
+# Command lines for mapreduce
+
+# View files to validate
+hdfs dfs -ls -h books
+cd ~/src/java/net.docker
+ls
+cat WordCountMapper.java
+cat WordCountReducer.java
+cat WordCount.java
+
+# Run build command
+cd 
+cd ~/bin/mapreduce
+cat build-wordcount.sh
+./build-wordcount.sh
+
+# Validate output
+cd
+ls bin/net/docker
+cd lib
+ls
+
+# Run first mapreduce job
+yarn jar wordcount.jar net.docker.WordCount books output
+hdfs dfs -ls output
+hdfs dfs -cat output/part-r-00000
+hdfs dfs -cat output/part-r-00000 | grep years
+
+# Error if output exists
+yarn jar wordcount.jar net.docker.WordCount books output
+hdfs dfs -rm -r -skipTrash output
+
+# Run second mapreduce job
+yarn jar ./wordcount.jar net.docker.WordCount books output
+# Read counters
+# View Application Web UI
+# Clean up job
+hdfs dfs -rm -r -skipTrash output
+
+### Advanced and Optional
+# Load web bot data
+cd ~/data/hortonworks
+cat hortonworks.txt
+hdfs dfs -mkdir inverted
+hdfs dfs -put hortonworks.txt inverted
+hdfs dfs -ls inverted
+
+# Run mapreduce job
+cd ~/lib
+ls
+# Review counters
+yarn jar invertedindex.jar inverted.IndexInverterJob  inverted output
+# Review output
+hdfs dfs -ls output
+hdfs dfs -cat output/part-r-00000
+# Clean up
+hdfs dfs -rm -r -skipTrash output
+
+# Specify the number of reducers
+yarn jar invertedindex.jar inverted.IndexInverterJob -D mapreduce.job.reduces=3 inverted output
+hdfs dfs -ls output
+# Clean up
+hdfs dfs -rm -r -skipTrash output
+
+# YARN Admin commands
+# List completed jobs
+yarn application -list -appStates FINISHED | grep Dist
+
+# Status a job by application ID
+# Replace <APPLICATION_ID> w/ application_1378331467073_0004
+yarn application -status <APPLICATION_ID> 
+
+# View logs by application ID
+# Replace <APPLICATION_ID> w/ application_1378331467073_0004
+yarn logs -applicationId <APPLICATION_ID> 
+
+# Kill a running job by application ID
+# Replace <APPLICATION_ID> w/ application_1378331467073_0004
+cd ~/lib
+yarn jar wordcount.jar net.docker.WordCount books output
+yarn application -list 
+yarn application -kill <APPLICATION_ID> 

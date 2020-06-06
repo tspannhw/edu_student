@@ -1,0 +1,111 @@
+A client had a requirement to run hive jobs as the user and 
+not as hive. This was the steps I had to go through. This is
+probalematic and engineering advised me not to do this.
+1. Created the clouair database as user devuser
+
+### Hive Run as End User
+# This runs as the users and not as the hive proxy
+1. Ambari > Hive > Config > Advanced > Advance hive-interactive-site
+        Check box
+        hive.server2.enable.doAs = true
+2. Save and Restart
+
+### Create Ranger Policy to test
+1. HDFS
+Name: access: hive path
+Resource: /warehouse/tablespace
+Allow: dev,qa,biz  hive   RWX
+
+2. HIVE
+Name access:clouair
+DB: clouair
+Table: *
+
+Go to Zeppelin UI -> Interpreter
+The configuration for JDBC hive interpreter should look like
+20497-screen1.png
+2. Edit JDBC interpreter
+Remove properties hive.user and hive.password and save the changes. So, now the configuration looks like
+20498-screen2.png
+3. Go to Zeppelin UI -> Credential
+Add the credentials for the user like
+Entity: jdbc.jdbc 
+Username: <username> 
+Password: <password>
+20499-screen3.png
+4. Run the query
+Go to your notebook and run the jdbc query for hive. In RM UI this query is now running by YOU
+20500-screen4.png
+Make sure value is set for property zeppelin.jdbc.auth.type in jdbc interpreter either as SIMPLE or KERBEROS.
+
+### Create Ranger Policy to test
+1. HDFS
+Name: access: hive path
+Resource: /warehouse/tablespace
+Allow: dev,qa,biz  hive   RWX
+
+2. HIVE
+Name access:clouair
+DB: clouair
+Table: *
+Col: *
+Allow: public hive Select
+
+3. HIVE
+Name access: us_customers
+DB: clouair
+table: us_customers
+Col: *
+Allow: dev, prose Select
+Deny: akhan  All
+
+# Test with login as users 
+beeline -n akhan -u "jdbc:hive2://client01.cloudair.lan:10000/clouair"
+    SELECT * FROM clouair.ww_customers LIMIT 10;
+    SELECT * FROM clouair.us_customers LIMIT 10;
+beeline -n prose -u "jdbc:hive2://client01.cloudair.lan:10000/clouair"
+    SELECT * FROM clouair.ww_customers LIMIT 10;
+    SELECT * FROM clouair.us_customers LIMIT 10;
+beeline -n dsmith -u "jdbc:hive2://client01.cloudair.lan:10000/clouair"
+    SELECT * FROM clouair.ww_customers LIMIT 10;
+    SELECT * FROM clouair.us_customers LIMIT 10;
+
+### Configure Zeppelin Access for Users
+1. Ambari > Zeppelin > Configs > Advanced Zeppelin-shiro-ini
+2. Comment out sysadmin and devuser
+3. Uncomment five lines for LDAP
+4. Comment /api/interpreter/** 
+5. Save and Restart
+
+### Configure Zeppelin JDBC Interpreter
+1. Ambari > Zeppelin > Quick Links > Zeppelin UI
+2. Login as dsmith
+3. dsmith > interpreter
+4. Edit jdbc
+add hive.proxy.user.property = hive.server2.proxy.user
+add hive_interactive.proxy.user.property = hive.server2.proxy.user
+edit zeppelin.jdbc.auth.type = SIMPLE
+
+### Test with users
+1. Login as dsmith
+2. create notebook > Audit/AuditChecksDsmith
+3. Select for us_customers and ww_customers
+4. Login as prose 
+5. create notebook > Audit/AuditChecksProse
+6. Select for us_customers and ww_customers
+7. Login as akhan 
+8. create notebook > Audit/AuditChecksAkhan
+9. Select for us_customers and ww_customers
+
+### Ranger creating tag based policies
+1. Login to ranger
+2. Select Access Manager > Tag Based Policies
+3. Click +
+4. Service Name: tag_service
+   Description: Tag based services for Hive
+5. Test Connection > Connected Succesfully
+6. Select Access Manager > Resource Based Policies
+7. Select Hive edit of the policies
+8. Select Tag Service = tag_service
+
+### Ready to test Atlas, Ranger and Zeppelin

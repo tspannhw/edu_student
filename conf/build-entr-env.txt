@@ -1,0 +1,613 @@
+# 		*** E D U   D O C K E R ***
+
+# DISCLAIMER Edu Docker is for training purposes only and is to be 
+# used only in support of approved training. The author assumes 
+# no liability for use outside of a training environments. Unless 
+# required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express 
+# or implied.
+
+# Title: build-entr-env.txt 
+# Author: WKD
+# Date: 200406
+# Purpose: Detailed instructions on building ENTR lab class.
+
+WARNING 
+This is not a step by step guide. You must have familiarity with installing security on Ambari and HDP. One good source is to use the github.com/hortonworksuniversity/security. There you will find a number of different pdf's with instructions for deploying security into different configurations of HDP.
+
+STRATEGY 
+The general strategy is to follow the instructions in the github/hortonworksuniversity/security directions. Ambari Docker is depending on infra01.cloudair.lan to provide infrastructure services such as NTP, DNS, KDC, and LDAP to all hosts in the cluster. These services should be fully installed and operational as a result of deploying by Dockerfiles.
+
+NOTE This structure supports teaching a HDP security class. If you do not have this requirement you could groom through this and add a bunch of this back into the Dockerfiles.
+
+VALIDATE 
+Validate the environment before you begin. Test these commands from two or three nodes. 
+	% ssh sysadmin@admin01
+	% ntpstat
+	% nslookup master01.cloudair.lan
+	% dig client03.cloudair.lan
+	% dig -x 172.18.0.21
+	% ldapseach -x -b "dc=cloudair,dc=net" ou=users
+2. Ensure you have connectivity to all nodes. Ensure we have flow01.cloudair.lan to flow03.cloudair.lan. We are going to include them into configurations in support of the platform.
+        % run-remote-nodes.sh connect (say yes)
+        % run-remote-nodes.sh connect (check the list)
+
+INSTALL SSSD
+This is an important tool in integrating LDAP with our systems. We will use scripts to install it. The install script must be run on every node in the cluster. We will use one tool to deploy it across the cluster and another to run the install. It is a requirement that we have LDAP objectclass posixAccount for users and posixGroup for groups.
+1. This is required. Login as admin/admin to Ambari. Manual remove devuser and sysadmin from Ambari. Manually remove the groups dev and admin.
+2. Optionally, you can remove devuser and sysadmin from the OS. 
+	% manage-linux-accounts.sh delusers
+	% manage-linux-accounts.sh delgrps 
+3.  Check the listhosts file to ensure all hosts are listed
+        % vim conf/listhosts.txt
+        % run-remote-files.sh push /home/sysadmin/sbin/sssd/install-sssd-ldap.sh
+        % run-remote-files.sh run install-sssd-ldap.sh 
+        % run-remote-fles.sh remove install-sssd-ldap.sh
+4. Validate
+        % id bhall
+        % groups abanes
+	% sudo su - kwinter
+	% exit
+        % ssh master03
+        % id slee
+        % group tkelly
+        % exit
+
+REFRESH HDFS USER-GROUP 
+This script refreshes the user group mappings in HDFS and YARN. The issue with this script is these must be run on the active nodes. So you have to look it up and then use the active NN and the active RM.  Additionally, this script is setup to run with both HTTPS and Kerberos. These lines are now commented out.
+1. Refresh the NN, find the active namenode.
+        % cd sbin/sssd
+	% ./refresh-services.sh  hdfs ACTIVE_NN
+2. Refresh the RM, find the active resourcemanager
+	% ./refresh-services.sh yarn ACTIVE_RM
+	% exit
+
+CONFIGURE SSH FOR ACCESS
+This is a bit of a work around. You will actually need a script called by oddJob to setup the home directory. But this will create the home directory and copy in the authorize keys to grant access using ssh.
+1. Add keys to home directories.
+	% manage-linux-accounts.sh addKeys
+
+CONFIGURE AMBARI FOR LDAP 
+1. If you are going to sync between Ambari and LDAP then manual delete the users sysadmin and devuser. They will be managed through LDAP.
+2. The LDAP server and db are installed on AD01 on the initial build. You will find the componets at infra01:/etc/openldap. This environment is setup out of the box for the purposes of teaching security. You can go into depth about DNS, LDAP, and the KDC.
+3. Login to admin01
+4. Test connection to LDAP
+	% ldapsearch -x -b "dc=cloudair,dc=lan" ou=users
+5. Run the config Ambari for LDAP script
+        % cd sbin/ldap
+	% ./setup-ambari-ldap.sh
+
+Using python  /usr/bin/python
+Currently 'no auth method' is configured, do you wish to use LDAP instead [y/n] (y)? y
+Enter Ambari Admin login: admin
+Enter Ambari Admin password: BadPass%1
+
+Fetching LDAP configuration from DB. No configuration.
+====================
+Review Settings
+====================
+Primary LDAP Host (ldap.ambari.apache.org):  infra01.cloudair.lan
+Primary LDAP Port (389):  389
+Use SSL [true/false] (false):  false
+User object class (posixUser):  posixAccount
+User ID attribute (uid):  uid
+Group object class (posixGroup):  posixGroup
+Group name attribute (cn):  cn
+Group member attribute (memberUid):  memberuid
+Distinguished name attribute (dn):  dn
+Search Base (dc=ambari,dc=apache,dc=org):  dc=cloudair,dc=lan
+Referral method [follow/ignore] (follow):  follow
+Bind anonymously [true/false] (false):  false
+Handling behavior for username collisions [convert/skip] for LDAP sync (skip):  convert
+ambari.ldap.connectivity.bind_dn: cn=ldapadmin,dc=cloudair,dc=lan
+ambari.ldap.connectivity.bind_password: *****
+Saving LDAP properties...
+Saving LDAP properties finished
+Ambari Server 'setup-ldap' completed successfully.
+Using python  /usr/bin/python
+Restarting ambari-server
+
+SYNC AMBARI WITH LDAP
+1. Check the conf/syncgroups.txt file for the groups to be synced.
+	% cat conf/synchosts.txt
+2. Run the sync script. Open and read this script to see the options. It pulls in both users and groups. Avoid running sync all, it brings in all of the service users.
+	% ./sync-ambari-ldap.sh
+	% ./sync-ambari-ldap.sh groups
+
+EXAMPLE
+Usage: sync-ambari-ldap.sh [all|exist|groups]
+sysadmin@admin01 ldap$ ./sync-ambari-ldap.sh groups
+Using python  /usr/bin/python
+Syncing with LDAP...
+
+Fetching LDAP configuration from DB.
+Syncing specified users and groups...
+
+Completed LDAP Sync.
+Summary:
+  memberships:
+    removed = 0
+    created = 9
+  users:
+    skipped = 0
+    removed = 0
+    updated = 0
+    created = 9
+  groups:
+    updated = 0
+    removed = 0
+    created = 5
+
+Ambari Server 'sync-ldap' completed successfully.
+Ambari Sync groups ran
+
+3. Open Ambari Manager and check users and groups. 
+4. This is an important task. Assign groups to roles. 
+ 	admin	Cluster Admin
+	biz 	Cluster User
+	dev 	Service Admin	
+	ops	Cluster Operator
+	qa 	Service Operator
+
+SETUP AMBARI ADMIN
+1. Use the Ambari Tool to make sysadmin and slee Ambari Admins.
+2. I recommend doing a restart of Ambari
+	% sudo ambari-server restart
+3. Login as various users and compare the difference in the capabilities of the users.
+4. Finally, login as sysadmin. All admin functions will now be done as this admin user.
+IMPORTANT: From now on you should no longer login as admin/admin. You should only use sysadmin/BadPass%1. I recommend on your own clusters you disable the admin user. Let us leave it as a back up for now.
+
+SETUP ZEPPELIN FOR LDAP
+1. Edit the Zeppelin > Config > Advance shiro.ini file. 
+2. Add comment, #, in front of the users devuser and sysadmin.
+3. Add or remove comments for LDAP authentication settings
+
+	# LDAP authentication settings
+	ldapRealm = org.apache.zeppelin.realm.LdapRealm
+	ldapRealm.contextFactory.environment[ldap.searchBase] = DC=cloudair,DC=net
+	ldapRealm.userDnTemplate = uid={0},OU=users,DC=cloudair,DC=net
+	ldapRealm.contextFactory.url = ldap://infra01.cloudair.lan:389
+	ldapRealm.contextFactory.authenticationMechanism = SIMPLE
+
+4. Restart Zeppelin
+5. Validate for various uses.
+
+AMBARI ENCRYT PASSWORD 
+1. Follow these steps to encrypt the password for Ambari.
+	% sudo ambari-server stop
+2. Setup Security
+	% sudo ambari-server setup-security
+3. Then enter the below at the prompts:
+	enter choice: 2
+	provide master key: BadPass#1
+	re-enter master key: BadPass#1
+	do you want to persist? y
+4. Then start ambari
+	% sudo ambari-server start
+5. Login and validate Ambari
+
+EXAMPLE
+Using python  /usr/bin/python2
+Security setup options...
+===========================================================================
+Choose one of the following options:
+  [1] Enable HTTPS for Ambari server.
+  [2] Encrypt passwords stored in ambari.properties file.
+  [3] Setup Ambari kerberos JAAS configuration.
+  [4] Setup truststore.
+  [5] Import certificate to truststore.
+===========================================================================
+Enter choice, (1-5): 2
+Please provide master key for locking the credential store: BadPass%1
+Re-enter master key: BadPass%1
+Do you want to persist master key. If you choose not to persist, you need to provide the Master Key while starting the ambari server as an env variable named AMBARI_SECURITY_MASTER_KEY or the start will prompt for the master key. Persist [y/n] (y)? y
+Adjusting ambari-server permissions and ownership...
+Ambari Server 'setup-security' completed successfully.
+
+AMBARI SERVER AS NON-ROOT 
+NOTE This can be problematic as you will spend some amount of time hunting down permissions on files required by the new user ambari. Generally, this is required on any production cluster. All of the scripts for are located in sbin/ambari.
+
+1. Run the setup script for non-root for the Ambari server 
+	% cd sbin/ambari
+	% ./setup-non-root-server.sh adduser 
+2. Enable the setup of the Ambari server
+	% ./setup-non-root-server.sh enable
+3. Then enter the below at the prompts:
+	OK to continue? y
+	Customize user account for ambari-server daemon? y
+	Enter user account for ambari-server daemon (root):ambari
+	Do you want to change Oracle JDK [y/n] (n)? n
+	Enable Ambari Server to download and install GPL Licensed LZO packages [y/n] (n)? y
+	Enter advanced database configuration [y/n] (n)? n
+	Proceed with configuring remote database connection properties [y/n] (y)? 
+
+NOTE Disable the Ambari server you use the following:
+        OK to continue? y
+        Customize user account for ambari-server daemon? y
+        Enter user account for ambari-server daemon (root):root
+        Do you want to change Oracle JDK [y/n] (n)? n
+        Enable Ambari Server to download and install GPL Licensed LZO packages [y/n] (n)? y
+        Enter advanced database configuration [y/n] (n)? n
+        Proceed with configuring remote database connection properties [y/n] (y)?
+
+EXAMPLE
+Using python  /usr/bin/python2
+Setup ambari-server
+Checking SELinux...
+SELinux status is 'enabled'
+SELinux mode is 'permissive'
+WARNING: SELinux is set to 'permissive' mode and temporarily disabled.
+OK to continue [y/n] (y)? y
+Customize user account for ambari-server daemon [y/n] (n)? y
+Enter user account for ambari-server daemon (root):ambari
+Adjusting ambari-server permissions and ownership...
+Checking firewall status...
+Redirecting to /bin/systemctl status  iptables.service
+
+Checking JDK...
+Do you want to change Oracle JDK [y/n] (n)? n
+Completing setup...
+Configuring database...
+Enter advanced database configuration [y/n] (n)? n
+Configuring database...
+Default properties detected. Using built-in database.
+Configuring ambari database...
+Checking PostgreSQL...
+Configuring local database...
+Connecting to local database...done.
+Configuring PostgreSQL...
+Backup for pg_hba found, reconfiguration not required
+Extracting system views...
+.......
+Adjusting ambari-server permissions and ownership...
+Ambari Server 'setup' completed successfully.
+
+Add the user ambari to custom core-site.xml
+	hadoop.proxyuser.ambari.groups=*
+  	hadoop.proxyuser.ambari.hosts=*
+
+MANUAL CORRECT USER AMBARI ACCESS TO AMBARI SERVER DIRECTORIES
+1. 
+	% sudo chown -R ambari:ambari /var/run/ambari-server
+	% sudo chown -R ambari:ambari /var/lib/ambari-server
+
+AMBARI AGENT NON ROOT 
+There is an ambari-agent sudoers file and also a script for having the agents run as the user ambari. This always requires extensive testing and checking. It is difficult to roll this back, so ensure you practice on clusters you can give the heave-ho to when things don't work.
+
+RANGER PREREQS
+1. Ensure the RDBMS has a database for ranger with the user ranger-admin. You can find the create scripts in sbin/postgresql.
+	% psql -h db01.cloudair.lan -U ranger-admin ranger
+	BadPass%1
+2. Ensure the correct JDBC is installed on the Ambari server.
+	% ls /usr/share/java/postgresql.jdbc.jar
+ 
+INSTALL RANGER
+1. Generally follow the instructions in the guide. 
+2. Add Ranger Usersync and Ranger Admin to client03.
+3. Add the Ranger Tagsync to client03.
+4. Ranger database is posgresql. The host is db01.cloudair.lan. Password is BadPass%1. No to SetupDatabase and Database User. Test Connection.
+5. IMPORTANT You must configure the Ranger User Info with the following:
+Common Configs
+        Sync Source                     LDAP/AD
+	Password			BadPass%1
+Users Configs
+        Username Attribute              uid
+        User Object Class               posixAccount
+        User Search Base                ou=users,dc=cloudair,dc=lan
+        User Search Filter              cn=*
+        User Search Scope               sub
+        User Group Name Attribute       ou
+        Group User Map sync             no
+Group Configs
+        Enable Group Sync               yes
+        Group Member Attribute          memberuid
+        Group Name Attribute            cn
+        Group Object Class              posixGroup
+        Group Search Base               ou=groups,dc=cloudair,dc=lan
+        Group Search Filter             cn=*
+        Enable Group Search First       no
+        Sync Nested Groups              no
+6. Enable Ranger plugsin's for HDFS YARN, Hive, HBase
+7. Ranger Audit is good
+8. Skp Ranger Tagsync. We will have to configure this after Atlas is installed.
+9. Advance. There are 5 sets of passwords. Set all 5 to BadPass%1.
+10. After the install Restart All Required.
+
+VALIDATE RANGER
+1. Use the quick link and login to Ranger as admin/BadPass%1.
+2. Check the plugins are communicatingi by testing the connection.
+3. Check the list of users and groups are coming from LDAP.
+
+RANGER ADMIN USER
+After validating Ranger is working then you want to ensure the dev user devuser and dsmith are the overall power user. We will use them for creating policies. Do the following:
+1. Grant admin to devuser and to dsmith.
+
+DEPLOY FLOW NODES
+1. On the ubuntu server execute the command to start up 3 more containers.
+        edu-docker.sh runplatform
+2. Use the Add Host wizard to add 3 new hosts to Ambari.
+         flow[01-03].cloudair.lan
+
+INSTALL ZOOKEEPER CLIENT
+1. Use the Host view to install a Zookeeper client on all 3 flow nodes.
+        Ambari > Hosts > flow01 > Add > Zookeeper client
+
+INSTALL KAFKA CLUSTER
+1. Use the Host view to install Kafka broker on all 3 flow nodes.
+        Ambari > Services > Add Service > Kafka
+2. Add the Kafka brokers to flow01, flow02, and flow03.
+3. Validate Kafak by creating and listening to topics.
+
+RANGER PLUGIN
+1. Turn on the Ranger plugin for Kafka.
+2. Restart all required.
+
+INSTALL ATLAS
+NOTE: Atlas uses Solr indexing and Kafka topics. So these must be running before you start the install.
+1. Use Ambari standard install. 
+2. Add Atlas to client03.
+3. LDAP settings configured in Atlas > Configure > 
+
+atlas.authentication.method.ldap.url    ldap://infra01.cloudair.lan:389
+atlas.authentication.method.ldap.userDNpattern  uid={0],ou=users,dc=cloudair,dc=lan
+atlas.authentication.method.ldap.groupSearchBase        dc=cloudair,dc=lan
+atlas.authentication.method.ldap.groupSearchFilter      (member=cn={0},ou=users,dc=cloudair,dc=lan)
+atlas.authentication.method.ldap.groupRoleAttribute     cn
+atlas.authentication.method.ldap.base.dn        dc=cloudair,dc=lan
+atlas.authentication.method.ldap.bind.dn        cn=ldapadmin,dc=cloudair,dc=lan
+atlas.authentication.method.ldap.bind.password  BadPass%1
+atlas.authentication.method.ldap.referral       ignore
+atlas.authentication.method.ldap.user.searchfilter      (uid={0})
+atlas.authentication.method.ldap.default.role   ROLE_USER
+
+4. Set the admin password to BadPass%1
+5. Restart all required
+
+ADD USERS TO AUTH FILE
+We will do this manually just to demonstrate how this works.
+1. Login to client03
+	% ssh client03
+	% sudo su -l
+2. Change to the config directory.
+	# cd /etc/atlas/conf
+3. Back up the user auth file.
+	# cp users-credentials.properties users-credentials.properties.org
+4. Create sha encrypted password.
+	# echo -n "BadPass%1" | sha256sum 
+5. Copy it into the buffer
+	Edit > copy
+6. Edit the users auth file
+        # vim users-credentials.properties
+     
+     dsmith=ADMIN::e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a
+7. Save and restart Atlas
+8. Validate the user dsmith
+
+VALIDATE ATLAS
+1. Check the Ranger plugin for Atlas is enabled.
+2. Check the Ranger tagsync is configured.
+3. Login to Atlas with devuser/BadPass%1
+4. If there is an issue you may have file auth set. This uses a local file which contains admin/admin.
+
+VALIDATATION
+It is important to create standard validation practices, scripts, and other tools. A simple example is:
+1. Test
+        Test hdfs File view
+        Test quick links for RM UI, History Server UI, Oozie UI, and Zeppelin.
+        Logout of admin and login as sysadmin
+2. You should run service checks on any service you are in doubt of.
+3. Validate stop and start. This is important, test this completely. It is imperative that the system returns to know state with Ambari and HDP cluster fully functional. This is time consuming, it can take up to 1 hour, but it is really necessary before you begin any type of deployment.
+        ambari > Actions > stop all | ambari > Actions > start all
+        edu-docker.sh stop | start
+        AWS EC2 stop and start
+
+INSTALL RANGER KMS 
+1. Start the service install. 
+	Open Ambari > start 'Add service' wizard > select 'Ranger KMS'.
+2. Install onto client03
+3. Keep the default configs except for under Ambari > Ranger KMS > Settings tab :
+4. Set the database to postgresql
+	Ranger KMS DB host: db01.cloudair.lan
+	Ranger KMS DB password: BadPass#1
+	DBA password: BadPass#1
+	Turn off Setup Database and Database User
+	KMS master secret password: BadPass#1 
+5. Under Advanced > Custom kms-site, enter below configs (Tip: to avoid adding one at a time, you can use Add Property 'bulk add' mode):
+
+hadoop.kms.proxyuser.oozie.users=*
+hadoop.kms.proxyuser.ambari.users=*
+hadoop.kms.proxyuser.oozie.hosts=*
+hadoop.kms.proxyuser.ambari.hosts=*
+hadoop.kms.proxyuser.keyadmin.groups=*
+hadoop.kms.proxyuser.keyadmin.hosts=*
+hadoop.kms.proxyuser.keyadmin.users=*
+
+6. Click Next > Proceed Anyway to proceed with the wizard
+
+7. If Kerberos is already installed you may have to add the KDC credentials on Configure Identities page:
+
+	Admin principal: kadmin@CLOUDAIR.LAN
+	Admin password: BadPass#1
+	Check the "Save admin credentials" checkbox
+
+8. Click Next > Deploy to install RangerKMS
+9. Confirm these properties got populated to kms://http@(kmshostname):9292/kms
+
+	HDFS > Configs > Advanced core-site:
+		hadoop.security.key.provider.path
+	HDFS > Configs > Advanced hdfs-site:
+		dfs.encryption.key.provider.uri
+
+10. Restart the services that require it e.g. HDFS, Mapreduce, YARN via 
+	Actions > Restart All Required
+11. Restart Ranger and RangerKMS services.
+
+SETUP RANGER KMS 
+The follow the instructions in the guide to create KMS policy and keys.
+In the sbin/kms directory is a file filled with command lines for KMS. Go to this file and practice with KMS. We are also adding in a Zeppelin notebook.
+
+SETUP AMBARI SSL
+1. Here we will use a self-signed certificate. We will be generating a self-signed certificate. In production environments you would want to use a signed certificate (either from a public authority or your own CA).  
+2. Generate the certificate & key using CN=(Public hostname of Ambari host) e.g. CN=admin01.cloudair.lan
+
+	% public_hostname=$(hostname -f)  
+	$ openssl req -x509 -newkey rsa:4096 -keyout ambari.key -out ambari.crt -days 1000 -nodes -subj "/CN=${public_hostname}"
+3. Move & secure the certificate & key
+  	% chown ambari ambari.crt ambari.key
+  	% chmod 0400 ambari.crt ambari.key
+  	% mv ambari.crt /etc/pki/tls/certs/
+  	% mv ambari.key /etc/pki/tls/private/
+4. Stop Ambari server
+sudo ambari-server stop
+5. Configure Ambari Server for HTTPS (using the above certificate & key)
+	% sudo ambari-server setup-security
+
+EXAMPLE
+Using python  /usr/bin/python2
+Security setup options...
+===========================================================================
+Choose one of the following options:
+  [1] Enable HTTPS for Ambari server.
+  [2] Encrypt passwords stored in ambari.properties file.
+  [3] Setup Ambari kerberos JAAS configuration.
+  [4] Setup truststore.
+  [5] Import certificate to truststore.
+===========================================================================
+Enter choice, (1-5): 1
+Do you want to configure HTTPS [y/n] (y)? y
+SSL port [8443] ? 8443
+Enter path to Certificate: /etc/pki/tls/certs/ambari.crt
+Enter path to Private Key: /etc/pki/tls/private/ambari.key
+Please enter password for Private Key: BadPass#1
+Importing and saving Certificate...done.
+Adjusting ambari-server permissions and ownership...
+
+6. Start Ambari
+	% sudo ambari-server start
+7. Now you can access Ambari on HTTPS on port 8443 e.g. https://ec2-52-32-113-77.us-west-2.compute.amazonaws.com:8443
+
+NOTE: If you were not able to access the Ambari UI, make sure you are trying to access https not http. 
+NOTE: The browser will not trust the new self signed ambari certificate. You will need to trust that cert first.
+
+KERBEROS
+Follow the instructions to deploy Kerberos into the cluster. Additional information includes:
+
+KDC hosts       infra01.cloudair.lan
+Real Name       CLOUDAIR.LAN
+Domains         cloudair.lan,.cloudair.lan
+
+Kadmin host     infra01.cloudair.lan
+Admin principle kadmin/admin@CLOUDAIR.LAN
+Admin password  BadPass%1
+Save Admin Credentals Yes
+
+In the instructions they customize for AD. We don't need to customize for Active Directory. So skip these two additional steps. No need to setup cross real trust to AD and there is no need for auth_to_local.
+
+There is no need to customize for the krb5.conf file. However, in the future if required there are scripts in sbin that will automate the deploy to every node in the cluster.
+
+Important, run
+        # ambari-server restart
+Use the notes located in sbin/kerberos/kerberos.cli to validate.
+
+Create Principals for Kerberos.
+
+INSTALL KNOX GATEWAY
+# Variable for Knox SSO
+ https://client03.cloudair.lan:8443/gateway/knoxsso/api/v1/websso
+
+### Assumption
+1. Created the cloudair database as user devuser
+
+### Install Knox Gateway
+1. Ambari > Add Service > Knox Gateway
+Set master password to BadPass%1
+
+### Copy in Configuration files
+2. The configuration files are prebuilt and are stored in /home/sysadmin/conf/knox.
+There is an admin xml, a default, a knoxsso, and one for cloudair.
+ ssh sysadmin@admin01
+ cd conf/knox
+ scp *xml client03:/tmp
+ ssh client03
+ sudo su -
+ cp /tmp/*xml /etc/knox/conf/topology
+ ls /etc/knox/conf/topology
+
+3. Set whitelist
+gateway.dispatch.whitelist  .*
+
+### Edits to Configurations
+In Ambari, set the following properties for your components:
+1. Hadoop for HDFS, YARN, and Mapreduce2: add custom core-site
+hadoop.http.authentication.type = org.apache.hadoop.security.authentication.server.JWTRedirectAuthenticationHandler
+hadoop.http.authentication.public.key.pem = /etc/pki/ttl/certs/knox.pem
+hadoop.http.authentication.authentication.provider.url = https://client03.cloudair.lan:8443/gateway/knoxsso/api/v1/websso
+
+2. Oozie: oozie-site.xml
+oozie.authentication.type=org.apache.hadoop.security.authentication.server.JWTRedirectAuthenticationHandler
+oozie.authentication.authentication.provider.url=https://$KNOX_HOST:8443/gateway/knoxsso/api/v1/websso
+oozie.authentication.public.key.pem=$KNOX_PUBLIC_KEY
+optional: oozie.authentication.expected.jwt.audiences=$AUDIENCES (default: EMPTY; which means ALL)
+optional: oozie.authentication.jwt.cookie=$COOKIE-NAME (default: hadoop-jwt)
+
+3. Zeppelin: Advanced zeppelin-shiro-ini > shiro_ini_content
+# LDAP authentication settings
+knoxJwtRealm = org.apache.zeppelin.realm.jwt.KnoxJwtRealm
+knoxJwtRealm.providerUrl = https://client03.cloudair.lan:8443/gateway/knoxsso/api/v1/websso
+knoxJwtRealm.login = gateway/knoxsso/knoxauth/login.html
+knoxJwtRealm.publicKeyPath = /home/sysadmin/knox.pem
+knoxJwtRealm.logoutAPI = false
+knoxJwtRealm.logout = gateway/knoxssout/api/v1/webssout
+knoxJwtRealm.cookieName = hadoop-jwt
+knoxJwtRealm.redirectParam = originalUrl
+knoxJwtRealm.groupPrincipalMapping = group.principal.mapping
+knoxJwtRealm.principalMapping = principal.mapping
+authc = org.apache.zeppelin.realm.jwt.KnoxAuthenticationFilter
+
+4. Zeppelin: Advanced spark2-env, for SPARK_HISTORY_OPTS
+export SPARK_HISTORY_OPTS=’
+-Dspark.ui.filters=org.apache.hadoop.security.authentication.server.AuthenticationFilter
+-Dspark.org.apache.hadoop.security.authentication.server.AuthenticationFilter.params ="type=org.apache.hadoop.security.authentication.server.JWTRedirectAuthenticationHandler,
+kerberos.principal=$SPARK_HISTORY_KERBEROS_PRINCIPAL,
+kerberos.keytab=$SPNEGO_KEYTAB,
+authentication.provider.url=https://client03.cloudair.lan:8443/gateway/knoxsso/api/v1/websso,
+public.key.pem=/etc/pki/tls/certs/knox.pem”’
+
+5. SSO for Ambari
+Open a terminal and get the Public certificate for Knox
+openssl s_client -showcerts -connect client03.cloudair.lan:8443
+
+ambari-server setup-sso
+
+Enter admin login:
+Enter admin password:
+
+Setting up SSO authentication properties...
+Do you want to configure SSO authentication [y/n] (y)?y
+Provider URL [URL]
+ https://client03.cloudair.lan:8443/gateway/knoxsso/api/v1/websso
+Public Certificate pem (empty) (empty line to finish input):
+MIICTjCCAbegAwIBAgIJALHaDDVHGYiDMA0GCSqGSIb3DQEBBQUAMGkxCzAJBgNV
+BAYTAlVTMQ0wCwYDVQQIEwRUZXN0MQ0wCwYDVQQHEwRUZXN0MQ8wDQYDVQQKEwZI
+YWRvb3AxDTALBgNVBAsTBFRlc3QxHDAaBgNVBAMTE2NsaWVudDAzLnRhbnRvci5u
+ZXQwHhcNMTkxMTE1MDI1MjMzWhcNMjAxMTE0MDI1MjMzWjBpMQswCQYDVQQGEwJV
+UzENMAsGA1UECBMEVGVzdDENMAsGA1UEBxMEVGVzdDEPMA0GA1UEChMGSGFkb29w
+MQ0wCwYDVQQLEwRUZXN0MRwwGgYDVQQDExNjbGllbnQwMy50YW50b3IubmV0MIGf
+MA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuzdml0FCnqB+gQVNdePvDNr3KDtWE
+shxZxApmErQpNkhuLskj4jw34BmSIADrKiLVUo/g1dZecFv2opJPrDEhMW6y7WPT
+p8tgUgDCkRct+V3Pd5OitZGz/jmfW5VOgMnu7+f/2LHH46V9K42E2s8p+9nmI3je
+L/V+Eb9Q6JCM9wIDAQABMA0GCSqGSIb3DQEBBQUAA4GBAFIRa10vbERwocoUO6jW
+8VFH1I8/jYSlaB1K6vt0D8v+V0U8uU5smXLQXNr+zErCHCVLzXjMLg52JuXTYuiH
+YaqicA7ienLgX7Y3zJgjod6AtL8o9D5XiXx/Xyc1tLsCp5uBGMmuMM42ITkcl79W
+rho7bnHWJvUW2izznV5wT9qe
+
+Use SSO for Ambari [y/n] (n)? y
+Manage SSO configurations for eligible services [y/n] (n)? y
+ Use SSO for all services [y/n] (n)? y
+JWT Cookie name (hadoop-jwt):
+JWT audiences list (comma-separated), empty for any ():
+sudo ambari-server restart
+
+BUILD  AMI Create an AMI, ensure you put a date on it.
+	EDU-ENTR-200404 

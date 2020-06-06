@@ -1,0 +1,4 @@
+hive.vectorized.execution.enabled=false
+
+java.sql.SQLException: Error while processing statement: FAILED: Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.tez.TezTask. Vertex failed, vertexName=Map 1, vertexId=vertex_1581965282442_0005_3_00, diagnostics=[Task failed, taskId=task_1581965282442_0005_3_00_000000, diagnostics=[TaskAttempt 0 failed, info=[Error: Error while running task ( failure ) : java.lang.ExceptionInInitializerError
+	at org.apache.tez.runtime.library.common.writers.UnorderedPartitionedKVWriter.<init>(UnorderedPartitionedKVWriter.java:264)

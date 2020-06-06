@@ -1,0 +1,5 @@
+
+ # hbase shell
+ hbase(main):004:0> create 'users', 'cf'
+
+ hbase(main):004:0> scan 'users'

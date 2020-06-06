@@ -1,0 +1,45 @@
+{
+    "NIFI": {
+        "nifi-ambari-ssl-config": {
+            "nifi.node.ssl.isenabled": "true",
+            "nifi.security.needClientAuth": "true",
+            "nifi.security.keystorePasswd": "KEYPASS",
+            "nifi.security.keystore": "KEYSTORELOC",
+            "nifi.security.keyPasswd": "KEYPASS",
+            "nifi.security.keystoreType": "jks",
+            "nifi.security.truststore": "TRUSTSTORELOC",
+            "nifi.security.truststorePasswd": "TRUSTSTOREPASS",
+            "nifi.security.truststoreType": "jks"
+        },
+        "ranger-nifi-policymgr-ssl": {
+            "xasecure.policymgr.clientssl.keystore": "KEYSTORERANGER",
+            "xasecure.policymgr.clientssl.keystore.password": "KEYPASS",
+            "xasecure.policymgr.clientssl.truststore": "TRUSTSTORELOC",
+            "xasecure.policymgr.clientssl.truststore.password": "TRUSTSTOREPASS"
+        },
+        "ranger-nifi-security": {
+            "ranger.plugin.nifi.policy.rest.url": "RANGERURL"
+        },
+        "nifi-properties": {
+            "nifi.security.identity.mapping.pattern.dn": "^[Cc][Nn]=(.*?),(.*?)$",
+            "nifi.security.identity.mapping.value.dn": "$1"
+        },
+        "ranger-nifi-plugin-properties": {
+            "common.name.for.certificate": "RANGERCOMMONNAME"
+        }
+    },
+    "NIFI-REGISTRY": {
+        "nifi-registry-ambari-ssl-config": {
+            "nifi.toolkit.tls.regenerate": "false",
+            "nifi.registry.ssl.isenabled": "true"
+            "nifi.registry.security.needClientAuth": "false",
+            "nifi.security.keystorePasswd": "KEYPASS",
+            "nifi.registry.security.keystore": "KEYSTORELOC",
+            "nifi.security.keyPasswd": "KEYPASS",
+            "nifi.registry.security.keystoreType": "jks",
+            "nifi.registry.security.truststore": "TRUSTSTORELOC",
+            "nifi.security.truststorePasswd": "TRUSTSTOREPASS",
+            "nifi.registry.security.truststoreType": "jks",
+      }
+   }
+}

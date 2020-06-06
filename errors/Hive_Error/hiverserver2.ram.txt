@@ -1,0 +1,17 @@
+ERROR WHY IS HIVERSERVER2 so slow in starting up?
+Retrying after 5 seconds. Reason: Execution of '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)' returned 1.  times like 50 times adding minutes to restarts
+
+2020-05-04 04:49:40,862 - Retrying after 5 seconds. Reason: Execution of '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)' returned 1. 
+2020-05-04 04:49:45,874 - Skipping failure of Execute['! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)'] due to ignore_failures. Failure reason: Execution of '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)' returned 1. 
+2020-05-04 04:49:45,875 - Execute['ambari-sudo.sh kill 6895'] {'not_if': '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)'}
+2020-05-04 04:49:45,885 - Execute['! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)'] {'tries': 10, 'ignore_failures': True, 'try_sleep': 3}
+2020-05-04 04:49:45,891 - Retrying after 3 seconds. Reason: Execution of '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)' returned 1. 
+2020-05-04 04:49:48,905 - Execute['ambari-sudo.sh kill -9 6895'] {'not_if': '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1) || ( sleep 5 && ! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1) )', 'ignore_failures': True}
+2020-05-04 04:49:48,911 - Skipping Execute['ambari-sudo.sh kill -9 6895'] due to not_if
+2020-05-04 04:49:48,912 - Execute['! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 6895 >/dev/null 2>&1)'] {'tries': 20, 'try_sleep': 3}
+2020-05-04 04:49:48,918 - File['/var/run/hive/hive-server.pid'] {'action': ['delete']}
+2020-05-04 04:49:48,918 - Deleting File['/var/run/hive/hive-server.pid']
+2020-05-04 04:49:48,918 - Pid file /var/run/hive/hive-server.pid is empty or does not exist
+
+
+Starved for RAM, increased to 1024 to 2048. 

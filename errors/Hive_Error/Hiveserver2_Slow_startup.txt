@@ -1,0 +1,12 @@
+HIVE SERVER2 STARTUP DELAY
+2020-04-29 20:52:24,339 - Execute['! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 23989 >/dev/null 2>&1)'] {'tries': 60, 'ignore_failures': True, 'try_sleep': 5}
+2020-04-29 20:52:24,348 - Retrying after 5 seconds. Reason: Execution of '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 23989 >/dev/null 2>&1)' returned 1. 
+2020-04-29 20:52:29,360 - Retrying after 5 seconds. Reason: Execution of '! (ls /var/run/hive/hive-server.pid >/dev/null 2>&1 && ps -p 23989 >/dev/null 2>&1)' returned 1. 
+
+[NotificationEventPoll 0]: transport.TIOStreamTransport (:()) - Error closing output stream.
+java.net.SocketException: Socket closed
+        at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116) ~[?:1.8.0_112]
+
+[NotificationEventPoll 0]: transport.TIOStreamTransport (:()) - Error closing output stream.
+java.net.SocketException: Socket closed
+        at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:116) ~[?:1.8.0_112]

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+<!-- Hive  -->
+<property>
+   	<name>hive.metastore.warehouse.dir</name>
+   	<value>/user/hive/warehouse</value>
+</property>
+
+<!-- Hive MySQL  -->
+<property>
+  	<name>javax.jdo.option.ConnectionURL</name>
+	<value>jdbc:mysql://client01.invalid:3306/metastore</value>
+	<description>JDBC connect string for a 
+	JDBC metastore
+	</description>
+</property>
+
+<property>
+  	<name>javax.jdo.option.ConnectionDriverName</name>
+  	<value>com.mysql.jdbc.Driver</value>
+	<description>MySQL JDBC driver class
+	</description>
+</property>
+
+<property>
+  	<name>javax.jdo.option.ConnectionUserName</name>
+  	<value>hiveuser</value>
+	<description>user name for connecting to 
+	mysql server 
+	</description>
+</property>
+
+<property>
+  	<name>javax.jdo.option.ConnectionPassword</name>
+  	<value>con2day</value>
+	<description>password for connecting to mysql server
+	</description>
+</property>
+
+<!-- DataNucleus -->
+<property>
+  	<name>datanucleus.autoCreateSchema</name>
+  	<value>false</value>
+</property>
+
+<property>
+  	<name>datanucleus.fixedDatastore</name>
+  	<value>true</value>
+</property>
+
+<property>
+  	<name>datanucleus.autoStartMechanism</name>
+  	<value>SchemaTable</value>
+</property>
+
+<!-- Hive Metastore -->
+<property>
+   	<name>hive.support.concurrency</name>
+   	<value>true</value>
+</property>
+
+<property>
+   	<name>hive.metastore.uris</name>
+   	<value>thrift://client01.invalid:9083</value>
+   	<description>IP address or FQDN of metastore host
+	</description>
+</property>
+
+<property>
+   	<name>hive.metastore.schema.verification</name>
+   	<value>true</value>
+</property>
+
+<!-- Impersonation -->
+<property>
+  	<name>hive.server2.enable.impersonation</name>
+  	<value>true</value>
+  	<description>Enable user impersonation for HiveServer2</description>
+</property> 
+
+<!-- ZooKeeper -->
+<property>
+   	<name>hive.zookeeper.quorum</name>
+   	<value>master01.invalid,master02.invalid,master03.invalid</value>
+</property>
+
+</configuration>

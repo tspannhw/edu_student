@@ -1,0 +1,29 @@
+Host client01
+	HostName client01.cloudair.lan
+	Port 22
+	IdentityFile ~/.ssh/id_rsa
+
+Host client02
+	HostName client02.cloudair.lan
+	Port 22
+	IdentityFile ~/.ssh/id_rsa
+
+Host client03
+	HostName client03.cloudair.lan
+	Port 22
+	IdentityFile ~/.ssh/id_rsa
+
+Host flow01 
+	HostName flow01.cloudair.lan
+	Port 22
+	IdentityFile ~/.ssh/id_rsa
+
+Host flow02 
+	HostName flow02.cloudair.lan
+	Port 22
+	IdentityFile ~/.ssh/id_rsa
+
+Host flow03 
+	HostName flow03.cloudair.lan
+	Port 22
+	IdentityFile ~/.ssh/id_rsa

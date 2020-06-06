@@ -1,0 +1,26 @@
+
+CLEANING UP AMBARI METRICS COLLECTOR
+This has been an ongoing problem with timeline server 2. The following steps will help in cleaning up Ambari Metrics System data in a given cluster. We are running in cluster mode using the embedded mode for HBase.
+
+NOTE Cleaning up the AMS data would remove all the historical AMS data available. The hbase parameters mentioned above are specific to AMS and they are different from the Cluster Hbase parameters
+
+1. Set AMS to maintenance
+2. Stop AMS from Ambari
+3. Identify the following from the AMS Configs screen
+        Metrics Service operation mode =  embedded
+        hbase.rootdir = file:///var/lib/ambari-metrics-collector/hbase
+        hbase.zookeeper.property.dataDir = $(hbase.tmp.dir)/zookeeper
+NOTE AMS data would be stored in 'hbase.rootdir' identified above.
+4. Backup and remove the AMS data.
+        cd /var/lib/ambari-metrics-collector
+        tar cvf /tmp/ambarimetrics.tar .
+5. If the Metrics Service operation mode is 'embedded', then the data is stored in OS files. Use regular OS commands to backup and remove the files in hbase.rootdir.
+         sudo rm -r /var/lib/ambari-metrics-collector/hbase/*
+6. If the Metrics Service is 'distributed', then the data is stored in HDFS. Use 'hdfs dfs' commands to backup and remove the files in hbase.rootdir.
+        sudo su - hdfs
+        hdfs dfs -rm /???
+7. Remove the AMS zookeeper data by backing up and removing the contents of 'hbase.tmp.dir'/zookeeper
+        sudo rm -r /var/lib/ambari-metrcis-collector/hbase.tmp.dir/zookeeper/*
+8. Remove any Phoenix spool files from 'hbase.tmp.dir'/phoenix-spool folder
+        sudo rm -r /var/lib/ambari-metrics-collector/hbase-tmp/phoenix-spool/*
+9. Restart AMS using Ambari
