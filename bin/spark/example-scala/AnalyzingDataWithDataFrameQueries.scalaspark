@@ -1,0 +1,42 @@
+// Upload  to HDFS
+// $ hdfs dfs -put $DEVSH/examples/example-data/people.csv
+// $ hdfs dfs -put $DEVSH/examples/example-data/pcodes.csv
+// $ hdfs dfs -put $DEVSH/examples/example-data/zcodes.csv
+// $ hdfs dfs -put $DEVSH/examples/example-data/people-no-pcode.csv
+
+val peopleDF = spark.read.option("header","true").csv("people.csv")
+peopleDF.printSchema
+
+// Column references
+peopleDF("age")
+$"age"
+peopleDF.select(peopleDF("age")).show()
+
+
+// Column expressions
+peopleDF.select($"lastName", $"age" * 10).show
+peopleDF.where(peopleDF("firstName").startsWith("A")).show
+
+// Column Aliases
+peopleDF.select($"lastName", ($"age" * 10).alias("age_10")).show()
+
+// Aggregation Queries
+peopleDF.groupBy("pcode").count.show
+
+// functions object
+import org.apache.spark.sql.functions
+peopleDF.groupBy("pcode").agg(functions.stddev("age")).show
+
+// Inner join
+val peopleDF = spark.read.option("header","true").csv("people-no-pcode.csv")
+val pcodesDF = spark.read.option("header","true").csv("pcodes.csv")
+peopleDF.join(pcodesDF, "pcode").show
+
+// Outer join
+peopleDF.join(pcodesDF, peopleDF("pcode") === pcodesDF("pcode"), "left_outer").show
+
+// Joining on Columns with Different Names 
+val zcodesDF = spark.read.option("header","true").csv("zcodes.csv")
+peopleDF.join(zcodesDF, $"pcode" === $"zip").show()
+
+

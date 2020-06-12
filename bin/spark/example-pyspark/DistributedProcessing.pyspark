@@ -1,0 +1,29 @@
+# Upload to HDFS
+# $ hdfs dfs -put $DEVDATA/frostroad.txt
+# $ hdfs dfs -put $DEVSH/examples/example-data/people.csv
+# $ hdfs dfs -put $DEVSH/examples/example-data/people-no-header.csv
+# $ hdfs dfs -put $DEVSH/examples/example-data/pcodes-no-header.csv
+# $ hdfs dfs -put $DEVSH/examples/example-data/pcodes.csv
+
+# For each letter, calculate the average length of the words starting with that letter
+
+myfile = "frostroad.txt"
+
+# specify 4 partitions to simulate a 4-block file
+avglens = sc.textFile(myfile,4).flatMap(lambda line: line.split()).map(lambda word: (word[0],len(word))) \
+  .groupByKey().map(lambda (letter, lengths): (letter, sum(lengths)/float(len(lengths))))
+
+# call save to trigger the operations
+avglens.saveAsTextFile("avglen-output")
+
+# Catalyst execution plan
+peopleDF = spark.read.option("header","true").csv("people.csv")
+pcodesDF = spark.read.option("header","true").csv("pcodes.csv")
+joinedDF = peopleDF.join(pcodesDF, "pcode")
+joinedDF.explain(True)
+
+# RDD Execution plan
+peopleRDD = sc.textFile("people-no-header.csv").keyBy(lambda s: s.split(',')[0])
+pcodesRDD = sc.textFile("pcodes-no-header.csv").keyBy(lambda s: s.split(',')[0])
+joinedRDD = peopleRDD.join(pcodesRDD)
+print joinedRDD.toDebugString()

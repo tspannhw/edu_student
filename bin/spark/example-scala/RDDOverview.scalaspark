@@ -1,0 +1,30 @@
+// Upload to HDFS
+// $ hdfs dfs -put $DEVSH/examples/example-data/purplecow.txt
+// $ hdfs dfs -put $DEVSH/examples/example-data/userFiles/
+// $ hdfs dfs -put $DEVSH/examples/example-data/cities.csv
+
+// Create a text RDD
+val myRDD = spark.sparkContext.textFile("purplecow.txt")
+
+// Create a whole file text RDD
+val userRDD = spark.sparkContext.wholeTextFiles("userFiles")
+
+// Create an RDD from in-memory data
+val myData = List("Alice","Carlos","Frank","Barbara")
+val myRDD = sc.parallelize(myData)
+
+// Save an RDD as files
+myRDD.saveAsTextFile("mydata/")
+
+// Demo action operation
+myRDD.count()
+for (line <- myRDD.take(2)) 
+  println(line) 
+
+// Demo distinct operation
+val distinctRDD = sc.textFile("cities1.csv").distinct()
+for (city <- distinctRDD.collect()) println(city)
+
+// Demo union operation
+val unionRDD = sc.textFile("cities2.csv").union(distinctRDD)
+for (city <- unionRDD.collect()) println(city)

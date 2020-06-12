@@ -1,0 +1,100 @@
+# Find K Means of Loudacre device status locations
+# Input data: file(s) with device status data (delimited by ',')
+# including latitude (4th field) and longitude (5th field) of device locations
+# (lat,lon of 0,0 indicates unknown location)
+
+from pyspark.sql.types import *
+from pyspark.sql import functions
+
+spark.sparkContext.setLogLevel("ERROR")
+
+# The files with device status data
+filename = "/loudacre/devicestatus_etl"
+
+# K is the number of means (center points of clusters) to find */
+K = 5
+
+# The threshold "distance" between iterations
+convergeDist = 0.01
+
+# The current converge distance difference between kpoints centeroid iterations
+tempDist = float("+inf")
+
+# Setup the CSV schema
+devStatColumns = [
+    StructField("timestamp", StringType()),
+    StructField("manufacturer", StringType()),
+    StructField("device_id", StringType()),
+    StructField("latitude", DoubleType()),
+    StructField("longitude", DoubleType())]
+    
+devStatSchema = StructType(devStatColumns)
+
+# Read the points latitude and logitude ignoring the other coloums
+devDF = spark.read.schema(devStatSchema).csv(filename).select("latitude", "longitude")
+
+# Filter out the bad points at 0 0
+# cache the points for future iterations
+pointsDF = devDF.where("longitude != 0 OR latitude != 0").persist()
+
+# Get an initial local array of K random points 
+kPoints = pointsDF.sample(False, 0.1).take(K)
+print "Starting random",K,"points:"
+for point in kPoints: print point
+
+# UDF Function to calculate nearest kpoint
+# Given a point as latitude and logitude,
+# compare it to all the kpoints using distance squared.
+# Return a nearest kpoint found as klatitude and klongitude
+
+def closestKPoint(latitude, longitude):
+      dist = map(lambda row: (row.latitude - latitude)**2 + (row.longitude - longitude)**2, kPoints)
+      minDist = min(dist)
+      pos = dist.index(minDist)
+      klat = kPoints[pos].latitude
+      klong = kPoints[pos].longitude
+      return [klat,klong]
+
+# Register closestMinPoint as UDF
+closestKPointUDF = functions.udf(closestKPoint,ArrayType(DoubleType()))
+
+# loop until the total distance between one iteration's points and the next is less than the convergence distance specified
+while tempDist >= convergeDist:
+
+      # Find the closest k point to each point 
+      # Creates UDF column closest_k_point containing a latitude and longitude.
+      distanceDF = pointsDF.withColumn("closest_k_point", closestKPointUDF(pointsDF.latitude, pointsDF.longitude))
+
+      # Extract the kpoints udf result as three new columns. Now we have the point with its nearest kpoint centeroid.
+      closestKPointsDF = distanceDF.select(distanceDF.closest_k_point[0].alias("k_latitude"),
+                                             distanceDF.closest_k_point[1].alias("k_longitude"),
+                                             distanceDF.latitude,
+                                             distanceDF.longitude)
+
+ 
+      # For each point find a new point position by calculating the average of each closest point.
+      # Moves the centeroid to the middle of its new cluster.
+      # A wide spark operation (slow) because of the group by function utilising the whole cluster to do a shuffle to all executors.
+
+      newKPointsDF = closestKPointsDF.groupBy("k_latitude","k_longitude").agg((functions.avg("latitude")).alias("new_k_latitude"),(functions.avg("longitude")).alias("new_k_longitude"))
+
+      # Calculate the new tempory distance to compare the distance moved from the previous iteration
+
+      latDist = (newKPointsDF.k_latitude - newKPointsDF.new_k_latitude) * (newKPointsDF.k_latitude - newKPointsDF.new_k_latitude)
+      longDist = (newKPointsDF.k_longitude - newKPointsDF.new_k_longitude) * (newKPointsDF.k_longitude - newKPointsDF.new_k_longitude)
+      d = newKPointsDF.select(latDist + longDist).groupBy().sum().first()
+
+      # Remember the distance between kpoints iterations for comparing against the converge threshold to finish loop
+      tempDist = d[0]
+      print "tempDist", tempDist
+
+      # Swap the new centeroid position to the current position
+      updatedkPointsDF = newKPointsDF.select(newKPointsDF.new_k_latitude.alias("k_latitude"), newKPointsDF.new_k_longitude.alias("k_longitude"))
+  
+      # Extract the new kpoints to local array
+      kPoints = updatedkPointsDF.collect()
+      
+      #TBD Final kPoint has wrong column names
+
+print "Final K points:"
+for point in kPoints: print point

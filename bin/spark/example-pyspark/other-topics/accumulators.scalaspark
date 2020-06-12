@@ -1,0 +1,26 @@
+// Example: Use accumulators to calculate the average length of all words in a data set
+
+val myfile = "frostroad.txt"
+
+val totalWords = sc.accumulator(0)
+val totalLetters = sc.accumulator(0.0)
+
+val words = sc.textFile(myfile).flatMap(_.split("\\W"))
+words.foreach(word => {
+   totalWords += 1
+   totalLetters += word.length
+})
+  
+println( "Average word length: " + totalLetters.value/totalWords.value)
+
+// Example: Use an accumulator to count the total number of letters in a file while counting words
+
+// Create an RDD with the words in the file
+val filename="purplecow.txt"
+val words = sc.textFile(filename).flatMap(line => line.split("\\W"))
+  
+//Count the letters in all the words
+val lettercount = sc.accumulator(0)
+words.foreach(w => lettercount.add(w.length))
+println("Total letters: " + lettercount.value)
+

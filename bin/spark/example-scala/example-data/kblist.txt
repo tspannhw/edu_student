@@ -1,0 +1,300 @@
+KBDOC-00087:Ronin Novelty Note 1 - Back up files
+KBDOC-00293:Ronin S2 - Battery Life
+KBDOC-00199:Titanic 2000 - Change the phone ringtone and notification sound
+KBDOC-00211:MeeToo 5.1 - Change the phone ringtone and notification sound
+KBDOC-00037:iFruit 2 - Change the phone ringtone and notification sound
+KBDOC-00245:Sorrento F31L - Battery Life
+KBDOC-00058:MeeToo 1.0 - reboot
+KBDOC-00067:iFruit 4 - Change the phone ringtone and notification sound
+KBDOC-00116:iFruit 3A - Transfer Contacts
+KBDOC-00164:Titanic 4000 - Transfer Contacts
+KBDOC-00039:iFruit 2 - Back up files
+KBDOC-00109:Ronin Novelty Note 4 - Change the phone ringtone and notification sound
+KBDOC-00273:Ronin S4 - Back up files
+KBDOC-00051:Titanic 1000 - Back up files
+KBDOC-00156:Sorrento F30L - overheat
+KBDOC-00049:Titanic 1000 - Change the phone ringtone and notification sound
+KBDOC-00038:iFruit 2 - Transfer Contacts
+KBDOC-00069:iFruit 4 - Back up files
+KBDOC-00099:Ronin Novelty Note 3 - Back up files
+KBDOC-00230:Sorrento F33L - Transfer Contacts
+KBDOC-00050:Titanic 1000 - Transfer Contacts
+KBDOC-00206:MeeToo 5.0 - Transfer Contacts
+KBDOC-00300:iFruit 5A - overheats
+KBDOC-00290:Ronin S2 - Transfer Contacts
+KBDOC-00248:Sorrento F40L - Transfer Contacts
+KBDOC-00023:MeeToo 3.1 - Battery Life
+KBDOC-00019:MeeToo 3.1 - Change the phone ringtone and notification sound
+KBDOC-00284:Ronin S3 - Transfer Contacts
+KBDOC-00083:Titanic 2200 - Battery Life
+KBDOC-00134:Sorrento F20L - Transfer Contacts
+KBDOC-00208:MeeToo 5.0 - reboots
+KBDOC-00002:Sorrento F00L - Transfer Contacts
+KBDOC-00133:Sorrento F20L - Change the phone ringtone and notification sound
+KBDOC-00106:Ronin Novelty Note 2 - rebooting
+KBDOC-00074:Sorrento F23L - Transfer Contacts
+KBDOC-00095:Titanic 2500 - Battery Life
+KBDOC-00091:Titanic 2500 - Change the phone ringtone and notification sound
+KBDOC-00261:Sorrento F11L - Back up files
+KBDOC-00042:iFruit 2 - overheating
+KBDOC-00180:Titanic DeckChairs - overheating
+KBDOC-00215:MeeToo 5.1 - Battery Life
+KBDOC-00165:Titanic 4000 - Back up files
+KBDOC-00253:Sorrento F01L - Change the phone ringtone and notification sound
+KBDOC-00299:iFruit 5A - Battery Life
+KBDOC-00285:Ronin S3 - Back up files
+KBDOC-00219:Titanic 3000 - Back up files
+KBDOC-00295:iFruit 5A - Change the phone ringtone and notification sound
+KBDOC-00210:MeeToo 5.0 - overheating
+KBDOC-00257:Sorrento F01L - Battery Life
+KBDOC-00003:Sorrento F00L - Back up files
+KBDOC-00142:Sorrento F32L - reboot
+KBDOC-00228:Titanic 1100 - overheating
+KBDOC-00250:Sorrento F40L - reboot
+KBDOC-00123:Titanic 2300 - Back up files
+KBDOC-00100:Ronin Novelty Note 3 - rebooting
+KBDOC-00080:Titanic 2200 - Transfer Contacts
+KBDOC-00151:Sorrento F30L - Change the phone ringtone and notification sound
+KBDOC-00160:Sorrento F10L - reboots
+KBDOC-00061:Sorrento F21L - Change the phone ringtone and notification sound
+KBDOC-00045:iFruit 5 - Back up files
+KBDOC-00252:Sorrento F40L - overheat
+KBDOC-00052:Titanic 1000 - reboot
+KBDOC-00168:Titanic 4000 - overheats
+KBDOC-00196:MeeToo 2.0 - rebooting
+KBDOC-00040:iFruit 2 - reboot
+KBDOC-00154:Sorrento F30L - reboot
+KBDOC-00172:Sorrento F41L - reboots
+KBDOC-00185:MeeToo 4.1 - Battery Life
+KBDOC-00167:Titanic 4000 - Battery Life
+KBDOC-00031:iFruit 3 - Change the phone ringtone and notification sound
+KBDOC-00056:MeeToo 1.0 - Transfer Contacts
+KBDOC-00222:Titanic 3000 - overheat
+KBDOC-00006:Sorrento F00L - overheats
+KBDOC-00242:Sorrento F31L - Transfer Contacts
+KBDOC-00191:MeeToo 4.0 - Battery Life
+KBDOC-00125:Titanic 2300 - Battery Life
+KBDOC-00158:Sorrento F10L - Transfer Contacts
+KBDOC-00063:Sorrento F21L - Back up files
+KBDOC-00140:Sorrento F32L - Transfer Contacts
+KBDOC-00132:Sorrento F24L - overheating
+KBDOC-00117:iFruit 3A - Back up files
+KBDOC-00269:Titanic 2400 - Battery Life
+KBDOC-00112:Ronin Novelty Note 4 - reboot
+KBDOC-00103:Ronin Novelty Note 2 - Change the phone ringtone and notification sound
+KBDOC-00015:MeeToo 3.0 - Back up files
+KBDOC-00115:iFruit 3A - Change the phone ringtone and notification sound
+KBDOC-00004:Sorrento F00L - reboot
+KBDOC-00098:Ronin Novelty Note 3 - Transfer Contacts
+KBDOC-00025:iFruit 1 - Change the phone ringtone and notification sound
+KBDOC-00145:Sorrento F22L - Change the phone ringtone and notification sound
+KBDOC-00207:MeeToo 5.0 - Back up files
+KBDOC-00034:iFruit 3 - rebooting
+KBDOC-00184:MeeToo 4.1 - rebooting
+KBDOC-00097:Ronin Novelty Note 3 - Change the phone ringtone and notification sound
+KBDOC-00062:Sorrento F21L - Transfer Contacts
+KBDOC-00076:Sorrento F23L - rebooting
+KBDOC-00200:Titanic 2000 - Transfer Contacts
+KBDOC-00276:Ronin S4 - overheat
+KBDOC-00292:Ronin S2 - rebooting
+KBDOC-00011:Titanic 2100 - Battery Life
+KBDOC-00119:iFruit 3A - Battery Life
+KBDOC-00024:MeeToo 3.1 - overheating
+KBDOC-00262:Sorrento F11L - rebooting
+KBDOC-00036:iFruit 3 - overheat
+KBDOC-00205:MeeToo 5.0 - Change the phone ringtone and notification sound
+KBDOC-00152:Sorrento F30L - Transfer Contacts
+KBDOC-00181:MeeToo 4.1 - Change the phone ringtone and notification sound
+KBDOC-00229:Sorrento F33L - Change the phone ringtone and notification sound
+KBDOC-00090:Ronin Novelty Note 1 - overheat
+KBDOC-00012:Titanic 2100 - overheat
+KBDOC-00195:MeeToo 2.0 - Back up files
+KBDOC-00001:Sorrento F00L - Change the phone ringtone and notification sound
+KBDOC-00077:Sorrento F23L - Battery Life
+KBDOC-00064:Sorrento F21L - reboots
+KBDOC-00178:Titanic DeckChairs - rebooting
+KBDOC-00202:Titanic 2000 - reboots
+KBDOC-00008:Titanic 2100 - Transfer Contacts
+KBDOC-00048:iFruit 5 - overheating
+KBDOC-00266:Titanic 2400 - Transfer Contacts
+KBDOC-00235:iFruit 4A - Change the phone ringtone and notification sound
+KBDOC-00280:Ronin S1 - rebooting
+KBDOC-00118:iFruit 3A - reboots
+KBDOC-00005:Sorrento F00L - Battery Life
+KBDOC-00082:Titanic 2200 - rebooting
+KBDOC-00093:Titanic 2500 - Back up files
+KBDOC-00298:iFruit 5A - reboot
+KBDOC-00274:Ronin S4 - reboots
+KBDOC-00283:Ronin S3 - Change the phone ringtone and notification sound
+KBDOC-00220:Titanic 3000 - reboots
+KBDOC-00108:Ronin Novelty Note 2 - overheats
+KBDOC-00221:Titanic 3000 - Battery Life
+KBDOC-00122:Titanic 2300 - Transfer Contacts
+KBDOC-00009:Titanic 2100 - Back up files
+KBDOC-00055:MeeToo 1.0 - Change the phone ringtone and notification sound
+KBDOC-00212:MeeToo 5.1 - Transfer Contacts
+KBDOC-00256:Sorrento F01L - reboots
+KBDOC-00054:Titanic 1000 - overheating
+KBDOC-00035:iFruit 3 - Battery Life
+KBDOC-00201:Titanic 2000 - Back up files
+KBDOC-00032:iFruit 3 - Transfer Contacts
+KBDOC-00084:Titanic 2200 - overheating
+KBDOC-00161:Sorrento F10L - Battery Life
+KBDOC-00288:Ronin S3 - overheating
+KBDOC-00135:Sorrento F20L - Back up files
+KBDOC-00010:Titanic 2100 - rebooting
+KBDOC-00078:Sorrento F23L - overheating
+KBDOC-00149:Sorrento F22L - Battery Life
+KBDOC-00159:Sorrento F10L - Back up files
+KBDOC-00144:Sorrento F32L - overheat
+KBDOC-00137:Sorrento F20L - Battery Life
+KBDOC-00029:iFruit 1 - Battery Life
+KBDOC-00126:Titanic 2300 - overheats
+KBDOC-00013:MeeToo 3.0 - Change the phone ringtone and notification sound
+KBDOC-00065:Sorrento F21L - Battery Life
+KBDOC-00227:Titanic 1100 - Battery Life
+KBDOC-00255:Sorrento F01L - Back up files
+KBDOC-00236:iFruit 4A - Transfer Contacts
+KBDOC-00079:Titanic 2200 - Change the phone ringtone and notification sound
+KBDOC-00223:Titanic 1100 - Change the phone ringtone and notification sound
+KBDOC-00231:Sorrento F33L - Back up files
+KBDOC-00092:Titanic 2500 - Transfer Contacts
+KBDOC-00213:MeeToo 5.1 - Back up files
+KBDOC-00203:Titanic 2000 - Battery Life
+KBDOC-00150:Sorrento F22L - overheating
+KBDOC-00089:Ronin Novelty Note 1 - Battery Life
+KBDOC-00286:Ronin S3 - reboots
+KBDOC-00053:Titanic 1000 - Battery Life
+KBDOC-00287:Ronin S3 - Battery Life
+KBDOC-00096:Titanic 2500 - overheats
+KBDOC-00124:Titanic 2300 - reboots
+KBDOC-00232:Sorrento F33L - reboot
+KBDOC-00153:Sorrento F30L - Back up files
+KBDOC-00247:Sorrento F40L - Change the phone ringtone and notification sound
+KBDOC-00234:Sorrento F33L - overheating
+KBDOC-00104:Ronin Novelty Note 2 - Transfer Contacts
+KBDOC-00272:Ronin S4 - Transfer Contacts
+KBDOC-00157:Sorrento F10L - Change the phone ringtone and notification sound
+KBDOC-00021:MeeToo 3.1 - Back up files
+KBDOC-00030:iFruit 1 - overheat
+KBDOC-00240:iFruit 4A - overheat
+KBDOC-00194:MeeToo 2.0 - Transfer Contacts
+KBDOC-00263:Sorrento F11L - Battery Life
+KBDOC-00027:iFruit 1 - Back up files
+KBDOC-00282:Ronin S1 - overheating
+KBDOC-00186:MeeToo 4.1 - overheat
+KBDOC-00105:Ronin Novelty Note 2 - Back up files
+KBDOC-00070:iFruit 4 - reboots
+KBDOC-00148:Sorrento F22L - reboot
+KBDOC-00217:Titanic 3000 - Change the phone ringtone and notification sound
+KBDOC-00017:MeeToo 3.0 - Battery Life
+KBDOC-00268:Titanic 2400 - rebooting
+KBDOC-00046:iFruit 5 - reboot
+KBDOC-00239:iFruit 4A - Battery Life
+KBDOC-00258:Sorrento F01L - overheats
+KBDOC-00275:Ronin S4 - Battery Life
+KBDOC-00176:Titanic DeckChairs - Transfer Contacts
+KBDOC-00289:Ronin S2 - Change the phone ringtone and notification sound
+KBDOC-00175:Titanic DeckChairs - Change the phone ringtone and notification sound
+KBDOC-00026:iFruit 1 - Transfer Contacts
+KBDOC-00264:Sorrento F11L - overheats
+KBDOC-00169:Sorrento F41L - Change the phone ringtone and notification sound
+KBDOC-00068:iFruit 4 - Transfer Contacts
+KBDOC-00088:Ronin Novelty Note 1 - reboots
+KBDOC-00270:Titanic 2400 - overheating
+KBDOC-00243:Sorrento F31L - Back up files
+KBDOC-00166:Titanic 4000 - reboots
+KBDOC-00163:Titanic 4000 - Change the phone ringtone and notification sound
+KBDOC-00216:MeeToo 5.1 - overheat
+KBDOC-00260:Sorrento F11L - Transfer Contacts
+KBDOC-00085:Ronin Novelty Note 1 - Change the phone ringtone and notification sound
+KBDOC-00146:Sorrento F22L - Transfer Contacts
+KBDOC-00204:Titanic 2000 - overheating
+KBDOC-00182:MeeToo 4.1 - Transfer Contacts
+KBDOC-00136:Sorrento F20L - rebooting
+KBDOC-00271:Ronin S4 - Change the phone ringtone and notification sound
+KBDOC-00225:Titanic 1100 - Back up files
+KBDOC-00226:Titanic 1100 - reboot
+KBDOC-00016:MeeToo 3.0 - rebooting
+KBDOC-00047:iFruit 5 - Battery Life
+KBDOC-00131:Sorrento F24L - Battery Life
+KBDOC-00171:Sorrento F41L - Back up files
+KBDOC-00130:Sorrento F24L - reboot
+KBDOC-00073:Sorrento F23L - Change the phone ringtone and notification sound
+KBDOC-00057:MeeToo 1.0 - Back up files
+KBDOC-00209:MeeToo 5.0 - Battery Life
+KBDOC-00014:MeeToo 3.0 - Transfer Contacts
+KBDOC-00278:Ronin S1 - Transfer Contacts
+KBDOC-00277:Ronin S1 - Change the phone ringtone and notification sound
+KBDOC-00033:iFruit 3 - Back up files
+KBDOC-00102:Ronin Novelty Note 3 - overheat
+KBDOC-00141:Sorrento F32L - Back up files
+KBDOC-00193:MeeToo 2.0 - Change the phone ringtone and notification sound
+KBDOC-00296:iFruit 5A - Transfer Contacts
+KBDOC-00155:Sorrento F30L - Battery Life
+KBDOC-00279:Ronin S1 - Back up files
+KBDOC-00198:MeeToo 2.0 - overheat
+KBDOC-00072:iFruit 4 - overheating
+KBDOC-00094:Titanic 2500 - reboot
+KBDOC-00170:Sorrento F41L - Transfer Contacts
+KBDOC-00249:Sorrento F40L - Back up files
+KBDOC-00254:Sorrento F01L - Transfer Contacts
+KBDOC-00189:MeeToo 4.0 - Back up files
+KBDOC-00162:Sorrento F10L - overheat
+KBDOC-00233:Sorrento F33L - Battery Life
+KBDOC-00259:Sorrento F11L - Change the phone ringtone and notification sound
+KBDOC-00128:Sorrento F24L - Transfer Contacts
+KBDOC-00192:MeeToo 4.0 - overheats
+KBDOC-00187:MeeToo 4.0 - Change the phone ringtone and notification sound
+KBDOC-00188:MeeToo 4.0 - Transfer Contacts
+KBDOC-00007:Titanic 2100 - Change the phone ringtone and notification sound
+KBDOC-00138:Sorrento F20L - overheats
+KBDOC-00111:Ronin Novelty Note 4 - Back up files
+KBDOC-00139:Sorrento F32L - Change the phone ringtone and notification sound
+KBDOC-00081:Titanic 2200 - Back up files
+KBDOC-00114:Ronin Novelty Note 4 - overheat
+KBDOC-00020:MeeToo 3.1 - Transfer Contacts
+KBDOC-00059:MeeToo 1.0 - Battery Life
+KBDOC-00197:MeeToo 2.0 - Battery Life
+KBDOC-00291:Ronin S2 - Back up files
+KBDOC-00238:iFruit 4A - reboots
+KBDOC-00066:Sorrento F21L - overheating
+KBDOC-00177:Titanic DeckChairs - Back up files
+KBDOC-00086:Ronin Novelty Note 1 - Transfer Contacts
+KBDOC-00075:Sorrento F23L - Back up files
+KBDOC-00022:MeeToo 3.1 - reboots
+KBDOC-00183:MeeToo 4.1 - Back up files
+KBDOC-00127:Sorrento F24L - Change the phone ringtone and notification sound
+KBDOC-00174:Sorrento F41L - overheating
+KBDOC-00237:iFruit 4A - Back up files
+KBDOC-00251:Sorrento F40L - Battery Life
+KBDOC-00120:iFruit 3A - overheating
+KBDOC-00147:Sorrento F22L - Back up files
+KBDOC-00110:Ronin Novelty Note 4 - Transfer Contacts
+KBDOC-00121:Titanic 2300 - Change the phone ringtone and notification sound
+KBDOC-00041:iFruit 2 - Battery Life
+KBDOC-00244:Sorrento F31L - reboots
+KBDOC-00028:iFruit 1 - rebooting
+KBDOC-00294:Ronin S2 - overheating
+KBDOC-00018:MeeToo 3.0 - overheat
+KBDOC-00190:MeeToo 4.0 - reboots
+KBDOC-00173:Sorrento F41L - Battery Life
+KBDOC-00241:Sorrento F31L - Change the phone ringtone and notification sound
+KBDOC-00246:Sorrento F31L - overheating
+KBDOC-00143:Sorrento F32L - Battery Life
+KBDOC-00107:Ronin Novelty Note 2 - Battery Life
+KBDOC-00179:Titanic DeckChairs - Battery Life
+KBDOC-00297:iFruit 5A - Back up files
+KBDOC-00129:Sorrento F24L - Back up files
+KBDOC-00101:Ronin Novelty Note 3 - Battery Life
+KBDOC-00043:iFruit 5 - Change the phone ringtone and notification sound
+KBDOC-00224:Titanic 1100 - Transfer Contacts
+KBDOC-00113:Ronin Novelty Note 4 - Battery Life
+KBDOC-00265:Titanic 2400 - Change the phone ringtone and notification sound
+KBDOC-00281:Ronin S1 - Battery Life
+KBDOC-00044:iFruit 5 - Transfer Contacts
+KBDOC-00060:MeeToo 1.0 - overheating
+KBDOC-00218:Titanic 3000 - Transfer Contacts
+KBDOC-00267:Titanic 2400 - Back up files
+KBDOC-00214:MeeToo 5.1 - reboot
+KBDOC-00071:iFruit 4 - Battery Life

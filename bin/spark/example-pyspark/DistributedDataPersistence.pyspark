@@ -1,0 +1,21 @@
+# $ hdfs dfs -put $DEVSH/examples/example-data/people.json
+# $ hdfs dfs -put $DEVSH/examples/example-data/pcodes.json
+
+over20DF = spark.read.json("people.json").where("age > 20")
+pcodesDF = spark.read.json("pcodes.json")
+joinedDF = over20DF.join(pcodesDF, "pcode").persist()
+joinedDF.where("pcode = 94020").show()
+joinedDF.where("pcode = 87501").show()
+
+// create a people table to demo
+spark.read.json("people.json").write.saveAsTable("people")
+spark.sql("CACHE TABLE people")
+spark.sql("CACHE TABLE over_20 AS SELECT * FROM people WHERE age > 20")
+spark.sql("CACHE TABLE over_20 AS SELECT * FROM json.`people.json` WHERE age > 20")
+
+spark.read.json("people.json").where("age > 20").createOrReplaceTempView("over_20")
+spark.catalog.cacheTable("over_20")
+
+from pyspark import StorageLevel
+joinedDF.unpersist()
+joinedDF.persist(StorageLevel.DISK_ONLY)

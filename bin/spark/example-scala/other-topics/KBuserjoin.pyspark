@@ -1,0 +1,35 @@
+# Set logging level to WARN to avoid distracting INFO messages in demos
+sc.setLogLevel("WARN")
+
+# Example: Join web server logs with a list of knowledge base articles to create
+# a list of users and the articles they viewed
+
+import re
+
+# parse a line from a web log file to find the ID of the knowledge base article requested
+def getRequestDoc(s):
+    return re.search(r'KBDOC-[0-9]*',s).group()
+
+# read in file of knowledge base articles 
+# line format is docid:title
+kblistfile = "file:/home/training/training_materials/devsh/examples/example-data/kblist.txt"
+kblist =  sc.textFile(kblistfile) \
+   .map(lambda line: line.split(':')) \
+   .map(lambda tokens: (tokens[0],tokens[1]))
+
+# create a list of all KB articles requested with userid
+logs = "file:/home/training/training_materials/data/weblogs/*"      
+kbreqs = sc.textFile(logs) \
+    .filter(lambda line: 'KBDOC' in line) \
+    .map(lambda line: (getRequestDoc(line),line.split(' ')[2])) \
+    .distinct()
+
+# Join kb articles with kb article requests, key by user id and group by key
+titlereqs = kbreqs.join(kblist) \
+    .map(lambda (docid,(userid,title)): (userid,title)) \
+    .groupByKey()
+
+# Display the first 10 user IDs and their requests knowledge base articles
+for (userid,titles) in titlereqs.take(10):
+    print "userid: ", userid
+    for title in titles: print '\t',title

@@ -1,0 +1,65 @@
+// Upload to HDFS
+// $ hdfs dfs -put $DEVSH/examples/example-data/purplecow.txt
+// $ hdfs dfs -put $DEVSH/examples/example-data/names.json
+// $ hdfs dfs -put $DEVSH/examples/example-data/latlon.tsv
+
+// Start Spark shell
+// $ spark2-shell
+
+val strings = Seq("a string","another string")
+val stringDS = spark.createDataset(strings)
+stringDS.show
+
+// Datasets and Case Classes
+
+case class Name(firstName: String, lastName: String)
+val names = Seq(Name("Fred","Flintstone"),
+                Name("Barney","Rubble"))
+names.foreach(name => println(name.firstName))
+
+import spark.implicits._ // required if not running in shell
+val namesDS = spark.createDataset(names)
+namesDS.show
+
+// Type Safety
+
+ val i:Int = namesDS.first.lastName // Name(Fred,Flintsone)
+// Error: Compilation: error: type mismatch
+
+val row = namesDF.first // Row(Fred,Flintstone)
+val i:Int = row.getInt(row.fieldIndex("lastName"))
+// Error: Run time: java.lang.ClassCastException
+
+// DataFrame to Dataset
+
+val namesDF = spark.read.json("names.json")
+namesDF.show
+
+val namesDS = namesDF.as[Name]
+namesDS.show
+
+
+// RDDs to Datasets
+
+case class PcodeLatLon(pcode: String, latlon: Tuple2[Double,Double])
+                       
+val pLatLonRDD = sc.textFile("latlon.tsv").
+  map(line => line.split('\t')).
+  map(fields => (PcodeLatLon(fields(0), (fields(1).toFloat,fields(2).toFloat))))
+  
+val pLatLonDS = spark.createDataset(pLatLonRDD)
+pLatLonDS.printSchema
+println(pLatLonDS.first)
+
+// Typed and Untyped Transformations
+case class Person(pcode:String, lastName:String, firstName:String, age:Int)
+val people = Seq(Person("02134","Hopper","Grace",48),Person("02134","Hopper","Grace",48),
+Person("94020","Turing","Alan",32),
+Person("87501","Babbage","Charles",49))
+val peopleDS = spark.createDataset(people)
+
+val sortedDS = peopleDS.sort("age")
+val firstLastDF = peopleDS.select("firstName","lastName")
+
+val combineDF = peopleDS.sort("lastName").where("age > 40").select("firstName","lastName")
+combineDF.show

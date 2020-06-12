@@ -1,0 +1,59 @@
+// Upload  to HDFS
+// $ hdfs dfs -put $DEVDATA/weblogs/
+// $ hdfs dfs -put $DEVSH/examples/example-data/userlist.tsv
+// $ hdfs dfs -put $DEVSH/examples/example-data/orderskus.txt
+// $ hdfs dfs -put $DEVSH/examples/example-data/catsat.txt
+// $ hdfs dfs -put $DEVSH/examples/example-data/latlon.tsv
+
+// Start Scala shell 
+// $ spark2-shell
+
+// read a file with format userid[tab]firstname lastname
+val usersRDD = sc.textFile("userlist.tsv").map(line => line.split('\t')) .map(fields => (fields(0),fields(1)))
+usersRDD.collect
+
+// key weblogs by user ID
+sc.textFile("weblogs/").keyBy(line => line.split(' ')(2)).take(2)
+
+// order file format: orderid:skuid,skuid,skuid...
+// map to RDD of skuids keyed by orderid
+val orderfile = "orderskus.txt"
+val ordersRDD = sc.textFile("orderskus.txt").map(line => line.split(' ')).map(fields => (fields(0),fields(1))).flatMapValues(skus => skus.split(':'))
+ordersRDD.take(5).foreach(println)
+
+// Read zip code, latitude, longitude from a file, map to (zip,(lat,lon))
+val zipcoordsRDD = sc.textFile("latlon.tsv").map(line => line.split('\t')).map(fields => (fields(0),(fields(1).toFloat,fields(2).toFloat)))
+for ((zip,coords) <- zipcoordsRDD.take(5)) println( "Postcode: " + zip + " at " + coords)
+
+// count words in a file
+var wordfile = "catsat.txt"
+var countsRDD = sc.textFile(wordfile).
+    flatMap(_.split(' ')).
+    map((_,1)).
+    reduceByKey(_+_)
+
+countsRDD.take(10).foreach(println)
+
+// Same thing, shortcut syntax
+var countsRDD = sc.textFile(wordfile).
+    flatMap(line => line.split(' ')).
+    map(word => (word,1)).
+    reduceByKey((v1,v2) => v1+v2)
+
+countsRDD.take(10).foreach(println)
+
+for (pair <- ordersRDD.groupByKey.collect) {
+   println("------" + pair._1)
+   pair._2.foreach(println)
+}
+
+ordersRDD.sortByKey(ascending=false).collect.foreach(println)
+
+// Joining by key example
+val movieGross = List(("Casablanca","$3.7M"),("Star Wars","$775M"),("Annie Hall","$38M"),("Argo","$232M"))
+val movieGrossRDD = sc.parallelize(movieGross)
+val movieYear = List(("Casablanca",1942),("Star Wars",1977),("Annie Hall",1977),("Argo",2012))
+val movieYearRDD = sc.parallelize(movieYear)
+val joinedRDD = movieGrossRDD.join(movieYearRDD)
+joinedRDD.collect.foreach(println)
+

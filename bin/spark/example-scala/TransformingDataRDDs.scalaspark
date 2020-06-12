@@ -1,0 +1,55 @@
+// Upload to HDFS
+// $ hdfs dfs -put $DEVSH/examples/example-data/purplecow.txt
+// $ hdfs dfs -put $DEVSH/examples/example-data/people.txt
+
+// Passing a named function
+def toUpper(s: String): 
+  String = { s.toUpperCase } 
+
+val myRDD = sc.textFile("purplecow.txt")
+
+val myUpperRDD = myRDD.map(toUpper)
+
+myUpperRDD.take(2).foreach(println)
+
+
+// Passing an anonymous function
+val myUpperRDD = myRDD.map(line => line.toUpperCase)
+val myUpperRDD = myRDD.map(_.toUpperCase)
+
+// map and filter
+val myFilteredRDD = myRDD.map(line => line.toUpperCase).filter(line => line.startsWith("I"))
+myFilteredRDD.count
+
+// using toDebugString
+myFilteredRDD.toDebugString
+
+// pipelining
+val myFilteredRDD = sc.textFile("purplecow.txt").map(line => line.toUpperCase).filter(line => line.startsWith("I"))
+myFilteredRDD.take(2)
+
+// create a DF from an RDD
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.Row
+
+val mySchema = StructType(Array(
+  StructField("pcode", StringType),
+  StructField("lastName", StringType),
+  StructField("firstName", StringType),
+  StructField("age", IntegerType, true)
+  ))
+
+val rowRDD = sc.textFile("people.txt"). 
+  map(line => line.split(",")).
+  map(values => 
+      Row(values(0),values(1),values(2),values(3).toInt))
+
+val myDF = spark.createDataFrame(rowRDD,mySchema)
+
+myDF.show(2)
+
+// Create an RDD from a DF
+val myRDD2 = myDF.rdd
+myRDD2.take(2).foreach(println)
+
+

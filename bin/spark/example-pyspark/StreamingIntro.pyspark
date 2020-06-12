@@ -1,0 +1,33 @@
+# Create streaming DataFrame reading from a socket
+
+# Run with 
+# $ spark-shell --master local[2]
+
+# Test with
+# $ python $DEVSH/scripts/streamtest-network.py localhost 1234 10 $DEVDATA/devicestatus_stream/*
+
+from pyspark.sql import functions as f
+
+hostname = "localhost"
+port = 1234
+lines = spark.readStream.format("socket").option("host", hostname).option("port", port)
+
+linesDF = lines.load()
+
+linesDF.printSchema()
+
+statusDF = linesDF. \
+  withColumn("model", f.split(linesDF.value, ",") [0]). \
+  withColumn("dev_id", f.split(linesDF.value, ",") [1]). \
+  withColumn("dev_temp", f.split(linesDF.value, ",") [2].cast("integer")). \
+  withColumn("signal", f.split(linesDF.value, ",") [3].cast("integer")). \
+  withColumn("wifi_status", f.split(linesDF.value, ",") [4]). \
+  withColumn("bluetooth_status", f.split(linesDF.value, ",") [5]). \
+  withColumn("battery", f.split(linesDF.value, ",") [6].cast("int")). \
+  withColumn("lat", f.split(linesDF.value, ",") [7].cast("float")). \
+  withColumn("lon", f.split(linesDF.value, ",") [8].cast("float"))
+
+statusFilterDF = statusDF.select("dev_id","dev_temp","signal").where("model='Sorrento F41L'")
+statusQuery = statusFilterDF.writeStream.outputMode("append").option("truncate","false").format("console").trigger(processingTime="2 seconds").start()
+
+statusQuery.stop()

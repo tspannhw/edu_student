@@ -1,0 +1,15 @@
+# Set logging level to WARN to avoid distracting INFO messages in demos
+sc.setLogLevel("WARN")
+
+# AVRO input
+
+# For speed, just read a single datafile instead of all of them
+filename="file:/home/training/training_materials/data/static_data/accounts_avro/part-m-00000.avro"
+  
+accounts = sc.newAPIHadoopFile(filename,\
+       "org.apache.avro.mapreduce.AvroKeyInputFormat",\
+       "org.apache.avro.mapred.AvroKey",
+       "org.apache.hadoop.io.NullWritable")\
+    .map(lambda (k,v): k)
+
+accounts.take(5)

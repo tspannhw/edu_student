@@ -1,0 +1,22 @@
+// Create example table 
+// $ hdfs dfs -put $DEVSH/examples/example-data/people.parquet /loudacre
+// $ impala-shell -f $DEVSH/examples/example-data/create_people_table.sql 
+
+val myDF = spark.sql("SELECT * FROM people WHERE pcode = 94020")
+myDF.printSchema()
+myDF.show()
+
+
+spark.read.option("header","true").csv("pcodes.csv").createOrReplaceTempView("pcodes")                                                      
+val maAgeDF = spark.sql("SELECT MEAN(age) AS mean_age,STDDEV(age) AS sdev_age FROM people WHERE pcode IN (SELECT pcode FROM pcodes WHERE state='MA')")
+maAgeDF.printSchema()
+maAgeDF.show()
+
+val myDF2 = spark.read.table("people").where("pcode=94020")
+
+spark.sql("SELECT * FROM parquet.`/loudacre/people.parquet` WHERE firstName LIKE 'A%' ").show()
+
+spark.read.load("/loudacre/people.parquet").select("firstName", "lastName").createTempView("user_names")
+spark.sql("SELECT * FROM user_names WHERE firstName LIKE 'A%'").show
+
+spark.catalog.listTables.show

@@ -1,0 +1,52 @@
+# Upload to HDFS
+# $ hdfs dfs -put $DEVSH/examples/example-data/purplecow.txt
+# $ hdfs dfs -put $DEVSH/examples/example-data/people.txt
+
+# Passing a named function
+def toUpper(s):
+     return s.upper()
+
+myRDD = sc. \
+  textFile("purplecow.txt")
+
+myUpperRDD = myRDD.map(toUpper)
+
+for line in myUpperRDD.take(2):
+  print line
+
+# Passing an anonymous function
+myUpperRDD = myRDD.map(lambda line: line.upper())
+
+# map and filter
+myFilteredRDD = myRDD.map(lambda line: line.upper()).filter(lambda line: line.startswith('I'))
+myFilteredRDD.count()
+
+# pipelining
+myFilteredRDD = sc.textFile("purplecow.txt").map(lambda line: line.upper()).filter(lambda line: line.startswith('I'))
+myFilteredRDD.take(2)
+
+# using toDebugString
+myFilteredRDD.toDebugString()
+print myFilteredRDD.toDebugString()
+
+# create a DF from an RDD
+from pyspark.sql.types import *
+
+mySchema = \
+  StructType([
+              StructField("pcode",StringType()),
+              StructField("lastName",StringType()),
+              StructField("firstName",StringType()),
+              StructField("age",IntegerType())])
+
+myRDD = sc.textFile("people.txt").map(lambda line: line.split(",")). \
+  map(lambda values: [values[0],values[1],values[2],int(values[3])])
+                   
+myDF = spark.createDataFrame(myRDD,mySchema)
+
+myDF.show(2)
+
+# Create an RDD from a DF
+myRDD2 = myDF.rdd
+for row in myRDD2.take(2): print row
+

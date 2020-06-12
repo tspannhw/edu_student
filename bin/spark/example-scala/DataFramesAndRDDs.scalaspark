@@ -1,0 +1,20 @@
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.Row
+
+val mySchema = StructType(Array(
+  StructField("pcode", StringType, true),
+  StructField("lastName", StringType, true),
+  StructField("firstName", StringType, true),
+  StructField("age", IntegerType, true)
+  ))
+
+val rowRDD = sc.textFile("people.txt"). 
+                map(line => line.split(",")).
+                map(values => Row(values(0),values(1),values(2),values(3).toInt))
+
+val myDF = spark.createDataFrame(rowRDD,mySchema)
+myDF.show(2)
+
+val myRDD2 = myDF.rdd
+myRDD2.take(2).foreach(println)
+

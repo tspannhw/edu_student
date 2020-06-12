@@ -1,0 +1,22 @@
+// AVRO input
+import org.apache.avro.mapred.AvroKey
+import org.apache.avro.mapreduce.AvroKeyInputFormat
+import org.apache.hadoop.io.NullWritable
+import org.apache.avro.generic.GenericRecord
+
+// For speed, just read a single datafile instead of all of them
+val filename="file:/home/training/training_materials/data/static_data/accounts_avro/part-m-00000.avro"
+
+//These two are equivalent
+val accounts1 = sc.newAPIHadoopFile[AvroKey[GenericRecord], NullWritable, AvroKeyInputFormat[GenericRecord]](filename).
+   map(pair => (pair._1.toString))
+
+val accounts2 = sc.newAPIHadoopFile(filename,
+      kClass=classOf[AvroKey[GenericRecord]], 
+      vClass=classOf[NullWritable], 
+      fClass=classOf[AvroKeyInputFormat [GenericRecord]]).
+   map(pair => (pair._1.toString))
+  
+accounts1.take(5)
+
+accounts2.take(5)

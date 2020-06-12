@@ -1,0 +1,25 @@
+// Run with 
+// $ spark-shell --master local[2]
+
+// Test with 
+// $ kafka-topics --create --zookeeper localhost:2181 --partitions 2 --replication-factor 1 --topic status
+// $ $DEVSH/scripts/streamtest-kafka.sh status localhost:9092 10 $DEVDATA/devicestatus_stream
+
+
+val kafkaDF = spark.readStream.format("kafka").option("kafka.bootstrap.servers", "localhost:9092").option("subscribe", "status").load
+
+val modelsDF = kafkaDF.select(split($"value", ",")(0).alias("model"))
+val roninCountsDF = modelsDF.where($"model".startsWith("Ronin S")).groupBy("model").count()
+val roninCountsQuery = roninCountsDF.writeStream.outputMode("complete").format("console").start()
+roninCountsQuery.stop
+
+
+val modelsTimeDF = kafkaDF.select($"timestamp", split($"value", ",")(0).alias("model"))
+val windowRoninCountsDF = modelsTimeDF.where($"model".startsWith("Ronin S")).groupBy(window($"timestamp","10 seconds", "5 seconds"),$"model").count()
+val windowRoninCountsQuery = windowRoninCountsDF.writeStream.outputMode("complete").format("console").option("truncate","false").start()
+windowRoninCountsQuery.stop
+
+
+val watermarkRoninCountsDF = modelsTimeDF.where($"model".startsWith("Ronin S")).withWatermark("timestamp", "1 minute").groupBy(window($"timestamp","10 seconds","5 seconds"),$"model").count()
+val watermarkRoninCountsQuery = watermarkRoninCountsDF.writeStream.outputMode("update").format("console").option("truncate","false").start()
+watermarkRoninCountsQuery.stop

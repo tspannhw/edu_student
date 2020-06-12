@@ -1,0 +1,95 @@
+// Find K Means of Loudacre device status locations
+// Input data: file(s) with device status data (delimited by ',')
+// including latitude (4th field) and longitude (5th field) of device locations
+// (lat,lon of 0,0 indicates unknown location)
+
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions.udf
+import scala.math.pow
+
+spark.sparkContext.setLogLevel("ERROR")
+
+// The files with device status data
+val filename = "/loudacre/devicestatus_etl"
+
+// K is the number of means (center points of clusters) to find */
+val K = 5
+
+// The threshold "distance" between iterations
+val convergeDist = 0.01D
+
+// The current converge distance difference between kpoints centeroid iterations
+var tempDist = Double.MaxValue;
+
+// Setup the CSV schema
+val columns = StructType(StructField("timestamp", StringType) :: StructField("manufacturer", StringType) :: StructField("device_id", StringType) :: StructField("latitude", DoubleType) :: StructField("longitude", DoubleType) :: Nil)
+
+// Read the points latitude and logitude ignoring the other coloums
+val devDF = spark.read.schema(columns).csv(filename).select("latitude", "longitude")
+
+// Filter out the bad points at 0 0
+// cache the points for future iterations
+val pointsDF = devDF.where("longitude != 0 OR latitude != 0").persist()
+
+// Get an initial local array of K random points 
+// Note it is a var because it will be updated at the end of each iteration 
+var kPoints = pointsDF.sample(false, 0.1).take(K)
+println("Starting random " + K + "points:")
+kPoints.foreach(println)
+
+// UDF Function to calculate nearest kpoint
+// Given a point as latitude and logitude,
+// compare it to all the kpoints using distance squared.
+// Return a nearest kpoint found as klatitude and klongitude
+
+def closestKPoint(latitude: Double, longitude: Double) : Array[Double] =  {
+      val dist = kPoints.map(p => pow(p.getDouble(0) - latitude,2) + pow(p.getDouble(1) - longitude,2 ))
+      val minDist = dist.min
+      val pos = dist.indexOf(minDist)
+      val klat = kPoints(pos).getDouble(0)
+      val klong = kPoints(pos).getDouble(1)
+      Array(klat,klong)
+}
+
+// Register closestMinPoint as UDF
+val closestKPointUDF = udf(closestKPoint _)
+
+// loop until the total distance between one iteration's points and the next is less than the convergence distance specified
+while(tempDist >= convergeDist) {
+
+      // Find the closest k point to each point by calling the UDF closestKPointUDF.
+      // Creates UDF column closest_k_point containing a klatitude and klongitude.
+      val distanceDF = pointsDF.withColumn("closest_k_point", closestKPointUDF($"latitude", $"longitude"))
+
+      // Extract the kpoints udf result as three new columns. Now we have the point with its nearest kpoint centeroid.
+      val closestKPointsDF = distanceDF.select($"closest_k_point"(0).alias("k_latitude"),
+                                             $"closest_k_point"(1).alias("k_longitude"),
+                                             $"latitude",
+                                             $"longitude")
+
+ 
+      // For each point find a new point position by calculating the average of each closest point.
+      // Moves the centeroid to the middle of its new cluster.
+      // A wide spark operation (slow) because of the group by function utilising the whole cluster to do a shuffle to all executors.
+
+      val newKPointsDF = closestKPointsDF.groupBy("k_latitude","k_longitude").agg((avg($"latitude")).alias("new_k_latitude"),(avg($"longitude")).alias("new_k_longitude"))
+
+      // Calculate the new tempory distance to compare the distance moved from the previous iteration
+
+      val latDist = ($"k_latitude"- $"new_k_latitude") * ($"k_latitude"- $"new_k_latitude")
+      val longDist = ($"k_longitude"- $"new_k_longitude") * ($"k_longitude"- $"new_k_longitude")
+      val d = newKPointsDF.select(latDist + longDist).groupBy().sum().first
+
+      // Remember the distance between kpoints iterations for comparing against the converge threshold to finish loop
+      tempDist = d.getDouble(0)
+        println("tempDist=" + tempDist + " converge distance=" + convergeDist)
+
+      // Swap the new centeroid position to the current position
+      val updatedkPointsDF = newKPointsDF.select($"new_k_latitude".alias("k_latitude"), $"new_k_longitude".alias("k_longitude"))
+  
+      // Collect new kPoints into local array
+      kPoints = updatedkPointsDF.collect()
+}
+
+println("Final K points:")
+kPoints.foreach(println)

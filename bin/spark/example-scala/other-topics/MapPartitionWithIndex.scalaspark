@@ -1,0 +1,13 @@
+// given an index and an iterator, return a new iterator 
+// with each item in the original iterator paired with the index
+def myfunc(index: Int, iter: Iterator[String]) : Iterator[String] = {
+  iter.toList.map(x => index + "," + x).iterator
+}
+
+// Create a small three partition RDD
+val myrdd = sc.parallelize(List("A","B","C","D","E","F","G","H","I","J"), 3)
+
+// Demonstrate results 
+myrdd.mapPartitionsWithIndex(myfunc).collect().foreach(println)
+
+

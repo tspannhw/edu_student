@@ -1,0 +1,30 @@
+// Upload users.json to HDFS
+// $ hdfs dfs -put $DEVSH/examples/example-data/users.json
+
+// Start Scala shell: 
+// $ spark2-shell
+
+// Set log level to INFO
+spark.sparkContext.setLogLevel("INFO")
+
+// Reset it warning for less output
+spark.sparkContext.setLogLevel("WARN")
+
+// Create a DataFrame
+val usersDF = spark.read.json("users.json")
+usersDF.printSchema()
+usersDF.show
+
+// take 3
+val users = usersDF.take(3)
+
+// select
+val nameAgeDF = usersDF.select("name","age")
+nameAgeDF.show()
+
+// where
+val over20DF = usersDF.where("age > 20")
+over20DF.show()
+
+// Chained transformation
+usersDF.select("name","age").where("age > 20").show

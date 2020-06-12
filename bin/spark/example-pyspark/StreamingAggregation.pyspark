@@ -1,0 +1,27 @@
+# Run with 
+# $ pyspark --master local[2]
+
+# Test with 
+# $ kafka-topics --create --zookeeper localhost:2181 --partitions 2 --replication-factor 1 --topic status
+# $ $DEVSH/scripts/streamtest-kafka.sh status localhost:9092 10 $DEVDATA/devicestatus_stream
+
+
+kafkaDF = spark.readStream.format("kafka").option("kafka.bootstrap.servers", "localhost:9092").option("subscribe", "status").load()
+
+from pyspark.sql.functions import *
+
+modelsDF = kafkaDF.select(split(kafkaDF.value, ",")[0].alias("model"))
+roninCountsDF = modelsDF.where(modelsDF.model.startswith("Ronin S")).groupBy("model").count()
+roninCountsQuery = roninCountsDF.writeStream.outputMode("complete").format("console").start()
+roninCountsQuery.stop()
+
+
+modelsTimeDF = kafkaDF.select("timestamp", split(kafkaDF.value, ",")[0].alias("model"))
+windowRoninCountsDF = modelsTimeDF.where(modelsTimeDF.model.startswith("Ronin S")).groupBy(window("timestamp","10 seconds", "5 seconds"),"model").count()
+windowRoninCountsQuery = windowRoninCountsDF.writeStream.outputMode("complete").format("console").option("truncate","false").start()
+windowRoninCountsQuery.stop()
+
+
+watermarkRoninCountsDF = modelsTimeDF.where(modelsTimeDF.model.startswith("Ronin S")).withWatermark("timestamp", "1 minute").groupBy(window("timestamp","10 seconds","5 seconds"),"model").count()
+watermarkRoninCountsQuery = watermarkRoninCountsDF.writeStream.outputMode("update").format("console").option("truncate","false").start()
+watermarkRoninCountsQuery.stop()

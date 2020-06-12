@@ -1,0 +1,16 @@
+# Set logging level to WARN to avoid distracting INFO messages in demos
+sc.setLogLevel("WARN")
+
+# given an index and an iterator, return a new iterator 
+# with each item in the original iterator paired with the index
+def myfunc(index, iter): 
+   for item in iter: yield str(index) + "," + str(item)
+
+# Create a small three partition RDD
+myrdd = sc.parallelize(("A","B","C","D","E","F","G","H","I","J"), 3)
+
+# Demonstrate results 
+for x in myrdd.mapPartitionsWithIndex(myfunc).collect():
+    print x
+
+

@@ -1,0 +1,12 @@
+# Set logging level to WARN to avoid distracting INFO messages in demos
+sc.setLogLevel("WARN")
+
+accounts=sc.textFile("/loudacre/accounts/*")
+
+# use foreachPartition to print out the first record of each partition
+def printFirstLine(iter):
+    print iter.next() 
+    
+accounts.foreachPartition(lambda i: printFirstLine(i))
+
+

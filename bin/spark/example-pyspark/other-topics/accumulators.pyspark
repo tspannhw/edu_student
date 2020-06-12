@@ -1,0 +1,35 @@
+# Use accumulators to calculate the average length of all words in a data set
+
+myfile = "frostroad.txt"
+
+def addTotals(word,words,letters):    
+    words +=1
+    letters += len(word)
+
+totalWords = sc.accumulator(0)
+totalLetters = sc.accumulator(0.0)
+
+words = sc.textFile(myfile).flatMap(lambda line: line.split(' '))
+words.foreach(lambda word: addTotals(word,totalWords,totalLetters))
+  
+print "Average word length: ", totalLetters.value/totalWords.value
+
+# Example: Use an accumulator to count the total number of letters in a file while counting words
+
+filename="purplecow.txt"
+
+# Create an RDD with the words in the file
+words = sc.textFile(filename) \
+  .flatMap(lambda s: s.split())  \
+  .cache()
+  
+# Count the letters in all the words
+lettercount = sc.accumulator(0)
+words.foreach(lambda w: lettercount.add(len(w)))
+print "Total letters: ",lettercount.value 
+
+# Create an RDD with the word counts
+counts = words.map(lambda w: (w,1)) \
+  .reduceByKey(lambda x,y: x+y)
+  
+  

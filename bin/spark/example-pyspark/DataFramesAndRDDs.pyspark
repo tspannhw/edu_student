@@ -1,0 +1,24 @@
+from pyspark.sql.types import *
+
+# define a schema describing the structure of the data
+mySchema = \
+  StructType([
+              StructField("pcode",StringType()),
+              StructField("lastName",StringType()),
+              StructField("firstName",StringType()),
+              StructField("age",IntegerType())])
+
+# load data file of comma-separated text, 
+# split by command into an array
+myRDD = sc.textFile("people.txt"). \
+                map(lambda line: line.split(",")). \
+                map(lambda values: [values[0],values[1],values[2],int(values[3])])
+                
+                
+# Create a new DataFrame using the RDD and schema
+myDF = spark.createDataFrame(myRDD,mySchema)
+myDF.show(2)
+
+# Show the data in the DataFrame's underlying RDD
+myRDD2 = myDF.rdd
+for row in myRDD2.take(2): print row

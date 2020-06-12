@@ -1,0 +1,50 @@
+# Upload to HDFS
+# $ hdfs dfs -put $DEVDATA/weblogs/
+# $ hdfs dfs -put $DEVSH/examples/example-data/userlist.tsv
+# $ hdfs dfs -put $DEVSH/examples/example-data/orderskus.txt
+# $ hdfs dfs -put $DEVSH/examples/example-data/catsat.txt
+# $ hdfs dfs -put $DEVSH/examples/example-data/latlon.tsv
+
+# Start Python shell
+# $ pyspark2
+
+# read a file with format userid[tab]firstname lastname
+usersRDD = sc.textFile("userlist.tsv").map(lambda line: line.split('\t')).map(lambda fields: (fields[0],fields[1]))
+usersRDD.collect()
+
+# key weblogs by user ID
+sc.textFile("weblogs/").keyBy(lambda line: line.split(' ')[2]).take(2)
+
+# Read zip code, latitude, longitude from a file, map to (zip,(lat,lon))
+zipcoordsRDD = sc.textFile("latlon.tsv"). map(lambda line: line.split('\t')).map(lambda fields: (fields[0],(float(fields[1]),float(fields[2]))))
+for (zip,coordsRDD) in zipcoords.take(5): print "Postcode: ", zip, " at ", coords
+
+
+# order file format: orderid:skuid,skuid,skuid...
+# map to RDD of skuids keyed by orderid
+ordersRDD = sc.textFile("orderskus.txt") .map(lambda s: s.split(' ')) .map(lambda fields: (fields[0],fields[1])) .flatMapValues(lambda skus:skus.split(':'))
+
+for pair in ordersRDD.take(5): print pair
+
+# count words in a file
+wordfile = "catsat.txt"
+countsRDD = sc.textFile(wordfile) .flatMap(lambda s: s.split(' ')) .map(lambda w: (w,1)) .reduceByKey(lambda v1,v2: v1+v2)
+for pair in countsRDD.take(10): print pair
+
+# sortByKey
+for x in ordersRDD.sortByKey(ascending=False).collect(): print x
+
+# groupByKey
+for (key, valueList) in ordersRDD.groupByKey().collect(): 
+  print '---',key
+  for value in valueList:
+    print value
+
+# Joining by key example
+movieGross = (("Casablanca","$3.7M"),("Star Wars","$775M"),("Annie Hall","$38M"),("Argo","$232M"))
+movieGrossRDD = sc.parallelize(movieGross)
+movieYear = (("Casablanca",1942),("Star Wars",1977),("Annie Hall",1977),("Argo",2012))
+movieYearRDD = sc.parallelize(movieYear)
+joinedRDD = movieGrossRDD.join(movieYearRDD)
+for pair in joinedRDD.collect():
+    print pair
