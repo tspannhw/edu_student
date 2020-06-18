@@ -1,4 +1,4 @@
-{
+:
     "NIFI": {
         "nifi-ambari-ssl-config": {
             "nifi.node.ssl.isenabled": "true",

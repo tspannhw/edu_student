@@ -1,0 +1,12 @@
+If you get this message when trying to insert data into a PostgreSQL database:
+
+ERROR:  duplicate key violates unique constraint
+That likely means that the primary key sequence in the table you're working with has somehow become out of sync, likely because of a mass import process (or something along those lines). Call it a "bug by design", but it seems that you have to manually reset the a primary key index after restoring from a dump file. At any rate, to see if your values are out of sync, run these two commands:
+
+SELECT MAX(the_primary_key) FROM the_table;   
+SELECT nextval('the_primary_key_sequence');
+
+If the first value is higher than the second value, your sequence is out of sync. Back up your PG database (just in case), then run thisL
+
+SELECT setval('the_primary_key_sequence', (SELECT MAX(the_primary_key) FROM the_table)+1);
+That will set the sequence to the next available value that's higher than any existing primary key in the sequence.
