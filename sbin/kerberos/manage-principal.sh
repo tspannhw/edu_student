@@ -78,7 +78,7 @@ function distroKeytab() {
 		ssh ${HOST} -C "sudo mv /tmp/${USER}.keytab /etc/security/keytabs/${USER}.keytab" < /dev/null
 		ssh ${HOST} -C "sudo chown ${USER}:hadoop /etc/security/keytabs/${USER}.keytab" < /dev/null
 		ssh ${HOST} -C "sudo chmod 600 /etc/security/keytabs/${USER}.keytab" < /dev/null
-		rm /tmp/${USER}.${HOST}.keytab
+		sudo rm /tmp/${USER}.${HOST}.keytab
 	done
 }
 
