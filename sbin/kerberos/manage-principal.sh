@@ -25,16 +25,17 @@
 NUMARGS=$#
 DIR=${HOME}
 HOSTS=${DIR}/conf/listhosts.txt
-PRINC=$1
-REALM=$2
-KADMIN=$3
+OPTION=$1
+KADMIN=kadmin
+USER=$2
+REALM=$3
 PASSWORD=$4
 DATETIME=$(date +%Y%m%d%H%M)
-LOGFILE=${DIR}/log/create-princpal.log
+LOGFILE=${DIR}/log/manage-principal.log
 
 # FUNCTIONS
 function usage() {
-	echo "Usage: $(basename $0) [principal] [REALM] [kadmin] [kadmin-password]"
+	echo "Usage: $(basename $0) add|delete [user] [REALM] [kadmin-password]"
 	exit 1
 }
 
@@ -49,12 +50,12 @@ function callInclude() {
         fi
 }
 
-function createPrinc() {
+function addPrinc() {
 # Create a principal for each host in the cluster.
 
 	for HOST in $(cat $HOSTS); do
-		echo "Creating principal ${PRINC} for ${HOST}"
-		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "addprinc -randkey ${PRINC}/${HOST}@${REALM}"
+		echo "Creating principal ${USER} for ${HOST}"
+		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "addprinc -randkey ${USER}/${HOST}@${REALM}"
 	done
 }
 
@@ -62,8 +63,9 @@ function createKeytab() {
 # Create a keytab for each host in the cluster.
 
 	for HOST in $(cat $HOSTS); do
-		echo "Creating ${PRINC} keytab for ${HOST}"
-   		sudo kadmin.local -p ${KADMIN}/admin -w  -q "ktadd -norandkey -k /tmp/${PRINC}.${HOST}.keytab ${PRINC}/${HOST}@${REALM}"
+		echo "Creating ${USER} keytab for ${HOST}"
+   		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "xst -k /tmp/${USER}.${HOST}.keytab ${USER}/${HOST}@${REALM}"
+		sudo chmod 666 /tmp/${USER}.${HOST}.keytab
 	done
 }
 
@@ -71,11 +73,30 @@ function distroKeytab() {
 # Distribute the keytabs to every node.
 	
 	for HOST in $(cat $HOSTS); do
-		echo "Distributing ${PRINC} keytab to ${HOST}"
-   		scp /tmp/${PRINC}.${HOST}.keytab ${HOST}:${HOME}/${PRINC}.keytab
-		ssh ${HOST} -C "mv ${HOME}/${PRINC}.keytab /etc/security/keytabs/$PRINC.keytab" < /dev/null
-		ssh ${HOST} -C "chown ${PRINC}:hadoop /etc/security/keytabs/${PRINC}.keytab" < /dev/null
-		rm /tmp/${PRINC}.${HOST}.keytab
+		echo "Distributing ${USER} keytab to ${HOST}"
+   		scp /tmp/${USER}.${HOST}.keytab ${HOST}:/tmp/${USER}.keytab
+		ssh ${HOST} -C "sudo mv /tmp/${USER}.keytab /etc/security/keytabs/${USER}.keytab" < /dev/null
+		ssh ${HOST} -C "sudo chown ${USER}:hadoop /etc/security/keytabs/${USER}.keytab" < /dev/null
+		ssh ${HOST} -C "sudo chmod 600 /etc/security/keytabs/${USER}.keytab" < /dev/null
+		rm /tmp/${USER}.${HOST}.keytab
+	done
+}
+
+function deletePrinc() {
+# Create a principal for each host in the cluster.
+
+	for HOST in $(cat $HOSTS); do
+		echo "Deleting principal ${USER} from ${HOST}"
+		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "delprinc -force ${USER}/${HOST}@${REALM}"
+	done
+}
+
+function deleteKeytab() {
+# Distribute the keytabs to every node.
+	
+	for HOST in $(cat $HOSTS); do
+		echo "Deleting ${USER} keytab from ${HOST}"
+		ssh ${HOST} -C "sudo rm /etc/security/keytabs/${USER}.keytab" < /dev/null
 	done
 }
 
@@ -83,10 +104,36 @@ function checkKeytab() {
 # Test the Hadoop keytab for each HOST in the cluster.
 	
 	for HOST in $(cat $HOSTS); do
-		echo "Listing ${PRINC} keytab on ${HOST}"
-		ssh ${HOST} -C "kinit -ket /etc/security/keytabs/${PRINC}.keytab ${PRINC}/${HOST}@${REALM}" 
+		echo "Listing ${USER} keytab on ${HOST}"
+		ssh ${HOST} -C "sudo klist -ket /etc/security/keytabs/${USER}.keytab" 
 	done
 }
+
+function runOption() {
+# Case statement for options
+
+        case "${OPTION}" in
+                -h | --help)
+                        usage
+                        ;;
+                add)
+                        checkArg 4
+                        addPrinc
+			createKeytab
+			distroKeytab
+			checkKeytab
+                        ;;
+                delete)
+                        checkArg 4
+                        deletePrinc
+			deleteKeytab
+                        ;;
+                *)
+                        usage
+                        ;;
+        esac
+}
+
 
 #MAIN
 # Source functions
@@ -94,11 +141,7 @@ callInclude
 
 # Run checks
 checkSudo
-checkArg 3
 checkFile ${HOSTS}
 
-# Create principal
-createPrinc
-createKeytab
-distroKeytab
-checkKeytab
+# Run option
+runOption
