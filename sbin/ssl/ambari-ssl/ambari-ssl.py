@@ -104,7 +104,7 @@ def main():
     "RANGERURL" : replaceurl(ambari.get("admin-properties", "policymgr_external_url"), 6182),
     "TIMELINEURL" : ambari.get("yarn-site", "yarn.timeline-service.webapp.address").split(':')[0] + ':8190',
     "HISTORYURL" : replaceurl('http://' + ambari.get("mapred-site", "mapreduce.jobhistory.webapp.address"), 19889),
-    "KMSURL" : str(ambari.get("core-site", "hadoop.security.key.provider.path").replace(':9292', ':9393')).replace('//http@' , '//https@')
+    "KMSURL" : str(ambari.get("core-site", "hadoop.security.key.provider.path").replace(':9292', ':9293')).replace('//http@' , '//https@')
     }
     for service in installedservices:
         if service in definitions.keys():

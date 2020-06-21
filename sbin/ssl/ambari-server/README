@@ -52,5 +52,14 @@ MODIFY CLUSTER INIT FILE
 3. Validate
 	
 	% sudo /etc/init.d/hdp-cluster check
-	% /etc/init.d/hdp-cluster status
+	% sudo /etc/init.d/hdp-cluster status
 	% tail -f /var/log/ambari-server/ambari-docker.log
+
+4. Restart cluster. This will take about 10 minutes.
+	
+	% sudo /etc/init.d/hdp-cluster stop
+
+5. Verify the cluster has fully stopped, indicated by all services stopping. Ensure you are viewing Ambari via a HTTPS connection connecting to port 8443. Once the cluster has stopped, restart it.
+
+	% sudo /etc/init.d/hdp-cluster start
+

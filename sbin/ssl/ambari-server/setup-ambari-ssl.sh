@@ -54,7 +54,7 @@ function installExpect() {
 # Install the expect software package
 
 	echo "Install the expect software package" | tee -a ${LOGFILE}
-	wget http://mirror.centos.org/centos/7/os/x86_64/Packages/expect-5.45-14.el7_1.x86_64.rpm
+	sudo wget http://mirror.centos.org/centos/7/os/x86_64/Packages/expect-5.45-14.el7_1.x86_64.rpm
     	sudo rpm -q expect || sudo yum install -y expect >> ${LOGFILE} 2>&1
 }
 

@@ -34,13 +34,13 @@ GENERATE CA CERTS
 
 2. This task will copy over a domain signed certificate signing request (cer) in to the ca directory. It will also copy over a domain signing keys into the keys directory. The name of these files are:
 
-	cloudair.lan.cert
+	cloudair.lan.crt
 	cloudair.lan.key
 	cloudair.lan.der
 
 3. Copy in the cert files.
 
-	% sudo ./generate-hdp-ssl.sh GenerateCA configs
+	% sudo ./generate-hdp-ssl.sh GenerateCACert configs
 
 PREPARE TO GENERATE-HDP-SSL
 1. Go to the directory for ssl.
@@ -83,17 +83,12 @@ script expects to find the generate file in this directory.
 VALIDATE GENERATE-SSL
 1. Check various nodes the certs and keys. Check the following directories:
 
-	% sudo ls /etc/security/keystores
+	% ls /etc/security/keystores/
 		creds.jceks  ranger-plugin.jks	server.jks
-	% sudo ls /etc/security/truststores
-		truststore.jks
-	% sudo ls /etc/security/pki
-		server.crt server.key
-
-CLEANUP GENERATE-SSL
-1. Cleanup after generating the required files.
-
-	% run-remote-files.sh delete /tmp/hdp-ssl
+	% ls /etc/security/truststores/
+		ranger-truststore.jks truststore.jks
+	% ls /etc/security/pki/
+		server.crt server.key server.p12
 
 ROLLBACK GENERATE-SSL
 1. If you need to rollback on all hosts you must run the rollback script. This is important to do as the cacerts keystore has been updated with the generate script. This will set this file back to the original state.

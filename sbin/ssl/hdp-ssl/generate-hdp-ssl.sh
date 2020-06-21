@@ -434,7 +434,7 @@ function generateKnox() {
 		rm ${KNOXDIR}/gateway.jks
 	fi	
 
-	keytool -importkeystore -srcekeystore /etc/security/pki/server.p12 -srcstoretype pkcs12 \
+	keytool -importkeystore -srckeystore /etc/security/pki/server.p12 -srcstoretype pkcs12 \
 	-srcstorepass ${KEYSTOREPASS} \
 	-destkeystore ${KNOXDIR}/gateway.jks -deststoretype jks -deststorepass ${KEYSTOREPASS} \
 	-alias gateway-identity >> ${LOGFILE} 2>&1

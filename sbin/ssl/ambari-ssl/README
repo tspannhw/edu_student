@@ -5,7 +5,7 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: README.txt 
+# Title: README
 # Author: WKD
 # Date: 200530
 
@@ -22,6 +22,7 @@ INSTALL PYTHON PACKAGE
 RUN PYTHON AMBARI TO CONFIGURE SSL FOR HDP
 1. On the Ambari host change directory to the ambari-ssl
 
+	% sudo chmod 777 ~/sbin/ssl/ambari-ssl/
 	% cd ~/sbin/ssl/ambari-ssl
 
 2. Validate the config file 
@@ -30,18 +31,20 @@ RUN PYTHON AMBARI TO CONFIGURE SSL FOR HDP
 
 3. Run the python script to configure Ambari for SSL for either http or https.
 
-	% python ambari-ssl.py --protocol http --port 8080 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs
+HTTP:
+	% python ambari-ssl.py --protocol http --port 8080 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-ssl.log
 
-	% python ambari-ssl.py --protocol https --port 8443 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs
+HTTPS:
+	% python ambari-ssl.py --protocol https --port 8443 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-ssl.log
 
 4. Delete the toSet up files.
 
 	% rm doSet_*
 
 CUSTOM SSL DEFINITIONS
-1. In the json directory are all of the definition files. The definitions.json.master is the base install. You may have to modify it to map to your selection of hhosts be either removing or adding in services.
+1. In the json directory are all of the definition files. The definitions.json.master is the base install. You may have to modify it to map to your selection of hosts by either removing or adding in services.
 
-2. In the json directory there are custom definitions for additional services, these include Knox, NiFi and Storm. 
+2. In the json directory there are custom definitions for additional services, these include Knox, NiFi and Storm.
 
 3. In all cases you must copy the json of your choice over to the definitions.json file located in ambari-ssl.
 
