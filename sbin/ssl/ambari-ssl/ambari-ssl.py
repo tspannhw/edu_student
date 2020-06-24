@@ -95,10 +95,10 @@ def main():
     Config.read(options.configs)
     global changeprops
     changeprops = {
-    "KEYSTOREPASS" : Config.get("Configs", "KeystorePassword"),
     "KEYSTORELOC" : Config.get("Configs", "KeystoreLocation") + '/server.jks',
-    "TRUSTSTOREPASS" : Config.get("Configs", "TruststorePassword"),
+    "KEYSTOREPASS" : Config.get("Configs", "KeystorePassword"),
     "TRUSTSTORELOC" : Config.get("Configs", "TruststoreLocation")+ '/truststore.jks',
+    "TRUSTSTOREPASS" : Config.get("Configs", "TruststorePassword"),
     "RANGERKEYSTORE" : Config.get("Configs", "KeystoreLocation") + '/ranger-plugin.jks',
     "RANGERCOMMONNAME" : 'ranger.' + Config.get("Configs", "Domain"),
     "RANGERURL" : replaceurl(ambari.get("admin-properties", "policymgr_external_url"), 6182),

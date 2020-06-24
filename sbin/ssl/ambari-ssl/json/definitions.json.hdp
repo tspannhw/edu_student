@@ -11,19 +11,19 @@
         "ssl-client": {
             "ssl.client.keystore.location": "KEYSTORELOC",
             "ssl.client.keystore.password": "KEYSTOREPASS",
-            "ssl.client.keystore.type": "jks",
+            "ssl.client.keystore.type": "JKS",
             "ssl.client.truststore.location": "TRUSTSTORELOC",
             "ssl.client.truststore.password": "TRUSTSTOREPASS",
-            "ssl.client.truststore.type": "jks"
+            "ssl.client.truststore.type": "JKS"
         },
         "ssl-server": {
             "ssl.server.keystore.keypassword": "KEYSTOREPASS",
             "ssl.server.keystore.location": "KEYSTORELOC",
             "ssl.server.keystore.password": "KEYSTOREPASS",
-            "ssl.server.keystore.type": "jks",
+            "ssl.server.keystore.type": "JKS",
             "ssl.server.truststore.location": "TRUSTSTORELOC",
             "ssl.server.truststore.password": "TRUSTSTOREPASS",
-            "ssl.server.truststore.type": "jks"
+            "ssl.server.truststore.type": "JKS"
         },
         "hdfs-site": {
             "dfs.https.enable": "true",
@@ -97,26 +97,26 @@
             "infra_solr_ssl_enabled": "true",
             "infra_solr_keystore_location": "KEYSTORELOC",
             "infra_solr_keystre_password": "KEYSTOREPASS",
-            "infra_solr_keystore_type": "jks",
+            "infra_solr_keystore_type": "JKS",
             "infra_solr_truststore_location": "TRUSTSTORELOC",
             "infra_solr_truststore_password": "TRUSTSTOREPASS",
-            "infra_solr_truststore_type": "jks"
+            "infra_solr_truststore_type": "JKS"
         }
     },
     "AMBARI_METRICS": {
         "ams-ssl-client": {
             "ssl.client.truststore.location": "TRUSTSTORELOC",
             "ssl.client.truststore.password": "TRUSTSTOREPASS",
-            "ssl.client.truststore.type": "jks"
+            "ssl.client.truststore.type": "JKS"
         },
         "ams-ssl-server": {
             "ssl.server.keystore.keypassword": "KEYSTOREPASS",
             "ssl.server.keystore.location": "KEYSTORELOC",
             "ssl.server.keystore.password": "KEYSTOREPASS",
-            "ssl.server.keystore.type": "jks",
+            "ssl.server.keystore.type": "JKS",
             "ssl.server.truststore.location": "TRUSTSTORELOC",
             "ssl.server.truststore.password": "TRUSTSTOREPASS",
-            "ssl.server.truststore.type": "jks"
+            "ssl.server.truststore.type": "JKS"
         }
     },
     "HBASE": {
@@ -183,29 +183,29 @@
             "infra_solr_ssl_enabled": "true",
             "infra_solr_keystore_location": "KEYSTORELOC",
             "infra_solr_keystore_password": "KEYSTOREPASS",
-            "infra_solr_keystore_type": "jks",
+            "infra_solr_keystore_type": "JKS",
             "infra_solr_truststore_location": "KEYSTORELOC",
             "infra_solr_truststore_password": "KEYSTOREPASS",
-            "infra_solr_truststore_type": "jks"
+            "infra_solr_truststore_type": "JKS"
         }
     },
     "LOGSEARCH": {
         "logfeeder-env": {
             "logfeeder_keystore_location": "KEYSTORELOC",
             "logfeeder_keystore_password": "KEYSTOREPASS",
-            "logfeeder_keystore_type": "jks",
+            "logfeeder_keystore_type": "JKS",
             "logfeeder_truststore_location": "TRUSTSTORELOC",
             "logfeeder_truststore_password": "TRUSTSTOREPASS",
-            "logfeeder_truststore_type": "jks"
+            "logfeeder_truststore_type": "JKS"
         },
         "logsearch-env": {
             "logsearch_ui_protocol": "https",
             "logsearch_keystore_location": "KEYSTORELOC",
             "logsearch_keystore_password": "KEYSTOREPASS",
-            "logsearch_keystore_type": "jks",
+            "logsearch_keystore_type": "JKS",
             "logsearch_truststore_location": "TRUSTSTORELOC",
             "logsearch_truststore_password": "TRUSTSTOREPASS",
-            "logsearch_truststore_type": "jks"
+            "logsearch_truststore_type": "JKS"
         }
     },
     "RANGER": {
@@ -246,10 +246,17 @@
         }
     },
     "RANGER_KMS": {
+        "kms-env": {
+	    "kms-port": "9293"
+        },
+        "kms-site": {
+	    "hadoop.kms.key.provider.uri": "dbks://https@localhost:9293/kms",
+	    "ranger.service.https.port": "9293"
+        },
         "ranger-kms-site": {
             "ranger.service.https.attrib.keystore.file": "KEYSTORELOC",
             "ranger.service.https.attrib.client.auth": "want",
-            "ranger.service.https.attrib.keystore.keyalias": "ranger.cloudair.lan",
+            "ranger.service.https.attrib.keystore.keyalias": "gateway-identity",
             "ranger.service.https.attrib.keystore.pass": "KEYSTOREPASS",
             "ranger.service.https.attrib.ssl.enabled": "true"
         },
@@ -283,10 +290,10 @@
             "zeppelin.ssl.key.manager.password": "KEYSTOREPASS",
             "zeppelin.ssl.keystore.path": "KEYSTORELOC",
             "zeppelin.ssl.keystore.password": "KEYSTOREPASS",
-            "zeppelin.ssl.keystore.type": "jks",
+            "zeppelin.ssl.keystore.type": "JKS",
             "zeppelin.ssl.truststore.path": "TRUSTSTORELOC",
             "zeppelin.ssl.truststore.password": "TRUSTSTOREPASS",
-            "zeppelin.ssl.truststore.type": "jks"
+            "zeppelin.ssl.truststore.type": "JKS"
         }
     }
 }
