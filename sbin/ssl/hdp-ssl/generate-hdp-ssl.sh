@@ -423,6 +423,7 @@ function generateKnox() {
 # master secret.
 
 	KNOXDIR=/usr/hdp/current/knox-server/data/security/keystores
+	PKIDIR=/etc/security/pki
 
 	echo "Replace the Knox keystore" | tee -a ${LOGFILE}  
 
@@ -438,6 +439,10 @@ function generateKnox() {
 	-srcstorepass ${KEYSTOREPASS} \
 	-destkeystore ${KNOXDIR}/gateway.jks -deststoretype jks -deststorepass ${KEYSTOREPASS} \
 	-alias gateway-identity >> ${LOGFILE} 2>&1
+
+	keytool -export -keystore ${KNOXDIR}/gateway.jks -alias gateway-identity -storepass BadPass%1 -file ${PKIDIR}/gateway.cer
+
+	openssl x509 -inform der -in ${PKIDIR}/gateway.cer -out ${PKIDIR}/gateway.pem
 }
 
 function pushKeystore() {
