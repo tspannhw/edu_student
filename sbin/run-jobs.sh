@@ -43,12 +43,8 @@
 # VARIABLES
 NUMARGS=$#
 DIR=${HOME}
+PASSWORD=BadPass%1
 JARFILE=/usr/hdp/current/hadoop-mapreduce-client/hadoop-mapreduce-examples.jar
-USER1=dev01
-USER2=ops01
-USER3=biz01
-USER4=dev02
-USER5=ops02
 DATETIME=$(date +%Y%m%d%H%M)
 LOGFILE="${DIR}/log/run-jobs.log"
 
@@ -61,10 +57,10 @@ function usage() {
 function callInclude() {
 # Test for script and run functions
 
-        if [ -f ${DIR}/sbin/include.sh ]; then
-                source ${DIR}/sbin/include.sh
+        if [ -f /var/local/sbin/include.sh ]; then
+                source /var/local/sbin/include.sh
         else
-                echo "ERROR: The file ${DIR}/sbin/include.sh not found."
+                echo "ERROR: The file /var/local/sbin/include.sh not found."
                 echo "This required file provides supporting functions."
 		exit 1
         fi
@@ -77,18 +73,28 @@ function intro() {
 	read -p "Set the type of job to run [pi|wordcount]: " OPTION
 }
 
-function setPiJobs() {
+function setJobs() {
 # Set job inputs
 
 	read -p "Set name of job submitter: " USERNAME
         read -p "Set name of queue: " QUEUENAME
-	echo "Memory: 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192" 
+	echo "Memory: 1024, 2048, 3072, 4096, 6144, 8192, 10240, 12288" 
         read -p "Set mapper memory: " MAPRAM 
         read -p "Set reducer memory: " REDRAM 
-	echo "Vcore: 1, 2, 3, 4, 5, 6, 7, 8"
+	echo "Vcore: 1, 2, 3, 4"
         read -p "Set vcore: " VCORE 
         read -p "Set number of job loops: " LOOPS
         read -p "Set seconds between jobs: " TIMELAG
+}
+
+function setKinit() {
+
+	if  yesno "Does this user need to kinit? " ; then
+		sudo -H -u ${USERNAME} bash -c "echo ${PASSWORD} | kinit ${USERNAME}/EDU"
+	fi
+}
+
+function setPiJobs() {
         read -p "Set number of mappers: " MAPPERS
         read -p "Set number of pi calculations: " CALCS
 }
@@ -110,15 +116,6 @@ function runPiJobs() {
 function setWordJobs() {
 # Set job inputs
 
-	read -p "Set name of job submitter: " USERNAME
-        read -p "Set name of queue: " QUEUENAME
-	echo "Memory: 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192" 
-        read -p "Set mapper memory: " MAPRAM 
-        read -p "Set reducer memory: " REDRAM 
-	echo "Vcore: 1, 2, 3, 4, 5, 6, 7, 8"
-        read -p "Set vcore: " VCORE 
-	read -p "Set number of job loops: " LOOPS
-	read -p "Set seconds between jobs: " TIMELAG
 	read -p "Set input directory: " INPUTDIR 
 	read -p "Set output directory: " OUTPUTDIR
 }
@@ -157,10 +154,14 @@ function runOption() {
                         usage
                         ;;
                 pi)
+			setJobs
+			setKinit
 			setPiJobs
 			runPiJobs
                         ;;
                 wordcount)
+			setJobs
+			setKinit
 			setWordJobs
 			cleanOutDir
 			runWordJobs

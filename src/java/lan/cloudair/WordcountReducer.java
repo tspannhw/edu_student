@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 //This is a standard list of imports for the Reducer
 
 /**
- *  WordCountReducer. The WordCountReducer class extends Reducer 
+ *  WordcountReducer. The WordcountReducer class extends Reducer 
  *  which is a generic class. You must set parameters for 
  *  Key In, Value In, Key Out, Value Out. The input is Text 
  *  for key in, IntWritable for value in and the output is Text 
@@ -22,7 +22,7 @@ import org.apache.hadoop.mapreduce.Reducer;
  * data types parameters are Text for Key in, IntWritable for Value in,
  * Text for Key out, and IntWritable for Value out.
  */
-public class WordCountReducer 
+public class WordcountReducer 
 		extends Reducer<Text, IntWritable, Text, IntWritable> {
 	
 	/*

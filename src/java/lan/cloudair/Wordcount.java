@@ -9,10 +9,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 /**
- * WordCount:WordCount program consists of Mapper class and the 
+ * Wordcount:Wordcount program consists of Mapper class and the 
  * Reducer class, plus a set of driver instructions to configure 
  * and run the job. In this case the driver instructions are 
- * contained within the master class WordCountDriver. 
+ * contained within the master class WordcountDriver. 
  * 
  * The job specifies TextInputFormat for the input data, this submits 
  * the key as a line number in the text file  and the value is the line of
@@ -24,7 +24,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
  * number of Iterable objects. It emits <word, count>, ( K3/V3 values ).
  */
 
-public class WordCount {
+public class Wordcount {
 	
 	public static void main( String[] args ) throws Exception {
 		
@@ -38,9 +38,9 @@ public class WordCount {
 		 * The Job data type for data reference job, the Job.getInstance()
 		 * method instantiates the job object, it inputs the conf to 
 		 * obtain all of the configuration for Hadoop and it assigns 
-		 * a name to the job, "WordCount Job".
+		 * a name to the job, "Wordcount Job".
 		 */
-		Job job = Job.getInstance( conf, "WordCount Job" );
+		Job job = Job.getInstance( conf, "Wordcount Job" );
 		
 		/**
 		 * FileInput and FileOutput sets the input and output
@@ -54,10 +54,10 @@ public class WordCount {
 		 * to configure and run the job. This list shows the
 		 * minimum required parameters to run a successful job.
 		 */
-		job.setJarByClass( WordCount.class );
-	   job.setMapperClass( WordCountMapper.class );
+		job.setJarByClass( Wordcount.class );
+	        job.setMapperClass( WordcountMapper.class );
 	   
-		job.setReducerClass( WordCountReducer.class );	
+		job.setReducerClass( WordcountReducer.class );	
 		job.setOutputKeyClass( Text.class );
 		job.setOutputValueClass( IntWritable.class );
 		
