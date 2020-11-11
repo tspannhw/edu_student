@@ -48,31 +48,6 @@ function callInclude() {
         fi
 }
 
-function getFile() {
-	wget https://user:password@archive.cloudera.com/p/HDF/3.5.1.0/nifi-1.11.4.3.5.1.0-17-bin.tar.gz -O /home/sysadmin/lib/nifi-1.11.4.3.5.1.0-17-bin.tar.gz
-}
-
-
-function pushTar() {
-
-	checkFile ${DIR}/lib/${NIFI_TAR}
-	scp ${DIR}/lib/${NIFI_TAR} sysadmin@${NIFI_REMOTE_HOST}:/tmp/
-}
-
-function installNiFi() {
-	
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo mkdir -p /opt/nifi"
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo tar -xvf /tmp/${NIFI_TAR} -C /opt/nifi"
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo rm /opt/nifi/current"
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo ln -s /opt/nifi/${NIFI_VER} /opt/nifi/current"
-}
-
-function configureNiFi() {
- 	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo cp /opt/nifi/current/conf/nifi.properties /opt/nifi/current/conf/nifi.properties.org"
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo sed -i -e 's/8080/9090/g' /opt/nifi/current/conf/nifi.properties"
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo sed -i -e 's/nifi.remote.input.host=/nifi.remote.input.host=${NIFI_REMOTE_HOST}/g' /opt/nifi/current/conf/nifi.properties"
-	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo sed -i -e 's/nifi.remote.input.socket.port=/nifi.remote.input.socket.port=8055/g' /opt/nifi/current/conf/nifi.properties"
-}
 
 function startNiFi() {
 	ssh sysadmin@${NIFI_REMOTE_HOST} -C "sudo -E /opt/nifi/current/bin/nifi.sh start"
@@ -86,8 +61,4 @@ function startNiFi() {
 # MAIN
 callInclude
 checkArg 1 
-#getFile
-pushTar
-installNiFi
-configureNiFi
 startNiFi

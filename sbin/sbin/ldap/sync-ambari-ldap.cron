@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Hortonworks University
+# This script is for training purposes only and is to be used only
+# in support of approved Hortonworks University exercises. Hortonworks
+# assumes no liability for use outside of our traning environments.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Name: sync-ambari-ldap.sh
+# Author: WKD
+# Date: 1MAR18
+# Purpose: Sync Ambari with Active Directory
+# This script could be put into a cron job to run on a regular basis.
+# See Hortonworks documentation for suggested periodicity.
+# WARNING: This script is a WIP
+
+#VARIABLES
+NUMARGS=$#
+DIR=${HOME}
+ADMINUSER=$1
+PASSWORD=$2
+AMBARI_ADMIN_USER="${ADMINUSER}:${PASSWORD}"
+LDAP_HOST=infra01.cloudair.lan
+CRON=${DIR}/cron
+DATETIME=$(date +%Y%m%d%H%M)
+LOGFILE=${DIR}/log/sync-ambari-ldap.log
+
+
+# FUNCTIONS
+function usage() {
+        echo "Usage: $(basename $0) [ambari-admin] [password]"
+        exit 1
+}
+
+function callInclude() {
+# Test for script and run functions
+
+        if [ -f ${DIR}/sbin/include.sh ]; then
+                source ${DIR}/sbin/include.sh
+        else
+                echo "ERROR: The file ${DIR}/sbin/include.sh not found."
+                echo "This required file provides supporting functions."
+                exit 1
+        fi
+}
+
+function syncLDAP() {
+# Groups we want to look for, in this case any group name that starts with HDP_ # GROUP_FILTER="(&(ObjectClass=Group)(CN=HDP_*))" SEARCH_BASE=DC=MYDOMAIN,DC=com SEARCH_USER=CN=search_user,OU=LDAP,${SEARCH_BASE} SEARCH_PASSWD=ldapUserPassword
+
+LDAPGROUPS=`ldapsearch -h $LDAP_HOST -x -s sub -b ${SEARCH_BASE} -D ${SEARCH_USER} -w ${SEARCH_PASSWD} "${GROUP_FILTER}" cn | grep ^dn: | cut -d' ' -f2- | sed -e "s/\(.*\)/(memberOf=\1)/" | tr '\n' ':' | sed -e "s/://g"`
+
+# Filter for users with a "valid" flag set who have a first name, last name and email. SEARCH_FILTER="(&(objectClass=USER)(mail=*mydomain.com)(givenName=*)(sn=*)(!(msexchuserAccountControl:1.2.840.113556.1.4.803:=2))(|$LDAPGROUPS))"
+
+# perform the search on AD and format the results in a way that postfix wants.
+
+#ldapsearch -h <ldap.company.com> -x -D “${SEARCH_USER}” -w “${SEARCH_PASSWD}” "${SEARCH_FILTER}" sAMAccountName | \ grep -v "{" | \ cut -d: -f3 | \ sort -u > ${TEMP_FILE}
+
+USERLIST=`ldapsearch -h $LDAP_HOST -x -s sub -b ${SEARCH_BASE} -D ${SEARCH_USER} -w ${SEARCH_PASSWD} "${SEARCH_FILTER}" sAMAccountName |\ grep -i sAMAccountName |\ grep -v ^# |\ sort -u |\ awk '{print $2}' |\ tr '\n' , |\ tr '[A-Z]' '[a-z]' |\ sed -e "s/,$//"`
+
+GROUPLIST=`ldapsearch -h $LDAP_HOST -x -s sub -b ${SEARCH_BASE} -D ${SEARCH_USER} -w ${SEARCH_PASSWD} "${SEARCH_FILTER}" memberOf |\ grep memberOf |\ grep -v ^# |\ grep HDP_ |\ sort -u |\ cut -d: -f2 |\ cut -d= -f2 |\ cut -d, -f1 |\ awk '{print $1}' |\ tr '\n' , |\ sed -e "s/,$//"`
+
+# Sync new users and groups
+
+#curl -s -H "X-Requested-By: ambari” -u $AMBARI_ADMIN_USER -d '{"Event": {"specs": [{"principal_type": "users", "sync_type": "specific", "names": "'$USERLIST'"}, {"principal_type": "groups", "sync_type": "specific", "names": "'$GROUPLIST'"}]}}' http://127.0.0.1:8080/api/v1/ldap_sync_events >/dev/null
+
+sleep 30
+
+# Sync existing users and groups
+
+curl -s -H "X-Requested-By: ambari” -u $AMBARI_ADMIN_USER -d '{"Event": { "specs": [{"principal_type": "users", "sync_type": "existing"}, {"principal_type": "groups", "sync_type": "existing"}]}}' http://127.0.0.1:8080/api/v1/ldap_sync_events >/dev/null
+
+echo "AmbariLdapSync complete at $(date)"
+
+exit 0
+}
+
+# MAIN
+export PATH=/bin:/usr/bin:/usr/sbin:/user/local/bin
+checkSudo
+checkFile ${DIR}/conf/syncgroups.txt
+syncLDAP

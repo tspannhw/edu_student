@@ -1,0 +1,116 @@
+# Hortonworks University
+# This text is for training purposes only and is to be used only
+# in support of approved Hortonworks University exercises. Hortonworks
+# assumes no liability for use outside of our traning environments.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Name: setup-compression.txt
+# Author: WKD
+# Date: 14MAR17
+# This file contains the latest parameters for setting compression
+# inside of a Hadoop cluster. Most of these are already configured in
+# Ambari. It is left the developer to determine which compression and
+# when to use the compression by setting the paramaters from the
+# command line or in their scripts/code. 
+
+# LINUX INSTALL OF CODECS
+# The compression Codec libararies must be installed on every node
+# in the cluster. This should be done as part of the build of the 
+# AMI imaged used to build every node in the cluster.
+# Check with yum list | grep snappy
+# Check with yum list | grep lzo 
+yum -y install snappy snappy-devel
+yum -y install lzo lzo-devel hadooplzo hadooplzo-native
+
+# LIST OF HADOOP CODECS
+# This is a list of the compression codec classes that can be used
+# for compression/decompression. These are used by clients and 
+# all nodes running the Hadoop daemons. You may add additional CoDecs.
+# Hadoop requires a listing of the classes for the Codecs. 
+# These parameters are already set in Ambari, they are found
+# in HDFS under the advance core-site. 
+<property>
+  <name>io.compression.codecs</name>
+  <value>
+    org.apache.hadoop.io.compress.GzipCodec,
+    org.apache.hadoop.io.compress.DefaultCodec,
+    com.hadoop.compression.lzo.LzoCodec,
+    org.apache.hadoop.io.compress.SnappyCodec
+  </value>
+</property>
+
+# COMPRESSING MAPREDUCE INTERMEDIATE FILES
+# If the Mapper's intermediate outputs are compressed, how should 
+# they be compressed?
+# This parameter is set in Ambari. It is in MapReduce in the
+# advance mapred.xml.  The default is GzipCodec.
+# You can change it to any of the above listed CoDecs.
+<property> 
+  <name>mapreduce.map.output.compress.codec</name>
+  <value>org.apache.hadoop.io.compress.GzipCodec</value> 
+</property> 
+
+# To compression intermediate files, use the following configuration:
+# This is not an Ambari property. It could be added into the
+# custom mapred.xml. But normal practice is to call for this 
+# within developer's code.
+<property> 
+  <name>mapreduce.map.output.compress</name>
+  <value>true</value> 
+  <description>
+   Should the outputs of the jobs be compressed?
+  </description>
+</property> 
+
+# Typically Developers set this parameter from the command line
+# or within their code.
+set mapreduce.map.output.compress=true
+
+# COMPRESSING MAPREDUCE OUTPUT FILES
+# If the job outputs are to compressed as SequenceFiles, how 
+# should they be compressed? Should be one of NONE, RECORD or BLOCK.
+# This property is set in MapReduce in advanced mapred.xml
+# The default in Ambari is BLOCK. The default in Apache is RECORD.
+<property> 
+  <name>mapreduce.output.fileoutputformat.compress.type</name> 
+  <value>BLOCK</value>
+</property> 
+
+# If the job outputs are compressed, how should they be compressed?
+# This can be changed from Ambari MapReduce in advance mapred.xml
+# or it can be changed from the command line or within the 
+# developer's code.
+<property> 
+  <name>mapreduce.output.fileoutputformat.compress.codec</name>
+  <value>org.apache.hadoop.io.compress.GzipCodec</value> 
+</property> 
+
+# Determines whether output data from MapReduce should be 
+# compressed. The default is "false". 
+# This is not an Ambari property. It could be added into the
+# custom mapred.xml. But normal practice is to call for this 
+# within developer's code.
+<property> 
+  <name>mapreduce.output.fileoutputformat.compress</name>
+  <value>true</value> 
+</property> 
+ 
+# Typically Developers set this parameter from the command line
+# or within their code.
+set mapreduce.output.fileoutputformat.compress=true
+
+# EXAMPLES
+# An example of developer command line for yarn to call for compression.
+yarn jar hadoop-examples-1.1.0-SNAPSHOT.jar sort sbr"-Dmapred.compress.map.output=true" sbr"-Dmapred.map.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec"sbr "-Dmapred.output.compress=true" sbr"-Dmapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec"sbr -outKey org.apache.hadoop.io.Textsbr -outValue org.apache.hadoop.io.Text input output 
+
+# An example of a developers command line for hive to call for compression.
+hive -e "SET mapreduce.output.fileoutputformat.compress.codec=com.hadoop.compression.lzo.LzoCodec;SET hive.exec.compress.output=true;SET mapreduce.output.fileoutputformat.compress=true;"
+
+# An example of setting compression within a Hive script. 
+set mapreduce.output.fileoutputformat.compress.codec=com.hadoop.compression.lzo.LzoCodec
+set hive.exec.compress.output=true
+set mapreduce.output.fileoutputformat.compress=true
