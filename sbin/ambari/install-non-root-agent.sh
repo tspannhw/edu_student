@@ -7,7 +7,7 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: install-non-root.sh
+# Title: install-non-root-agent.sh
 # Author: WKD
 # Date: 181207
 # Purpose: Setup Ambari agent for non-root. Please note once you have

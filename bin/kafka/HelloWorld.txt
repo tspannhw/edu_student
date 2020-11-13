@@ -1,0 +1,64 @@
+# Open Terminal A
+
+kinit kafka/EDU
+Password
+kinit -R
+
+
+# Set path to Kafka bin
+export PATH="$PATH:/usr/hdp/current/kafka-broker/bin"
+
+# List topics
+kafka-topics.sh --list --zookeeper master01.cloudair.lan:2181
+
+# Create topics
+kafka-topics.sh --create --zookeeper master01.cloudair.lan:2181 --replication-factor 3 --partitions 2 --topic HelloWorld 
+
+# List topics
+kafka-topics.sh --list --zookeeper master01.cloudair.lan:2181
+
+# Describe topic
+kafka-topics.sh --zookeeper master01.cloudair.lan:2181 --describe --topic HelloWorld
+
+# Unsecured start producer to send messages
+kafka-console-producer.sh --broker-list flow01.cloudair.lan:6667 --topic HelloWorld 
+
+# Secured start producer to send messages
+kafka-console-producer.sh --broker-list flow01.cloudair.lan:6668 --topic HelloWorld --producer.config /var/local/conf/client-ssl.properties 
+
+# Type the following into the producer
+Hello World
+This is my first Kafka message
+And this is my second message
+
+### Open Terminal B
+kinit kafka/EDU
+
+# Kafka bin
+export PATH="$PATH:/usr/hdp/current/kafka-broker/bin"
+
+# Start consumer to receive messages
+kafka-console-consumer.sh --bootstrap-server flow01.cloudair.lan:6667 --topic HelloWorld --from-beginning
+
+kafka-console-consumer.sh --bootstrap-server flow01.cloudair.lan:6668 --topic HelloWorld --from-beginning --consumer.config /var/local/conf/client-ssl.properties
+
+
+### On Ambari 
+Select NiFi
+Quicklink Select NiFi
+Select STREAM process group
+Select Steam to/from Kafka
+Run Test HelloWorld
+Check output
+
+
+### On Terminal A
+# Alter a topic
+kafak-topics.sh --alter --zookeeper master01.cloudair.lan:2181 --topic HelloWorld --partition 2
+
+# Deleting a topic
+kafka-topics.sh --zookeeper master01.cloudair.lan:2181 --delete --topic HelloWorld
+
+# Listing a topic
+kafka-topics.sh --zookeeper master01.cloudair.lan:2181 --list 
+
