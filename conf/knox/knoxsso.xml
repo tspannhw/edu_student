@@ -96,7 +96,7 @@
 		</param>
 		<param>
 			<name>knoxsso.redirect.whitelist.regex</name>
-			<value>^https?:\/\/(.*\.cloudair\.lan|localhost|127\.0\.0\.1):[0-9].*$</value>
+			<value>^/.*$;https?://localhost*$</value>
 		</param>
 	</service>
 
