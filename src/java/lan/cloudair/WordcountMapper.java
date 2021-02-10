@@ -7,7 +7,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 /**
- *  The WordCountMapper class extends Mapper which is a 
+ *  The WordcountMapper class extends Mapper which is a 
  *  generic class. You must set parameters for:
  *  	Key In, Value In, Key Out, Value Out.
  *   
@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.Mapper;
  *  The output is Text for key out, IntWritable for value out.
  */
 
-public class WordCountMapper 
+public class WordcountMapper 
 		extends Mapper<Object, Text, Text, IntWritable> {
 	
 	//Set constant for IntWritable to 1, Set word to object Text

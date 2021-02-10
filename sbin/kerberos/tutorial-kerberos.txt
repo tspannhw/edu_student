@@ -80,6 +80,20 @@ KERBEROS FOR THE SERVICE USER HDFS
 8. Exit
 	% exit
 
+KERBEROS FOR THE SERVICE HIVE
+1. This can only be done on client01
+	ssh client01
+2. Become the hive user
+	sudo su -l hive
+3. List the contents of the keytab.
+	% klist -ket /etc/security/keytabs/hive.service.keytab 
+4. Kinit as hive
+	% kinit -kt /etc/security/keytabs/hive.service.keytab "hive/client01.cloudair.lan"
+5. Check the ticket
+	% klist
+6. You are now ready to run commands as the user hiveCheck the ticket
+	% klist
+
 KERBEROS FOR THE SERVICE NIFI
 1. Check on the Kerberos install for NiFi
 	% ssh flow01

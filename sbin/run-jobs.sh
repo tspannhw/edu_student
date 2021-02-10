@@ -43,6 +43,7 @@
 # VARIABLES
 NUMARGS=$#
 DIR=${HOME}
+PASSWORD=BadPass%1
 JARFILE=/usr/hdp/current/hadoop-mapreduce-client/hadoop-mapreduce-examples.jar
 DATETIME=$(date +%Y%m%d%H%M)
 LOGFILE="${DIR}/log/run-jobs.log"
@@ -76,10 +77,10 @@ function setJob() {
 # Set job inputs
 	read -p "Set name of job submitter: " USERNAME
         read -p "Set name of queue: " QUEUENAME
-	echo "Memory: 1024, 2048, 3072, 4096, 5120, 6144, 7168, 8192" 
+	echo "Memory: 1024, 2048, 3072, 4096, 6144, 8192, 10240, 12288" 
         read -p "Set mapper memory: " MAPRAM 
         read -p "Set reducer memory: " REDRAM 
-	echo "Vcore: 1, 2, 3, 4, 5, 6, 7, 8"
+	echo "Vcore: 1, 2, 3, 4"
         read -p "Set vcore: " VCORE 
         read -p "Set number of job loops: " LOOPS
         read -p "Set seconds between jobs: " TIMELAG
@@ -88,8 +89,8 @@ function setJob() {
 function setKinit() {
 # Kinit as user
 
-	if  yesno "Does this user require a KGT? " ; then
-		read -p "Set ${USERNAME} KDC password: " PASSWORD
+
+	if  yesno "Does this user need to kinit? " ; then
 		sudo -H -u ${USERNAME} bash -c "echo ${PASSWORD} | kinit ${USERNAME}/EDU"
 	fi
 }
@@ -154,6 +155,7 @@ function runOption() {
                         ;;
                 pi)
 			setJob
+			setJobs
 			setKinit
 			setPiJobs
 			runPiJobs
