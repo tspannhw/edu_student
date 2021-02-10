@@ -1,7 +1,10 @@
 ## Hello World Example
 
-# Kafka bin
+# Kafak bin
 cd /usr/hdp/current/kafka-broker/bin
+
+# Deleting a topic
+./kafak-topics.sh --delete --zookeeper master01.cloudair.lan:2181 --topic Hello-World
 
 # Create topics
 ./kafka-topics.sh --create --zookeeper master01.cloudair.lan:2181 --replication-factor 1 --partitions 1 --topic Hello-World
@@ -23,9 +26,6 @@ And this is my second message
 
 # Alter a topic
 ./kafak-topics.sh --alter --zookeeper master01.cloudair.lan:2181 --topic Hello-World --partition 2
-
-# Deleting a topic
-./kafka-topics.sh --delete --zookeeper master01.cloudair.lan:2181 --topic Hello-World
 
 ## NiFiLogEvents
 # Deleting a topic
