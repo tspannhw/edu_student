@@ -44,12 +44,14 @@ cd ~/data/book
 
 # Create hdfs directory
 hdfs dfs -mkdir library
+hdfs dfs -ls
+hdfs dfs -mv library book
 
 # Learn about shell expansion 
 hdfs dfs -put *txt book
 hdfs dfs -ls book
-hdfs dfs -cat library/book01.txt | grep the
-hdfs dfs -cat library/book01.txt > /tmp/book01.txt
+hdfs dfs -cat book/book01.txt | grep the
+hdfs dfs -cat book/book01.txt > /tmp/book01.txt
 
 # Learn about the -D option
 cd ~/data/nyse

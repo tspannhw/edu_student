@@ -26,7 +26,7 @@ INPUT=$2
 OUTPUT=$3
 HOSTS=${DIR}/conf/listhosts.txt
 DATETIME=$(date +%Y%m%d%H%M)
-LOGFILE=${DIR}/log/run-remote-files.log
+LOGFILE=${DIR}/log/run-remote-file.log
 
 # FUNCTIONS
 function usage() {
@@ -34,6 +34,7 @@ function usage() {
         echo "                          [extract <path/tar-file> <path>]"
         echo "                          [run <path/remote_script>]"
         echo "                          [delete <path/file_name>]"
+        echo "                          [repo <file_name>  <path>]"
 	exit 
 }
 
@@ -118,6 +119,25 @@ function deleteFile() {
 		fi
         done
 }
+function pushRepo() {
+# push the repo file into the remote nodes
+
+        PUSHFILE=${INPUT}
+        PUSHDIR=${OUTPUT}
+        checkFile ${HOME}/${PUSHFILE}
+
+        for HOST in $(cat ${HOSTS}); do
+                scp ${HOME}/${PUSHFILE} ${HOST}:/tmp/${PUSHFILE}  >> ${LOGFILE} 2>&1
+                ssh -tt ${HOST} "sudo mv /tmp/${PUSHFILE} ${PUSHDIR}/${PUSHFILE}"  2>&1 >> ${LOGFILE}
+                ssh -tt ${HOST} "sudo chown root:root ${PUSHDIR}/${PUSHFILE}" >> ${LOGFILE} 2>&1
+                RESULT=$?
+                if [ ${RESULT} -eq 0 ]; then
+                        echo "Push ${PUSHFILE} to ${HOST}" | tee -a ${LOGFILE}
+                else
+                        echo "ERROR: Failed to push ${PUSHFILE} to ${HOST}" | tee -a ${LOGFILE}
+                fi
+        done
+}
 
 function runOption() {
 # Case statement for options
@@ -141,6 +161,10 @@ function runOption() {
                 delete)
                         checkArg 2
                         deleteFile
+			;;
+                repo)
+                        checkArg 3
+                        pushRepo
 			;;
 		*)
 			usage

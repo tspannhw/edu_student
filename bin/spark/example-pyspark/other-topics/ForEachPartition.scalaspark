@@ -1,8 +1,0 @@
-val accounts=sc.textFile("/loudacre/accounts/*")
-
-// use foreachPartition to print out the first record of each partition
-def printFirstLine(iter: Iterator[Any]) = {
-    println(iter.next)
-}
-
-accounts.foreachPartition(printFirstLine)
