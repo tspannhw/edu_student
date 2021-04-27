@@ -123,7 +123,7 @@
         "hbase-site": {
             "hadoop.ssl.enabled": "true",
             "hbase.ssl.enabled": "true",
-            "hbase.http.policy": "HTTPS_ONLY "
+            "hbase.http.policy": "HTTPS_ONLY"
         },
         "ranger-hbase-policymgr-ssl": {
             "xasecure.policymgr.clientssl.keystore": "RANGERKEYSTORE",

@@ -23,7 +23,6 @@ NUMARGS=$#
 DIR=${HOME}
 OPTION=$1
 USERS=${DIR}/conf/listusers.txt
-INSTANCE=EDU
 REALM=CLOUDAIR.LAN
 KADMIN=kadmin
 PASSWORD=BadPass%1
@@ -52,7 +51,7 @@ function addPrincs() {
 
 	echo "Creating headless principals"
 	while IFS=: read -r PRINC NEWGROUP; do
-		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "addprinc -pw ${PASSWORD} ${PRINC}/${INSTANCE}@${REALM}" >> ${LOGFILE} 2>&1
+		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "addprinc -pw ${PASSWORD} ${PRINC}@${REALM}" >> ${LOGFILE} 2>&1
 	done < ${USERS}
 }
 
@@ -61,7 +60,7 @@ function deletePrincs() {
 	
 	echo "Deleting headless principals"
 	while IFS=: read -r PRINC NEWGROUP; do
-		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "delprinc -force ${PRINC}/${INSTANCE}@${REALM}" >> ${LOGFILE} 2>&1
+		sudo kadmin -p ${KADMIN}/admin -w ${PASSWORD} -q "delprinc -force ${PRINC}@${REALM}" >> ${LOGFILE} 2>&1
 	done < ${USERS}
 }
 

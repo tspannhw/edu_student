@@ -1,9 +1,6 @@
 akhan:biz
-bbran:dsci
 dsmith:dev
 ekumar:ops
-frey:dsci
-jwalker:ops
 nkelly:dgov
 prose:biz
 rpatel:qa

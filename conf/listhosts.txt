@@ -10,6 +10,3 @@ worker02.cloudair.lan
 worker03.cloudair.lan
 worker04.cloudair.lan
 worker05.cloudair.lan
-flow01.cloudair.lan
-flow02.cloudair.lan
-flow03.cloudair.lan

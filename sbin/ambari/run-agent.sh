@@ -22,7 +22,7 @@
 
 # VARIABLES
 NUMARGS=$#
-DIR=${HOME|
+DIR=${HOME}
 OPTION=$1
 HOSTS=${DIR}/conf/listhosts.txt
 DATETIME=$(date +%Y%m%d%H%M)
