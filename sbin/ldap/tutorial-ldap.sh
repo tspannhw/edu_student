@@ -162,3 +162,7 @@ ldapsearch -ZZ -h  infra01.cloudair.lan -D cn=ldapadmin,dc=cloudair,dc=lan -W -b
 # attributes assigned to each object class. You must always define the 
 # attibute with objective class and the attribute. 
 # core.schema is the base schema
+
+
+# Deleting Users from Ambari
+curl --insecure -u admin:admin -H 'X-Requested-By:ambari' -X DELETE https://admin01.cloudair.lan:8443/api/v1/users/devuser

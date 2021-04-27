@@ -41,13 +41,13 @@ function checksrc() {
 
 function compilejava() {
 # compile java source files in the source directory 
-	javac -d ${HOME}/bin -sourcepath $srcdir -cp $(hadoop classpath) $srcdir/lan/cloudair/*.java
+	sudo javac -d ${HOME}/bin -sourcepath $srcdir -cp $(hadoop classpath) $srcdir/lan/cloudair/*.java
 }
 
 function jarjava() {
 # jar java classes in the bin directory to the lib directory 
 	cd ${HOME}/bin
-	jar cvf ${HOME}/lib/wordcount.jar lan/cloudair/Word*
+	sudo jar cvf ${HOME}/lib/wordcount.jar lan/cloudair/Word*
 }
 
 # MAIN

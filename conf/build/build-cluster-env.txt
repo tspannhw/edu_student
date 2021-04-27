@@ -1,0 +1,325 @@
+ 		*** E D U   D O C K E R *** 
+
+# DISCLAIMER EDU Docker is for training purposes only and is to be used 
+# only in support of approved training. The author assumes no liability 
+# for use outside of a training environments. Unless required by
+# applicable law or agreed to in writing, software distributed under
+# the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+
+# Title: build-cluster-env.txt 
+# Author: WKD
+# Date: 200406
+
+PURPOSE
+Detailed instructions on building the CLUS lab environment. This 
+installs many of the HDP services. It does not install HDF services.
+This requires the cluster to go to 16 CPU and 128 GB RAM, a R5.4xlarge 
+EC2 instance.
+
+TIME
+03:00:00
+
+SETUP EC2 INSTANCE 
+1. Open a JIRA ticket against EDUOPS. Capture the ticket number.
+2. Launch a AWS EC2 instance. Use the Bob the Build site.
+
+        http://edulabs.hortonworks.com/bobthebuilder/job/Launch-AMI-With-tags/
+
+3. Complete the Jenkins build page. This will create all of the required tags. 
+IMPORTANT: The AMI must be the EDU-ADMN.
+
+        JIRA ticket number EDUOPS
+        PROJECT tinfra
+        TICKET NUMBER  3333
+        LOCATION ncalifornia
+        NO_OF_VMS 1
+        TRAINER_INTIALS WKD
+        CUSTOMER  CLOUD
+        AUTO TERM 14
+        PURPOSE Trainer_Course_Development
+        AWS_AMI_ID "Select AMI for latest BASE env" 
+        AWS_Instance_Size r5.4xlarge
+        AWS_root_volume_size 512
+
+4. Recommend associating an EIP in Route53 under hdplabs. This makes life easier as you stop and start the instance.
+
+        Route 53
+        Zone hdplabs.com
+        DNS  edu-cloudair.hdplabs.com
+
+5. Add your Internet Gateway IP Address to the security group
+6. Login and validate your private key. I have set my default id_rsa to the training-keypair.pem.
+
+        % ssh -i ~/.ssh/training-keypair.pem ubuntu@edu-clus.hdplabs.com
+        % exit
+
+MANUAL INSTALL OF HDP CLUSTER
+1. HDP Manual install configurations for HDP cluster 
+
+	Name cloudair 
+	Add version file HDP 3.1.5 from /home/devuser/conf/HDP-3.1.5.0-152.xml
+	Install 
+	admin01.cloudair.lan
+	client[01-03].cloudair.lan
+	master[01-03].cloudair.lan
+	worker[01-04].cloudair.lan
+	Use pem in desktop:/home/devuser/pki 
+	Install as user sysadmin
+
+2. Services to install:
+
+	HDFS
+	YARN + MapReduce2
+	Tez
+	Hive
+	HBase
+	Sqoop
+	ZooKeeper
+	Infra Solr
+	Ambari Metrics
+	Log Search
+	Spark2
+	Zeppelin Notebook
+	
+	Use standard HDP architecture for assigning components to clients and masters 
+
+
+3. Customize Services
+    Credentials: use BadPass%1 for all
+
+    Databases. All databases use BadPass%1 as the password.
+
+	Select Hive database to be existing postgres on db01, not client01 
+	hive.warehouse.subdir.inherit.perms=false (HDP2 only)
+	Ensure you test both Hive and Oozie (If installed)
+
+
+5. Configurations for memory. This is a big issue. Dockers use all of the RAM and CPU in common. We must fraction up the memory and CPU to prevent over running resources. 
+YARN
+	RAM: Memory allocated for all YARN 12288 MB 
+	RAM: Max Container Size 12288  MB
+	CPU: Number of Vcores: 4
+	CPU: Max Container Vcore 2
+	GPU: Number of GPU: 4
+MAPRED
+	Map Memory: 2048 MB
+	Reduce Memory: 4096 MB
+	AppMaster Memory: 2048 MB
+TEZ
+	TEZ AppMaster Resource Memory:  2048 MB
+	TEZ Task Resource Memory: 4096 MB
+	TEZ runtime io sort (Advanced tez-site > tez.runtime.io.sort.mb): 2048 MB
+HIVE
+	Hive Tez Container: 4096 MB
+        HiveServer2 Heap: 4096 MB
+        MetaStore Heap: 2048 MB
+	Memory for Map Join: 405306368 B
+HBASE
+	HBase Master Max MB:  1024 MB
+        HBase Region Server Max Mem: 2048 MB
+	HBase Region Block Multiplier: 2
+	Number of Handlers: 40
+        Max Region File Size: 2147483648 B
+	Max Client Retries 8
+AMBARI METRICS
+	Ambari Metric Collector Heap MB = 512
+	Ambari Metric HBase Master Max MB = 1280
+4. Deploy (40 min.)
+
+DELETE SMARTSENSE
+	Delete SmartSense 
+	Set auto start for all services
+
+INSTALL HIVE-INTERACTIVE
+Recommend installing this after the cluster spins up and is working.
+1. Configure Hive-Interactive
+
+        Enable                  Yes
+        Query Queue             llap
+        Number of Nodes         1
+        Max Num of Concurrent   1
+        Mem per Daemon          8192 MB
+        In-Memory Cache         2048 MB
+        Num of Executors        1
+
+2. Advance Configs
+
+        Hive > Configs > Advanced-hive-interactive-env
+        HiveServer Interactive Heap 1024 MB
+        LLAP Max Headroom       1024 MB
+        LLAP Deamon Heap        4096 MB
+
+3. IMPORTANT Set the YARN queue for Default and for LLAP 
+	Default Capacity 40%, Max Capacity 100%
+	LLAP Capacity 60%, Max Capacity 100%
+
+HIVE VERTEX
+1. There is an error introduced by Hive vertex. 
+2. Turn these parameters off.
+
+    Hive > Configs > Performance (or search for 'vectorization')
+	Enable Vectorization and Map Vectorization = false
+	Enable Reduce Vectorization = false
+	
+	Hive > Configs > Advanced hive-interactive-site
+	hive.vectorized.execution.mapjoin.minmax.enabled = false
+	hive.vectorize.execution.mapjoin.native.enabled = false
+    hive.vectorized.execution.mapjoin.native.fast.hashtable.enabled = false
+	Enable Reduce Vecorization = false
+3. Restart all affected
+
+DISABLE ULIMITS ALERT
+This is reading from the underlying Ubuntu OS. Disable this alert.
+
+CREATE USERS
+1. Run the script to customize Ambari by adding the hooks to create hdfs directories every time you add users. The script will then create the Ambari users sysadmin and devuser. Be sure to check for users sysadmin and devuser, group admin with Group Access Cluster Administrator and group dev with Group Access Service Administrator. Check that a directory was created for them in hdfs:/user. There also should be a hdfs://data directory.
+
+	/home/sysadmin/sbin/ambari/setup-ambari-users.sh
+
+NOTE When you are going to sync between Ambari and LDAP then you should manually delete the users sysadmin and devuser and the groups admin and dev. They will be managed through LDAP.
+
+
+INSTALL HA
+1. Install HA for HDFS and YARN. Use the name cloudair.
+    - Primary NameNode is already on master01
+    - HA NameNode goes on master03, SNameNode will be deleted in this process
+    - One JournalNode goes on each master
+    - YARN HA node goes on master03
+2. OPTIONAL You can also choose to install HA for Hive, HBase, and Oozie. I normally don't put these in place except for the lecture on availability in the Admin classes.
+
+FIX TIMELINE SERVER
+NOTE: There is now a script. 
+	% sbin/yarn/ats-hbase.sh
+
+Manual Steps:
+Remove ats-hbase before switching between clusters
+Before you migrate between secure and non-secure clusters or HA and non-HA clusters, you must remove ats-hbase from the source cluster. Otherwise, Timeline Service 2.0 might stop working.
+
+You must destroy the ats-hbase service, remove its configuration from HDFS, and remove its specification file from HDFS.
+The following procedure explains with examples the process of removing the ats-hbase service for the yarn-ats user. If required, you must change the user based on your deployment. Similarly, you must use principal and keytab names different from those given in the following examples based on the deployment of your secure cluster.
+
+Use the yarn app -destroy command to destroy the ats-hbase service.
+On a non-secure cluster:
+	% su - yarn-ats
+	% yarn app -destroy ats-hbase
+
+On a secure cluster:
+	% su - yarn-ats
+	% kinit -kt /etc/security/keytabs/yarn-ats.hbase-client.headless.keytab yarn-ats@EXAMPLE.COM
+	% yarn app -destroy ats-hbase
+
+Remove the ats-hbase configuration from HDFS.
+On a non-secure cluster:
+	% su - yarn-ats
+	% hdfs dfs -rm -R ./{stack_version}/*  #{stack_version} is 3.0.0.0-1557
+On a secure cluster:
+	% su - yarn-ats
+	% kinit -kt /etc/security/keytabs/yarn-ats.hbase-client.headless.keytab yarn-ats@EXAMPLE.COM
+	% hdfs dfs  -rm -R ./{stack_version}/*  #{stack_version} is 3.0.0.0-1557
+Delete the specification file for ats-hbase from HDFS.
+You must be logged in as the hdfs user to perform this step.
+On a non-secure cluster:
+	% su - hdfs
+	% hdfs dfs -rm -R /services/sync/yarn-ats/hbase.yarnfile
+On a secure cluster:
+	% su - hdfs
+	% kinit -kt /etc/security/keytabs/hdfs.headless.keytab hdfs@EXAMPLE.COM
+	% hdfs dfs -rm -R /services/sync/yarn-ats/hbase.yarnfile
+
+CONFIGURE ZEPPELIN ACCESS 
+Note: The following configs for training purposes. These would never be used in production.
+1. Change /user/zeppelin permissions to rwxrwxrwx. This will allow Hive to write into this directory. 
+
+    % sudo su - hdfs 
+	% hdfs dfs -chmod -R 777 /user/zeppelin
+	% hdfs dfs -chmod -R 777 /data
+	% exit
+
+2. Add Zeppelin and Hive to the wheel group on client02.
+
+	% ssh sysadmin@client02
+	% sudo su -l
+	# vim /etc/group
+	    wheel:x:10:sysadmin,devuser,hive,zeppelin
+	# exit
+	% exit
+
+CONFIGURE ZEPPELIN USERS 
+1. Regarding logins long term you must choose between file users, LDAP, or Knox SSO. You can only use one at a time. For this environment configure the two file based users sysadmin and devuser. 
+
+
+        Zeppelin > Configs > Advanced > Advanced zeppelin-shiro-ini
+
+3. Remove the current users under [users]
+
+4. Add in the users sysadmin and devuser. You can find examples of these two lines in the conf/config_zeppelin.txt file.
+	sysadmin = BadPass%1,admin
+	devuser = BadPass%1,role1
+
+5. Ensure you comment out the lines with passwordMatcher.
+
+6. Save and Restart Zeppelin
+
+7. Validate by logging in as sysadmin and devuser.
+
+INSTALL SHELL INTERPRETER
+1. Install the shell interpreter. I have found the base command does not work. But the jar files are there. Try:
+
+2. ssh to client02
+
+	% ssh client02
+	% sudo su -l
+
+3. Change directory
+
+	# cd /usr/hdp/current/zeppelin-server
+
+4. Run this command
+
+	# ./bin/install-interpreter.sh --name shell --artifact interpreter/sh/zeppelin-shell-0.8.0.3.1.5.0-152.jar
+	# exit
+	% exit
+
+5. Restart Zeppelin
+
+6. Create interpreter setting in 'Interpreter' menu on Zeppelin GUI.
+   - artifact: /usr/hdp/current/zeppelin-server/interpreter/sh/zeppelin-shell-0.8.0.3.1.5.0-152.jar
+
+7. Then bind the interpreter on your notebook.
+
+SETUP RDBMS DATABASE
+This is used to support Sqoop and NiFi.
+1. Import the Zeppelin notebook Psql_01-CreateCloudair from the PSQL directory.
+
+2. Create the psql interpreter
+    - default password
+    - default.url: jdbc:postgresql://db01.cloudair.lan:5432/cloudair
+    - default.user: devuser
+    - artifact: /usr/hdp/current/zeppelin-server/interpreter/jdbc/postgresql-9.4-1201-jdbc41.jar
+
+3. Run the notebook to create the cloudair database.
+
+IMPORT ZEPPELIN NOTEBOOKS
+1. Notebooks are found on the desktop in bin/zeppelin. There are a lot of them. Import only what is needed. These are json files.
+
+2. Login as the user sysadmin. Import all of the notebooks for HDFS/ 
+
+3. Login as the user devuser. Import the Zeppelin notebooks for Hive. These begin with HIVE/.
+
+INSTALL DRUID
+I generally skip this step and do this in class when required.
+If you put the Druid Historical and Middlemanager, they are slaves, onto a worker then you will have to add the hdfs client. This will ensure the /etc/security/keytabls/hdfs-headless.keytab is available. Otherwise these daemons will not start.
+
+MAINTENANCE MODE DRUID
+When Druid is installed remember to turn it off when you are not using. It is a memory hog. Leave it off until needed.
+
+BUILD AMI 
+1. Run stop the cluster.
+
+2. Run clean logs
+
+	% run-remote-nodes.sh cleanlogs
+
+3. Create an AMI, ensure you stop the instance and then put a date on it 
+	EDU-CLOUDAIR-201024

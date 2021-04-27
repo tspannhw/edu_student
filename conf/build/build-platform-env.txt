@@ -1,0 +1,1002 @@
+#               *** E D U   D O C K E R ***
+
+# DISCLAIMER Edu Docker is for training purposes only and is to be
+# used only in support of approved training. The author assumes
+# no liability for use outside of a training environments. Unless
+# required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied.
+
+# Title: build-platform-env.txt
+# Author: WKD, JKA
+# Date: 200624
+
+PURPOSE
+Detailed instructions on building the platform environment (PLAT). The intent is to build this on the entrprise (ENTR) environment. The ENTR environment has full security and Kerberos installed. You can choose to build on the CLUS environment but these instructions will not assist you. Use the following steps to add a 3 node NiFi Kafka cluster. This will put in SSL, LDAP, KDC, and Ranger for NiFi.
+
+SETUP EC2 INSTANCE
+Instructions for setting up the EC2 for PLAT.
+1. Open a JIRA ticket against TOL. Capture the ticket number.
+2. Launch a AWS EC2 instance. Use the Bob the Build site.
+
+        http://edulabs.hortonworks.com/bobthebuilder/job/Launch-AMI-With-tags/
+
+3. Complete the build page. This will create all of the required tags and use the correct AMI. Use the EDU-ENTR AMI.
+
+        tol
+        JIRA ticket number TINFRA-35
+        PROJECT devops
+        TICKET NUMBER  35
+        LOCATION ncalifornia
+        NO_OF_VMS 1
+        TRAINER_INTIALS WKD
+        CUSTOMER PLAT
+        AUTO TERM 14
+        PURPOSE DEVOPS_Development
+        AWS_AMI_ID "Select AMI for latest ENTR env"
+        AWS_Instance_Size r5.4xlarge
+        AWS_root_volume_size 256
+
+4. Recommend associating an EIP in Route53 under hdplabs. This makes life easier as you stop and start the instance.
+
+        Route 53
+        Zone hdplabs.com
+        DNS  dev-plat.hdplabs.com
+
+5. Add your Internet Gateway IP Address to the security group
+6. Login and validate your private key. I have set my default id_rsa to the training-keypair.pem.
+
+        % ssh -i ~/.ssh/training-keypair.pem ubuntu@hostname
+        % exit
+
+PROJECT STAGES FOR INSTALLING A SECURED NIFI CLUSTER
+NiFi is a great tool. But when it comes to installing all of the integrations to make it fully integrated into the HDP cluster and into the enterprise there are a number of complexities. Meticulousness counts a lot when following these procedures. Generally there are three phases to this project. Phase one is to get NiFi installed and working with Kerberos, SSL, and Ranger. Phase two is to gain end user access from LDAP and Kerberos. Phase three is to integrate NiFi into the platform through Atlas and Knox.
+
+PHASE 1
+Stage 1. Install NiFi with Kerberos and SSL
+Stage 2. Configuring access from a Chrome browser with a p12 certificate
+Stage 3. Configuring Ranger Plugin and Ranger policies for nodes
+
+PHASE 2
+Stage 4. Accessing NiFi using LDAP
+Stage 5. Accessing NiFi using Kerberos
+Stage 6. Creating Ranger policies for users
+
+PHASE 3
+Stage 7. Installing NiFi Registry
+Stage 8. Configuring NiFi and Atlas integration
+Stage 9. Configuring Knox integration
+
+DOCKER RUN PLATFORM
+1. On the ubuntu server execute the command to start up 3 more containers.
+
+        edu-docker.sh runplatform
+
+2. Validate
+
+        docker container ls | grep flow
+
+DEPLOY FLOW NODES
+1. Use the Add Host wizard to add 3 new hosts to Ambari.
+
+         flow[01-03].cloudair.lan
+
+2. Deselect any software packages, the flow nodes only need a limited set of software. The easy route is to install client software on all three nodes but that takes quite a long time.
+
+INSTALL ZOOKEEPER CLIENT
+Note: If you do not install the client software then you must install the Zookeeper client on all three nodes.
+
+1. Use the Host view to install a Zookeeper client on all 3 flow nodes.
+
+        Ambari > Hosts > flow01 > Add > Zookeeper client
+
+INSTALL KAFKA CLUSTER
+1. Use the Host view to install Kafka broker on all 3 flow nodes.
+
+        Ambari > Services > Add Service > Kafka
+
+2. Add the Kafka brokers to flow01, flow02, and flow03.
+3. Validate Kafka by creating and listening to topics.
+4. Review the tutorial in bin/kafka.
+    - scripts can be found in sysadmin@flow01:/usr/hdp/current/kafka-broker/bin/ listed at the top of the tutorial
+
+PREREQ FOR NIFI 
+1. Ensure that flow01 to flow03 are part of the HDP cluster. These should have been installed in a previous class. They must have the zookeeper client installed.
+
+2. In a previous class we ran a hdp-ssl toolkit that created all of our keys and certificates. NiFi does come with it's own toolkit if you need to do this independently of a HDP cluster. The kit is called NiFi ToolKit. There are sample instructions at the end of the document.
+
+3. Pull the hdp-mpack for nifi from the S3 bucket and place it in to the lib directory. Note: The permissions for public access may be turned off. If you get back a permission denied error then you will need access to AWS S3 bucket for edu-data to change the permissions.
+
+	% cd lib
+	% sudo wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/hdf-ambari-mpack-3.5.1.0-17.tar.gz
+
+USE A MPACK TO INSTALL NIFI SOFTWARE
+NOTE: It is important to ensure version line up when installing mpacks. Go to the repo page and ensure you have the right version. In this case the lib file is downloaded and it is located in ~/lib directory.
+
+1. Validate the version number.
+
+	% ls ~/lib
+
+2. Run the install script for the mpack. From admin01 run:
+
+      % ~/sbin/nifi/install-nifi-mpack.sh
+
+3. In Ambari go to: Stack and Versions > Versions, click Manage Versions, select HDP-3.1.5.0-152 to access its configurations page. In the Repositories section, find the line for HDF-3.5. 
+
+You can find the <username>:<license> string in the version file at ~/data/hdp_315_version.xml. Find the <username>:<license> string inside the <baseurl> tag, you want everything after https:// and before @archive. 
+
+Copy that string and paste it into the 'Base URL' field for HDF-3.5, replacing the '****:****'.
+
+Save.
+
+4. I am unsure why this does not update correctly, but I have filed a Community ticket on this gap.
+
+INSTALL NIFI WITH EXISTING SSL CERTIFICATES 
+NOTE: NiFi automatically sets up 2-way-SSL or Mutal SSL Authentication. There are two options for installing SSL for NiFi. The first install a local CA for NiFi. We are going to use the second as this is what is required for a production cluster.
+	Enable SSL with the NiFi CA
+	Enable SSL with existing certificates
+
+1. User Ambari to install NiFi
+
+	Ambari > Service > Add Service
+	Select NiFi
+
+2. Setup for 3 flow nodes
+        Add NiFi onto flow01,flow02, and flow03
+
+3. Ensure the NiFi Cerrtificate Authority is deselected for all hosts. We will not be using using the NiFi CA. 
+
+4. From Advanced-nifi-ambari-config, specify the Encrypt Configuration Master Key Passwords.  This password is used when you generate the master key for sensitive properties encryption in the NiFi properties file when it is written to disk. It must contain at least 12 characters.  
+
+	BadPass%1BadPass%1
+
+5. From Advanced-nifi-ambari-config, provide the Sensitive property values encryption password.  This is the password used when you encrypt any sensitive property values that are configured in processors. For enhanced security, it should contain at least 10 characters.
+
+	BadPass%1BadPass%1
+
+6. Complete the installation.
+
+On flow nodes:
+/etc/nifi
+/var/lib/nifi
+/var/log nifi
+
+*** Nifi v. 3
+CONFIGURE NIFI FOR SSL
+We will not configure the NiFi CA as we will not be using it. We will use the keystore and truststore created with the hdp-ssl toolkit.
+1. Configure SSL
+
+	NiFi > Config > Advanced nifi-ambari-ssl-config
+
+	Initial Admin Identity: CN=flow01.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US 
+
+	Enable SSL?:    Yes
+
+	Key password:   BadPass%1
+	Keystore path /etc/security/keystores/server.jks
+	Keystore password: BadPass%1
+	Keystore type:  JKS
+
+	Truststore path: /etc/security/truststores/truststore.jks
+	Truststore password: BadPass%1
+	Truststore type: JKS
+
+3. Copy and paste the <property> xml tags below into node identities. Ensure to remove the comments <!--   -->. These are used until we configure Ranger and then we will recreate them in Ranger.
+
+<property name="Node Identity 1">CN=flow01.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+<property name="Node Identity 2">CN=flow02.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+<property name="Node Identity 3">CN=flow03.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+
+4. The Ambari Server will install the Kerberos keytabs for NiFi. 
+
+5. Restart all required services.
+
+VALIDATE THE INSTALL
+1. Validate NiFi is configured for Kerberos.
+
+	% ssh flow01
+	% sudo su -l nifi
+	% klist -ket /etc/security/keytabs/nifi.service.keytab
+	% cat /etc/nifi/conf/nifi.properties | grep kerberos
+	% tail /etc/nifi/conf/login-identity-providers.xml  
+
+2. Ensure you disable the plugin for NiFi in the Ranger Plugin configuration. This is important for the next few steps. We will deal with Ranger after we are sure we can connect to NiFi.
+
+Restart NiFi.
+
+3. The URL for NiFi is now:
+
+	https://flow01.cloudair.lan:9091
+
+4. Use the NiFi quicklink to ensure you get a log in screen. We will deal with login next.
+
+THE PURPOSE OF THE NIFI AUTHORIZATION AND USER FILES
+NiFi was designed and is able to be a standalone product. To support user management requirements NiFi generates two files, authorizations.xml and users.xml, in the /var/lib/nifi/conf directory. They are well worth becoming familiar with for troubleshooting purposes, even if our strategy is to replace them with Ranger policies. More importantly they need to be manually removed to force NiFi to re-generate them. 
+1. Check state, note there are now two new files.
+
+        % ssh nifi@flow01
+        % cd /var/lib/nifi/conf
+        % ls
+        % cat authorization.xml
+        % cat users.xml
+
+2. Check that all 3 nodes are connected
+
+        Ambari > NiFi > Quick Links > flow01.cloudair.lan
+        Error: This site can't be reached.
+
+3. Check logs for cannot connect error
+
+        % ssh nifi@flow01
+        % cd /var/log/nifi
+        % tail -f nifi-app.log
+                state=CONNECTED
+
+TROUBLESHOOTING INSUFFICIENT PERMISSIONS
+1. You may encounter an error at login saying: "Unable to perform the desired action due to insufficient permissions". 
+
+2. Remove the authorization.xml and users.xml file on all NiFi nodes.
+
+	% ssh flow01
+	% cd /var/lib/nifi/conf
+	% sudo rm authorizations.xml users.xml
+
+3. Restart NiFi. NiFi will rebuild and update these two files.
+
+TROUBLESHOOTING NODE IDENTITIES
+Machine Identity. The identity of the node in a NiFi cluster is determined by the SSL certificate that is used for secure communication with other nodes in the cluster. This certificate can be generated by the internal Certificate Authority provided with HDF, or by an external CA. Once SSL is enabled on the cluster using the certificates, they will be stored (by default) in the /etc/nifi/conf/keystore.jks keystore.  
+
+1. To get the node's identity as specified in the certificate, first get the keystore password from the nifi.properties file, then run the keytool command:
+
+	cat /etc/nifi/conf/nifi.properties | grep keystorePasswd
+	nifi.security.keystorePasswd=lF6e7sJsD3KxwNsrVqeXbYhGNu3QqTlhLmC5ztwlX/c
+
+2. To list out the certificate from the keystore, use:
+
+	% keytool -list -v -keystore /etc/security/keystores/server.jks
+
+3. If the node identities field are not correctly set, when you attempt to open the Nifi UI, you will see an untrusted proxy error in /var/log/nifi/nifi-user.log:
+
+	[NiFi Web Server-172] o.a.n.w.s.NiFiAuthenticationFilter Rejecting access to web api: Untrusted proxy CN=FQDN_OF_NODE_X, OU=CLOUDAIR.ORG
+
+4. In the above case, you need to check that the 'Node identity' values you provided in Ambari matches the one from the log file. These values are coming from the certificate in the keystore.
+
+	 CN=flow03.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US 
+
+5. Manually delete /var/lib/nifi/conf/authorizations.xml and users.xml from all nodes running Nifi and then restart Nifi service via Ambari.
+
+	% ssh flow01
+	% cd /var/lib/nifi/conf
+	% sudo rm authorizations.xml users.xml
+
+AUTHENTICATE TO NIFI FROM A DESKTOP CERTIFICATE
+NOTE: There is a NiFi tool kit for generating SSL certs from NiFi. You can read about it in the docs. We will use the certs generated by hdp-ssl tool kit.
+A good practice is to generate a client certificate and import it into a browser running on the Remote Desktop. 
+1. We used the hdp-ssl tool kit to create the correct type of p12 file. 
+
+2. Open a new terminal and move the client certificate onto the remote desktop.
+
+	% scp sysadmin@flow01:/etc/security/pki/server.p12 pki/desktop.p12
+
+3. Validate the file.
+
+	% ls pki
+
+USE DESKTOP CHROME TO ACCESS NIFI
+1. Open Chrome and import the p12 certificate file.
+
+        Chrome > Settings > Privacy and Security > Security > Manage certificates 
+
+        Import desktop.p12
+        Password BadPass%1
+
+2. Go to NiFi to open Quick Links and open a NiFi canvas. 
+
+        NiFi Service > Quick Links > nifi 
+
+3. Select the p12 certificate you just imported. Click Allow.
+    - If you are not taken directly to a NiFi canvas, click the 'home' link in the top right of the NiFi login page.
+
+4. At this point, the Nifi UI should come up. Note that on the top right, it shows you are logged in as "CN=flow01.cloudair.lan, OU=EDU, O=Cloudair,"
+
+5. The log file will also confirm this login.
+	
+	% cat /var/log/nifi/nifi-user.log
+
+6. Use the NiFi quick links to open a NiFi canvas on all three nodes.
+
+TROUBLESHOOTING NIFI ACCESS
+1. If instead of getting logged in to NiFi webUI, you are being shown a login page and prompted for a username and password, it could mean you are entering the wrong hostname into the browser or the hostname does not match the one in the p12 certificate.
+2. If that hostname is not resolvable from your laptop, create an entry in your local laptop's host file to point to that hostname.
+
+INSTALL NIFI REGISTRY
+1. Use Add Service to install the NiFi Registry on to flow02. 
+
+2. Configure master keys, use double BadPass%1BadPass%1 as these require a min of 12 characters. Use the password twice for the master key, it requires a minimum of 12 characters. Again do not change the hadoop.proxyusers.hosts settings.
+
+	Advanced nifi-registry-ambari-config
+		nifi-registry.security.encrypt.configuration.password : BadPass%1BadPass%1
+
+3. Change the nifi register db password.
+
+	Advanced nifi-registry-properties
+		nifi.registry.db.password : BadPass%1
+
+4. Save and deploy
+
+CUSTOM SSL DEFINITIONS
+1. In the json directory are all of the definition files. The definitions.json.master is the base install. You may have to modify it to map to your selection of hosts by either removing or adding in services.
+
+	% cd sbin/ssl/ambari-ssl
+
+2. In the json directory there are custom definitions for additional services, these include Knox, NiFi and Storm.
+
+	% ls
+
+3. In all cases you must copy the json of your choice over to the definitions.json file located in ambari-ssl.
+
+        % cp json/definitions.json.nifi definitions.json
+
+RUN THE AMBARI SSL TOOL
+1. Validate the config file
+
+        % cat  configs
+
+2. Run the python script to configure Ambari for SSL for https.
+
+HTTPS:
+        % python ambari-ssl.py --protocol https --port 8443 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-ssl.log
+
+3. Delete the toSet up files.
+
+        % rm doSet_*
+
+4. Restart all affected
+
+SETUP RANGER POLICIES FOR NIFI
+1. Enable the NiFi plugin for Ranger.
+
+2. In Nifi configs,  check these properties:
+
+Advanced ranger-nifi-audit
+	Audit to SOLR (xasecure.audit.destination.solr) is checked
+	xasecure.audit.destination.solr.zookeepers lists three zookeepers (which should be the three masters), all with port 2181
+
+Advanced ranger-nifi-plugin-properties
+	ranger-nifi-plugin-enabled is checked 
+
+3. Check these properties. If the are not set than set them.
+
+Advanced ranger-nifi-policymgr-ssl 
+            xasecure.policymgr.clientssl.keystore: /etc/security/keystores/ranger-plugin.jks
+            xasecure.policymgr.clientssl.keystore.password: BadPass%1
+            xasecure.policymgr.clientssl.truststore: /etc/security/truststores/truststore.jks
+            xasecure.policymgr.clientssl.truststore.password: BadPass%1
+
+4. Save the configuration changes and restart NiFi.
+
+5. Open the Ranger UI, log in as nkelly, and validate the connection in Ranger Access Manager. If this is not set then set these properties.
+	
+	Ranger > Access Manager > NiFi > Edit the cloudair_nifi service
+
+	Service Name  cloudair_nifi
+	Description     nifi repo
+	NiFi URL https://flow01.cloudair.lan:9091/nifi-api/resources
+	Authentication Type  SSL
+	Keystore  /etc/security/keystores/ranger-plugin.jks
+	Keystore Type JKS
+	Keystore Password  BadPass%1
+	Truststore /etc/security/truststores/truststore.jks
+	Truststore Type JKS
+	Truststore Password  BadPass%1
+	
+	> Save
+
+6. Test connection. You will get back an error but this is expected. 
+ 
+	"Unable to retrieve any resources using given parameters. Status Code = 403"
+
+CREATE NODE IDENTITIES FOR RANGER
+1. Ranger needs node identities for every NiFi host. These must be in the Ranger users/groups lists. (In an enterprise env, you would not be manually creating these, they would be synced as hosts from LDAP). 
+
+2. Create a group in Ranger.
+
+	Ranger > Settings > Users/Groups > Groups
+
+	Add group 
+		Group Name: hosts
+
+3. Create node identities for all of the the NiFi hosts. Use the example below and substitute 'flow02' and 'flow03' when adding those users.
+
+	Add users
+		CN=flow01.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US
+		Password BadPass%1
+		first name flow01
+		Type User
+		Group hosts
+
+CREATE ACCESS POLICIES FOR THE NODE IDENTITIES
+In Ranger: Access Manager > Resource Based Policies > cloudair_nifi
+
+1. Add the newly created 'flow' users to the 'all' policy. 
+    - This policy allows access to all nifi resources. Grants full administrative access to NiFi. Allow condition for all Node Identities with permissions read/write. This policy can be deleted later to improve security.
+    Policy Name: all
+    NiFi Resource Identifier: /*
+    - Create a new policy granting all three flow nodes full read/write privileges.
+
+Create the two policies below and add the 'hosts' group.
+
+2. proxy - proxy to nifi. /proxy Grants proxy as user nifi. Allow condition for all Node Identities with permissions read/write.  This policy is required.
+    Policy Name: proxy
+    NiFi Resource Identifier: /proxy
+    - Create a new policy granting the 'hosts' group full read/write privileges.
+
+3. flow - access to canvas. /flow Grants read and write data to flows and to add new policies. Allow condition for all Node Identities with permissions read/write.
+    Policy Name: flow
+    NiFi Resource Identifier: /flow
+    - Create a new policy granting the 'hosts' group full read/write privileges.
+
+VALIDATE ACCESS TO NIFI
+1. Navigate to the ‘Audit’ tab in Ranger UI and notice that the requesting user showed up on Ranger Admin. This shows the Ranger Nifi plugin is working
+
+2. Check the Plugin and the Plugin Status tabs. NiFi's plugin should be working.
+
+3. After creating the above, Open Nifi UI via Quick Links and confirm you are now able to login.
+
+PRE-SETUP FOR ADDING USERS
+1. Run the setup-nifi-user.sh script to create access for the nifi user. This puts cert keys into place, thus NiFi can reach sysadmin or devuser for remote ftp access.
+
+        % ~/sbin/nifi/setup-nifi-user.sh
+
+2. On the remote desktop as the user devuser import the master xml file.
+
+        Use the NiFi UI to import the nifi-master.xml from the remote desktop location /home/devuser/bin/nifi/nifi-master-xxxxxx.xml
+	Drag and drop the master template onto the NiFi canvas.
+        Validate it shows up on all three NiFi nodes
+
+3. Use the Quick Links to open a NiFi canvas. You will get an anoymous user screen, select Log In to get a log in screen.
+
+CONFIGURE RANGER POLICIES FOR NIFI USERS
+NOTE: NiFI requires a special identity provider to resolve groups. We are going to simple use individual users.
+1. all - access to all nifi resources. /* Grants full administrative access to NiFi. Allow condition for slee and sysadmin permissions read/write. 
+
+2. flow - access to canvas. /flow Grants access to the root canvas, this allows for user anonymous. Allow condition for group public with permission of read. For increase security you can remove public, but you will then have to add individual users.
+
+3. data - access to data in queues. /data/* Grants list, view, and delete data in queues. Allow condition for dsmith and devuser permissions read/write. Allow condition for akhan and porse permission read.
+
+4. provenance - query provenance data. /provenance/* Grants list, view and modify provenance data.  Allow condition for dsmith and devuser permissions read/write. Allow condition for akhan and prose permission read.
+
+5. tail file - process group.
+Get UUID from NiFi process group 'Tail File Grp', substitute the UUID into the following string: /process-groups/UUID
+Create Ranger policies for process groups.  Allow condition for dsmith and devuser permissions read/write. Allow condition for akhan and prose permission read.
+
+6. tailfile - process. 
+Enter the 'Tail File Grp' processor group and get the UUID of the first processor, 'Tail File TailFile nifi-app.log', substitute teh UUID into the following string: /processors/UUID
+Allow condition for prose permissions read/write.
+
+7. nel - process group. 
+Get the UUID from NiFi process group 'NEL Grp', substitute the UUID into the following string: /process-groups/UUID
+Create Ranger policies for process groups.  Allow condition for dsmith and devuser permissions read/write. Allow condition for akhan permission read.
+
+
+CONFIGURE LDAP AUTHENTICATION
+Username/password authentication is performed by a 'Login Identity Provider'. The Login Identity Provider is a pluggable mechanism for authenticating users via their username/password. Which Login Identity Provider to use is configured in the nifi.properties file. Currently NiFi offers username/password with Login Identity Providers options for ldap_login_identity_provider or kerberos_login_identity_provider. 
+
+1. In the Chrome browser delete the p12 key. You can always reinstall it latter for troubleshooting.
+
+1. Set the login provider to ldap. 
+
+	Advanced nifi-properties
+	nifi.security.user.login.identity.provider=ldap-provider
+
+2. Insert the ldap provider into Advance nifi-login-identity-providers-env:
+
+
+<provider>
+        <identifier>ldap-provider</identifier>
+        <class>org.apache.nifi.ldap.LdapProvider</class>
+        <property name="Identity Strategy">USE_DN</property>
+        <property name="Authentication Strategy">SIMPLE</property>
+
+        <property name="Manager DN">cn=ldapadmin,dc=cloudair,dc=lan</property>
+        <property name="Manager Password">BadPass%1</property>
+
+        <property name="TLS - Keystore">/etc/security/keystores/server.jks</property>
+        <property name="TLS - Keystore Password">BadPass%1</property>
+        <property name="TLS - Keystore Type">JKS</property>
+        <property name="TLS - Truststore">/etc/security/truststores/truststore.jks</property>
+        <property name="TLS - Truststore Password">BadPass%1</property>
+        <property name="TLS - Truststore Type">JKS</property>
+        <property name="TLS - Client Auth">WANT</property>
+        <property name="TLS - Protocol">TLS</property>
+        <property name="TLS - Shutdown Gracefully"></property>
+
+        <property name="Referral Strategy">FOLLOW</property>
+        <property name="Connect Timeout">10 secs</property>
+        <property name="Read Timeout">10 secs</property>
+
+        <property name="Url">ldap://infra01.cloudair.lan:389</property>
+        <property name="User Search Base">ou=users,dc=cloudair,dc=lan</property>
+        <property name="User Search Filter">uid={0}</property>
+
+        <property name="Authentication Expiration">12 hours</property>
+</provider>
+
+
+IDENTITY MAPPING
+Identity determination in a NiFi cluster can be a complex topic, NiFi provides a mechanism for parsing identities into a common format understandable by the Ranger authorization mechanisms. Identity mapping pairings should exist for all methods of identity mapping that will be needed in the NiFi cluster. An identity to be mapped should only match a single set of mapping rules to ensure reliable mapping of identities. The default pair of mappings (dn and kerb) are defined in the Advanced nifi-properties section of the Ambari NiFi configuration. Additional pairings can be added to the Custom nifi-properties section of the Ambari NiFi configuration.
+
+NiFi uses the identity that it determines from the various authentication mechanisms during authorization procedures. In an HDP cluster, authorization is provided by Apache Ranger. Ranger syncs usernames from Active Directory or LDAP, but it does not sync them in the distinguished name format that is returned during authentication against these mechanisms. Likewise, the Kerberos principal format is not typically used in Ranger. As such, the interesting portion of the DN or principal style identity must be parsed out for use with Ranger.
+
+NiFi provides a mechanism for transforming the certificate, LDAP, or Kerberos based identity. This is done via pairings of configuration parameters of the form:
+
+	nifi.security.identity.mapping.pattern.<unique>
+	nifi.security.identity.mapping.value.<unique>
+
+The <unique> portion is replaced with a unique string identifying the purpose of the transformation. There are two pairings created by default (<unique>=dn, and <unique>=kerb), but other pairings can be created as needed. For the pattern portion of the pairing, Regular Expression syntax is used to parse the original identity into components. The value portion of the pairing uses these parsed components in variable substition format to build the translated version of the idenity. A few important operators for the translation are:
+
+	^ - Denotes the beginning of the value
+	$ - Denotes the end of the value
+	() - Assigns matched strings to a variable. Variable names start with 1 and increment for each time used in the Regular Expression
+	. - Matches any character
+	* - Matches 0 or more of the preceding character
+	? - Matches exactly one of any character
+
+Using these operators, it is possible to separate any of the identities discussed so far into their components. Using the dnpairing of configuration parameters, separating the DN returned by LDAP into just the username can be accomplished with the following.
+
+	OpenLDAP/FreeIPA:
+	nifi.security.identity.mapping.pattern.dn = ^uid=(.*?),cn=users.*$
+	nifi.security.identity.mapping.value.dn = $1
+
+If there is a need to use additional components of the DN for the user identity, the DN can be split into additional variables
+
+	nifi.security.identity.mapping.pattern.dn = ^CN=(.*?),OU=(.*?),DC=(.*?),DC=(.*?)$
+
+The full list of variables created by the pattern variable in this example is:
+	$1 = hadoopadmin
+	$2 = ServiceUsers
+	$3 = example
+	$4 = com
+
+To convert the host identity from SSL certificates (and user identities from internal CA generated user certificates), use an identity mapping pairing such as:
+
+	nifi.security.identity.mapping.pattern.host = ^CN=(.*?), CN=hosts.*$
+	nifi.security.identity.mapping.value.host = $1
+
+In this example, note the space in , CN= and the case of the CN. These are because of the conversion that the CA performs when generating the SSL certificate as described above.
+
+If Kerberos is enabled on the NiFi cluster, the Kerberos principal can be converted to a username in the following way:
+
+	nifi.security.identity.mapping.pattern.kerb = ^(.*?)/(.*?)@(.*?)$
+	nifi.security.identity.mapping.value.kerb = $1
+
+CONFIGURE LDAP IDENTITY MAPPING
+If LDAP authentication is enabled, the LDAP server will pass back the distinguished name (DN) of the user entry in the directory. This value is used to determine the user identity. It may not be clear from the LDAP server configuration exactly how the DN will be formatted when it is passed back. For pattern matching and idnetity conversion, the case of the field names and spacing of the DN value will be important. To determine the format, a simple ldapsearch can be performed for a known username.
+
+1. Windows Active Directory:
+	ldapsearch -W -h adserver.cloudair.lan -p 389 -D "cn=ldapadmin,OU=Users,dc=cloudair,dc=lan" -b "OU=Users,dc=cloudair,dc=lan" sAMAccountName=slee
+
+	dn: CN=slee,OU=users,DC=cloudair,DC=lan
+
+2. OpenLDAP/FreeIPA:
+
+	ldapsearch -x -b "dc=cloudair,dc=lan" uid=slee
+
+3. In the output, find the dn field for the user:
+
+	dn: uid=slee,ou=users,dc=cloudair,dc=lan
+
+4. Note the case and the spacing of the returned value for later configuration steps.
+
+5. We will want to use identity mappings to fine-tune the user string. This maps a login string such as uid=slee,ou=users,dc=cloudair,dc=lan to slee. This simply matches to the user in Ranger.
+
+	NiFi Service > Configs > Advanced nifi-properties
+
+6. Check the LDAP mappings. In the search filter search for .dn.
+
+	# If using LDAP mapping
+	nifi.security.identity.mapping.pattern.dn=^uid=(.*?),ou=(.*?),dc=(.*?),dc=(.*?)$
+	nifi.security.identity.mapping.transform.dn=NONE
+	nifi.security.identity.mapping.value.dn=$1
+
+6. Save and restart
+
+VALIDATE USER LOGIN WITH LDAP
+1. Go to NiFi quicklinks to open a login page.
+
+	Ambari > Service > NiFi > Summary > Quick Links
+
+2. Login and exit as LDAP users slee and prose.
+
+3. When you login you will see slee as a member of the admin group has full access and prose has no access.
+
+4. Check log
+
+	tail -f /var/log/nifi/nifi-user.log
+
+5. Check success in the /var/log/nifi/nifi-user.log confirms this:
+
+	o.a.n.w.s.NiFiAuthenticationFilter Authentication success for slee
+	o.a.n.w.s.NiFiAuthenticationFilter Authentication success for prose
+
+CONFIGURE NIFI FOR KERBEROS AUTHENTICATION
+1. This is dependent upon running a script to create principals in the Kerberos database. On admin01 run:
+
+	% cd sbin/kerberos
+	% ./manage-principals.sh listprincs
+
+2. Configure this into Advance nifi-properties:
+
+	nifi.security.user.login.identity.provider=kerberos-provider
+
+3. Insert this into Advance nifi-login-identity-provider-env just below the LDAP stanza:
+
+<provider>
+    <identifier>kerberos-provider</identifier>
+    <class>org.apache.nifi.kerberos.KerberosProvider</class>
+    <property name="Default Realm">CLOUDAIR.LAN</property>
+    <property name="Authentication Expiration">12 hours</property>
+</provider>
+
+4. Check the Identity Mapping. In the search filter search for .kerb.
+
+	NiFi Service > Configs > Advanced nifi-properties
+
+5. Update the providers for NiFi Registry.
+
+Advanced nifi-registry-properties
+nifi.registry.security.identity.provider: kerberos-identity-provider
+
+Advance nifi-registry-identity-providers-env:
+<!-- to use LDAP -->
+<provider>
+        <identifier>ldap-identity-provider</identifier>
+        <class>org.apache.nifi.registry.security.ldap.LdapIdentityProvider</class>
+        <property name="Authentication Strategy">START_TLS</property>
+
+        <property name="Manager DN">cn=ldapadmin,dc=cloudair,dc=lan</property>
+        <property name="Manager Password">BadPass%1</property>
+
+        <property name="TLS - Keystore">/etc/security/keystores/server.jks</property>
+        <property name="TLS - Keystore Password">BadPass%1</property>
+        <property name="TLS - Keystore Type">JKS</property>
+        <property name="TLS - Truststore">/etc/security/truststores/truststore.jks</property>
+        <property name="TLS - Truststore Password">BadPass%1</property>
+        <property name="TLS - Truststore Type">JKS</property>
+        <property name="TLS - Client Auth">WANT</property>
+        <property name="TLS - Protocol">TLS</property>
+        <property name="TLS - Shutdown Gracefully"></property>
+
+        <property name="Referral Strategy">FOLLOW</property>
+        <property name="Connect Timeout">10 secs</property>
+        <property name="Read Timeout">10 secs</property>
+
+        <property name="Url">ldap://infra01.cloudair.lan:389</property>
+        <property name="User Search Base">ou=users,dc=cloudair,dc=lan</property>
+        <property name="User Search Filter">uid={0}</property>
+
+        <property name="Identity Strategy">USE_DN</property>
+        <property name="Authentication Expiration">12 hours</property>
+</provider>
+
+<!-- to use Kerberos -->
+<provider>
+    <identifier>kerberos-identity-provider</identifier>
+    <class>org.apache.nifi.registry.web.security.authentication.kerberos.KerberosIdentityProvider</class>
+    <property name="Default Realm">CLOUDAIR.LAN</property>
+    <property name="Kerberos Config File">/etc/krb5.conf</property>
+    <property name="Authentication Expiration">12 hours</property>
+</provider>
+
+
+CONFIGURE KERBEROS IDENTITY MAPPING
+When Kerberos authentication is used, the identity of the user is determined from the Kerberos principal. The principal takes a form of username@REALM. For example:
+hadoopadmin@EXAMPLE.COM The realm is (by convention) the domain in uppercase.  
+
+1. Check the configuration for the Identity Mapping with the following: 
+
+	# If using Kerberos mapping 
+	nifi.security.identity.mapping.pattern.kerb=^(.*?)/(.*?)@(.*?)$
+	nifi.security.identity.mapping.transform.kerb=NONE
+	nifi.security.identity.mapping.value.kerb=$1
+
+2. Try logging in to NiFi as Kerberos users.
+
+	slee/EDU@CLOUDAIR.LAN
+	prose/EDU@CLOUDAIR.LAN
+	slee/EDU
+	prose/EDU
+
+
+CONFIGURE NIFI FOR ATLAS
+1. From the Global Menu located in NiFi’s upper right corner, select Controller Settings and click the Reporting Tasks tab.
+
+2. Click the Add (+) icon to launch the Add Reporting Task dialog.
+
+3. Select ReportLineageToAtlas and click Add.
+
+4. Click the Edit icon to launch the Configure Reporting Task dialog. The following Properties are required:
+
+	Atlas URLs – a comma-separated list of Atlas Server URLs. Once you have started reporting, you cannot modify an existing Reporting Task to add a new Atlas Server. When you need to add a new Atlas Server, you must create a new reporting task.
+
+		http://client03.cloudair.lan:21000
+
+	Atlas Authentication Method – Specifies how to authenticate the Reporting Task to the Atlas Server. Basic authentication is the default.
+
+		Basic
+
+	Atlas Username -
+
+		admin
+
+	Atlas Passord - 
+
+		BadPass%1
+
+	Atlas Configuration Directory -
+
+		/etc/atlas/conf
+
+	NiFi URL for Atlas – Specifies the NiFi cluster URL
+
+		https://flow01.cloudair.lan:9091/nifi
+
+	Atlas Default Cluster Name -
+
+		cloudair
+
+	NiFi Lineage Strategy – Specifies the level of granularity for your NiFi dataflow reporting to Atlas. Once you have started reporting, you should not switch between simple and complete lineage reporting strategies.
+
+		Simple Path
+
+	Provenance Record Start Position – Specifies where in the Provenance Events stream the Reporting Task should start.
+
+		Beginning of Steam
+
+	Provenance Record Batch Size – Specifies how many records you want to send in a single batch
+
+		1000
+
+	Create Atlas Configuration File – If enabled, the atlas-application-properties file and the Atlas Configuration Directory are automatically created when the Reporting Task starts.
+
+		true
+
+	Kafka Bootstrap Servers -
+
+		flow01.cloudair.lan:6667,flow02.cloudair.lan:6667,flow03.cloudair.lan:6667
+
+	Kafka Security Protocol – Specifies the protocol used to communicate with Kafka brokers to send Atlas hook notification messages. This value should match Kafka's security.protocol property value.
+
+		PLAINTEXT
+
+-------------------------------------------------------------------
+?. Change permissions on the atlas-application.properties file on each flow node.
+
+    % ssh flow01
+    % cd /etc/atlas/conf/
+    % sudo chmod 644 atlas-application.properties
+-------------------------------------------------------------------
+
+5. Start the task. Once you have ReportLineageToAtlas up and running, you may view dataset level lineage graphs in the Atlas UI.
+
+Note The default time interval for the Reporting Task to start sending data to an Atlas Server is 5 minutes so do not expect to see immediate lineage graphs. You can change the default time interval in the Reporting Task property configuration.
+
+CONFIGURE JDBC FOR NIFI
+# Add PostgreSQL JDBC connector to every node in NiFi cluster 
+	mkdir -p /usr/share/java
+	wget https://jdbc.postgresql.org/download/postgresql-42.2.12.jar /usr/share/java/postgresql-42.2.12.jar
+	ln -s /usr/share/java/postgresql-42.2.12.jar /usr/share/java/postgresql-jdbc.jar
+
+CONFIGURE NIFI FOR KNOX
+These instructions configure for Knox default gateway and for Knox SSO. 
+1. Validate the Initial Admin Identity in nifi ssl.
+
+2. In Advance nifi-ambari-ssl-config and in Ranger user add a node identity for the Knox node:
+
+	<property name="Node Identity 4">CN=client02.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+
+3. Update the nifi.web.proxy.context.path property in Advanced nifi-properties:
+
+	nifi.web.proxy.context.path=gateway/default/nifi-app
+
+4. Update the nifi.web.proxy.host property in Advanced nifi-properties with a comma-separated list of the host name and port for each Knox host, if you are deploying in a container or cloud environment.
+
+	client02.cloudair.lan:18443
+
+5. Configure NiFi for Knox
+
+Advanced nifi-properties:
+	nifi.security.user.knox.audiences  =
+	nifi.security.user.knox.cookieName = hadoop-jwt
+	nifi.security.user.knox.publicKey = /etc/security/pki/gateway.pem
+	nifi.security.user.knox.url = https://client02.cloudair.lan:8443/gateway/knoxsso/api/v1/websso
+
+TWO-WAY SSL FOR KNOX
+1. Proxies must communicate securely with NiFi using two-way SSL. To set up two-way SSL, we generated a gateway.pem file on client02. 
+
+2. Copy in the gateway file onto all three flow nodes	
+	
+	% ssh flow01
+	% scp client02:/etc/security/pki/gateway.pem /tmp/gateway.pem 
+	% sudo mv /tmp/gateway.pem /etc/security/pki/
+
+CONFIGURE THE KNOX SSO TOPOLOGY
+1. If you are proxying NiFi and authenticating with Knox SSO, you must make several edits to the Knox SSO topology.
+
+2. Navigate to Advanced knoxsso-topology and, in the KNOXSSO service definition, edit the Knox SSO token time-to-live value. For example, for a 10 hour time-to-live:
+
+<param>
+   <name>knoxsso.token.ttl</name>
+   <value>36000000</value>
+</param>
+
+3.Update the knoxsso.redirect.whitelist.regex property with a regex value that represents the host or domain in which the NiFi host is running. If the knoxsso.redirect.whitelist.regex property does not exist, you must add it. 
+
+<param>
+   <name>knoxsso.redirect.whitelist.regex</name>
+   <value>^https?:\/\/(\.cloudair\.lan|localhost|127\.0\.0\.1):[0-9].*$</value>
+</param>
+
+ADDING NIFI SERVICE INTO ADVANCE KNOXSSO AND ADVANCE TOPLOGY
+1. Add the following in as a stanza into the topology env
+
+  <service>
+    <role>NIFI</role>
+    <url>https://flow01.cloudair.lan:9091</url>
+    <param name="useTwoWaySsl" value="true"/>
+  </service>
+
+STANDALONE NIFI INSTANCES
+NOTE: In a standone mode NiFi uses its local files to configure security. You have to manually install SSL and then can use the Global Menu for Users and for Policies to configure local access and policies.
+
+ISSUES
+1. Manually change perm to 755 on /etc/atlas/conf/atlas-application.properties
+2. Create ranger policy to allow public access to hdfs:/ranger to allow nifi to add audit logs
+3. Increase max allocated ram 2g
+
+CONFIGURE NIFI REGISTRY
+This is a bit of work. 
+Install NiFi regsitry. Make the following configuration changes:
+
+
+
+###Advanced nifi-registry-ambari-ssl-config
+Initial Admin Identity admin
+ 
+Key password •••••••
+Keystore path /etc/security/keystores/server.jks
+Keystore password ••••
+Keystore type JKS
+Clients need to authenticate?   Yes
+Truststore path /etc/security/truststores/truststore.jks
+Truststore password ••••••
+Truststore type JKS
+Enable SSL? Yes  
+
+<!-- Provide the identity (typically a DN) of NiFi nodes. -->
+<property name="Node Identity 1">CN=flow01.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+<property name="Node Identity 2">CN=flow02.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+<property name="Node Identity 3">CN=flow03.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+<property name="Node Identity 4">CN=client02.cloudair.lan, OU=EDU, O=Cloudair, L=PaloAlto, ST=CA, C=US</property>
+
+
+###Advanced nifi-registry-identity-providers-env
+<!-- LDAP Identity Provider -->
+<provider>
+        <identifier>ldap-identity-provider</identifier>
+        <class>org.apache.nifi.registry.security.ldap.LdapIdentityProvider</class>
+        <property name="Authentication Strategy">SIMPLE</property>
+
+        <property name="Manager DN">cn=ldapadmin,dc=cloudair,dc=lan</property>
+        <property name="Manager Password">BadPass%1</property>
+
+        <property name="TLS - Keystore">/etc/security/keystores/server.jks</property>
+        <property name="TLS - Keystore Password">BadPass%1</property>
+        <property name="TLS - Keystore Type">JKS</property>
+        <property name="TLS - Truststore">/etc/security/truststores/truststore.jks</property>
+        <property name="TLS - Truststore Password">BadPass%1</property>
+        <property name="TLS - Truststore Type">JKS</property>
+        <property name="TLS - Client Auth">NONE</property>
+        <property name="TLS - Protocol">TLS</property>
+        <property name="TLS - Shutdown Gracefully"></property>
+
+        <property name="Referral Strategy">FOLLOW</property>
+        <property name="Connect Timeout">10 secs</property>
+        <property name="Read Timeout">10 secs</property>
+
+        <property name="Url">ldap://infra01.cloudair.lan:389</property>
+        <property name="User Search Base">ou=users,dc=cloudair,dc=lan</property>
+        <property name="User Search Filter">uid={0}</property>
+
+        <property name="Identity Strategy">USE_DN</property>
+        <property name="Authentication Expiration">12 hours</property>
+</provider>
+
+<!-- Kerberos Identity Provider -->
+<provider>
+    <identifier>kerberos-identity-provider</identifier>
+    <class>org.apache.nifi.registry.web.security.authentication.kerberos.KerberosIdentityProvider</class>
+    <property name="Default Realm">CLOUDAIR.LAN</property>
+    <property name="Kerberos Config File">/etc/krb5.conf</property>
+    <property name="Authentication Expiration">12 hours</property>
+</provider>
+
+###Advanced nifi-registry-properties
+nifi.registry.security.identity.mapping.pattern.dn ^CN=(.*?),OU=(.*?),DC=(.*?),DC=(.*?)$
+nifi.registry.security.identity.mapping.pattern.kerb ^(.*?)/(.*?)@(.*?)$
+nifi.registry.security.identity.mapping.transform.kerb NONE
+nifi.registry.security.identity.mapping.value.dn $1
+nifi.registry.security.identity.mapping.value.kerb $1
+nifi.registry.security.identity.provider=kerberos-identity-provider
+
+
+###Advanced ranger-nifi-registry-plugin-properties
+Ranger repository config password ••••••••••
+Ranger repository config user {{ranger_admin_username}}
+Authentication SSL Yes
+Keystore for Ranger Service Accessing NiFi Registry /etc/security/keystores/server.jks
+Keystore password ••••••••••••••••
+Keystore Type JKS
+Truststore for Ranger Service Accessing NiFi Registry /etc/security/truststores/truststore.jks
+Truststore password ••••••••••••••••
+Truststore Type JKS
+Owner for Certificate CN=client03.cloudair.lan,OU=EDU,O=Cloudair,L=PaloAlto,ST=CA,C=US
+Policy user for NiFi Registry nifiregistry
+Enable Ranger for NiFi Registry  Yes
+
+###Advanced ranger-nifi-registry-policymgr-ssl
+owner.for.certificate CN=client03.cloudair.lan,OU=EDU,O=Cloudair,L=PaloAlto,ST=CA,C=US
+xasecure.policymgr.clientssl.keystore /etc/security/keystores/ranger-plugin.jks
+xasecure.policymgr.clientssl.keystore.credential.file jceks://file{{credential_file}}
+xasecure.policymgr.clientssl.keystore.password •••••••••
+xasecure.policymgr.clientssl.truststore /etc/security/truststores/truststore.jks
+xasecure.policymgr.clientssl.truststore.credential.file jceks://file{{credential_file}}
+xasecure.policymgr.clientssl.truststore.password ••••••••••
+
+LOGIN INTO NIFI REGISTRY
+When you login use sysadmin/EDU this will convert to sysadmin for the login and for ranger due to the rule changes in nifi registry properties.
+
+EXPLAINATION ON RANGER NIFI POLICIES
+https://community.cloudera.com/t5/Community-Articles/NiFi-Ranger-based-policy-descriptions/ta-p/246586
+
+Ranger Policy (Base policies): Ranger permissions description:
+
+/resources *** Note: No policies will be available until this policy is manually added.	N/A	This policy allows Ranger to retrieve a listing of all available policies from NiFi. The server/user from the keystore being used by Ranger must be granted “read” privileges to this resource.i
+
+/restricted-components * See note [1] below	Access restricted components	Read/View - N/A 
+Write/Modify - Gives granted users ability to add components to the canvas that are tagged as “restricted”
+
+/proxy * See note [2] below	Proxy user requests	Read/View - Allows proxy servers to send request on behalf of other users.
+Write/Modify - Required
+
+/flow * See note [3] below View the user interface	Read/View - This policy gives users the ability to view the NiFi UI. All users must be granted “read” privileges to this policy or they will not be able to open the NiFi UI. If you are running a NiFi Cluster and/or accessing Your NiFi via a proxy, You need to grant all Nodes and any proxies read access to this policy as well.
+Write/Modify - N/A
+
+/process-groups/UUID	Access process groups.	Read/View - Gives granted users ability to view process groups. Write/Modify - Gives granted users access to run and edit process groups. 
+
+/processors/UUID	Access processes.	Read/View - Gives granted users ability to view processes. Write/Modify - Gives granted users access to run and edit processes. 
+
+/system	View system Diagnostics	Read/View - Gives granted users access to the system diagnostics. In a NiFi cluster, nodes will need to access as well to display system diagnostic stats returned by other nodes.  
+Write/Modify - N/A
+
+/controller	Access the controller	Read/View - Gives granted users the ability to view:- Controller thread pull configuration- Cluster management page- Controller level Reporting tasks- Controller level Controller services
+Write/Modify - Gives granted users the ability to create/modify:- Controller thread pull configuration- Cluster management page- Controller level Reporting tasks- Controller level Controller services
+
+/counters	Access counters	Read/View - Gives granted users ability to view counters Write/Modify - Gives granted users ability to modify counters
+
+/provenance	Query provenance	Read/View -Gives granted users ability to run provenance queries or access Provenance lineage graphs. Write/Modify - N/A
+
+/site-to-site	Retrieve site-to-site details
+
+/policies *** This policy has no purpose when using ranger and does not need to be used.	Access all policies	Read/View - Gives granted users the ability to view existing policies.  
+Write/Modify - Gives granted users the ability to create new policies and modify existing policies.
+
+/tenants *** This policy has no purpose when using Ranger and does not need to be used.	Access users/user groups	Read/View - Gives granted users the ability to view currently authorized users and user groups.
+Write/Modify - Gives granted uses the ability to add, delete, and modify existing users and user groups.1
+
+[1] new sub policies introduced for "/restricted-components" as of CDF 3.2. See following article for details:
+https://community.hortonworks.com/articles/226382/nifi-restricted-components-policy-descriptions.htm...
+[2] All nodes in your NiFi cluster must be assigned to the "/proxy" policy.
+[3] All users must at a minimum be assigned to the "/flow" policy in order to view the NiFi UI.
+

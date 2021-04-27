@@ -16,8 +16,12 @@ Purpose: This goal is to install SSL across a HDP cluster. The first task is to 
 INSTALL PYTHON PACKAGE
 1. Install this package.
 
-	sudo pip install pip --upgrade
+	pip
 	sudo pip install requests --upgrade
+
+if there is an error run:
+	sudo yum remove python-pip
+	sudo yum install python-pip
 
 RUN PYTHON AMBARI TO CONFIGURE SSL FOR HDP
 1. On the Ambari host change directory to the ambari-ssl
@@ -25,9 +29,10 @@ RUN PYTHON AMBARI TO CONFIGURE SSL FOR HDP
 	% sudo chmod 777 ~/sbin/ssl/ambari-ssl/
 	% cd ~/sbin/ssl/ambari-ssl
 
-2. Validate the config file 
+2. Validate the config file and the definitions file. Ensure you are using the json/definitions.json.master file.
 
 	% cat  configs
+	% cat definitions.json
 
 3. Run the python script to configure Ambari for SSL for either http or https.
 
