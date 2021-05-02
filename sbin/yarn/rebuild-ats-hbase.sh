@@ -7,7 +7,7 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: rebuild-yarn-ats.sh
+# Title: rebuild-ats-hbase.sh
 # Author: WKD
 # Date: 1MAR18
 # Purpose: This script rebuilds the hbase for yarn-ats. This is a 
@@ -22,13 +22,13 @@
 NUMARGS=$#
 DIR=${HOME}
 COUNTER=0
-AMBARI_URL=http://admin01.cloudair.lan:8080
-#AMBARI_URL=https://admin01.cloudair.lan:8443
+#AMBARI_URL=http://admin01.cloudair.lan:8080
+AMBARI_URL=https://admin01.cloudair.lan:8443
 AMBARI_USER=admin
 AMBARI_PASSWORD=admin
 DATETIME=$(date +%Y%m%d%H%M)
-LOGDIR=${HOME}/log
-LOGFILE=${LOGDIR}/rebuild-yarn-ats.log
+LOGDIR=/var/log/ambari-server
+LOGFILE=${LOGDIR}/log/checkpoint-hdfs.log
 
 # FUNCTIONS
 function usage() {
@@ -49,7 +49,7 @@ function callInclude() {
 }
 
 function cleanATS() {
-#	sudo -u yarn-ats kinit -kt /etc/security/keytabs/yarn-ats.hbase-client.headless.keytab "yarn-ats-cloudair@CLOUDAIR.LAN"
+	sudo -u yarn-ats kinit -kt /etc/security/keytabs/yarn-ats.hbase-client.headless.keytab "yarn-ats-cloudair@CLOUDAIR.LAN"
 
 	sudo -u yarn-ats yarn app -destroy ats-hbase
 	sudo -u yarn-ats hdfs dfs -rm -r ./3.1.5.0-152/*
@@ -57,7 +57,7 @@ function cleanATS() {
 
 function cleanHDFS() {
 # Clean up HDFS 
-#	sudo -u hdfs kinit -kt /etc/security/keytabs/hdfs.headless.keytab "hdfs-cloudair@CLOUDAIR.LAN"
+	sudo -u hdfs kinit -kt /etc/security/keytabs/hdfs.headless.keytab "hdfs-cloudair@CLOUDAIR.LAN"
 
 	sudo -u hdfs hdfs dfs -rm -r -skipTrash /services/sync/yarn-ats/hbase.yarnfile
 }
@@ -91,7 +91,6 @@ callInclude
 # Run checks
 checkSudo
 checkArg 0
-setupLog
 
 # Clean
 cleanATS
