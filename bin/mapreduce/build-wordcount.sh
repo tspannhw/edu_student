@@ -39,6 +39,16 @@ function checksrc() {
         fi
 }
 
+function setPerms() {
+# ensure read write to directories
+
+	if [ -f /var/local/bin ]; then
+		sudo chmod 777 /var/local/bin
+		sudo chmod 777 /var/local/lib
+		sudo chmod 777 /var/local/sbin
+	fi
+}
+
 function compilejava() {
 # compile java source files in the source directory 
 	sudo javac -d ${HOME}/bin -sourcepath $srcdir -cp $(hadoop classpath) $srcdir/lan/cloudair/*.java
