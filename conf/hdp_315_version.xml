@@ -36,7 +36,7 @@
 <package-version>3_1_5_0_*</package-version>
 <repo>
 <baseurl>
-https://86d1f561-88f8-439d-b441-df8631b63983:89f7e3cc3da8@archive.cloudera.com/p/HDP/centos7/3.x/updates/3.1.5.0
+https://aabed8166-1467-426d-bf32-7f9a066f7417:5d07569c1aa0@rchive.cloudera.com/p/HDP/centos7/3.x/updates/3.1.5.0
 </baseurl>
 <repoid>HDP-3.1</repoid>
 <reponame>HDP</reponame>
@@ -44,7 +44,7 @@ https://86d1f561-88f8-439d-b441-df8631b63983:89f7e3cc3da8@archive.cloudera.com/p
 </repo>
 <repo>
 <baseurl>
-https://86d1f561-88f8-439d-b441-df8631b63983:89f7e3cc3da8@archive.cloudera.com/p/HDP-GPL/centos7/3.x/updates/3.1.5.0
+https://abed8166-1467-426d-bf32-7f9a066f7417:5d07569c1aa0@archive.cloudera.com/p/HDP-GPL/centos7/3.x/updates/3.1.5.0
 </baseurl>
 <repoid>HDP-3.1-GPL</repoid>
 <reponame>HDP-GPL</reponame>
@@ -55,7 +55,7 @@ https://86d1f561-88f8-439d-b441-df8631b63983:89f7e3cc3da8@archive.cloudera.com/p
 </repo>
 <repo>
 <baseurl>
-https://86d1f561-88f8-439d-b441-df8631b63983:89f7e3cc3da8@archive.cloudera.com/p/HDP-UTILS/1.1.0.22/repos/centos7
+https://abed8166-1467-426d-bf32-7f9a066f7417:5d07569c1aa0@archive.cloudera.com/p/HDP-UTILS/1.1.0.22/repos/centos7
 </baseurl>
 <repoid>HDP-UTILS-1.1.0.22</repoid>
 <reponame>HDP-UTILS</reponame>
