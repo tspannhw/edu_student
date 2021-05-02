@@ -7,10 +7,10 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: tutorial-ssl.sh
+# Title: tutorial-tls.sh
 # Author: WKD
 # Date: 1MAR18
-# Purpose: This file contains useful commands for openssl and keytool.
+# Purpose: This file contains useful commands for opentls and keytool.
 # This will assist students who are unfamiliar with these two complex
 # and sophisticated commands to gain a basic understanding of their use.
 
@@ -23,7 +23,7 @@
 NUMARGS=$#
 DIR=${HOME}
 DATETIME=$(date +%Y%m%d%H%M)
-LOGFILE=${DIR}/log/ssl-tutorial.log
+LOGFILE=${DIR}/log/tls-tutorial.log
 
 # FUNCTIONS
 function usage() {
@@ -153,10 +153,10 @@ Create a Working Directory
 	% cd tutorial
 
 Creating a Private Key
- The openssl tool can be used to also create private keys.
+ The opentls tool can be used to also create private keys.
 
         # Create a private key, the output will be private.key
-        % openssl genrsa -out private.key 2048
+        % opentls genrsa -out private.key 2048
 
 	# Check output
 	% ls
@@ -164,14 +164,14 @@ Creating a Private Key
 
         # Verify the  private key
 	% cat private.key
-        % openssl rsa -check -in private.key
+        % opentls rsa -check -in private.key
                 -----BEGIN RSA PRIVATE KEY-----
                 -----END RSA PRIVATE KEY-----
 
 Creating a Public Key
 
 	# Export a public key from the private key
-	% openssl rsa -in private.key -outform PEM -pubout -out public.crt 
+	% opentls rsa -in private.key -outform PEM -pubout -out public.crt 
 
 	# Check output
 	% ls
@@ -202,7 +202,7 @@ Certificate Signing Request (.csr)
  file. This file is the certificate signing request. 
 
 	 # Generate a domain CSR from an existing private key
-         % openssl req -key private.key -new -out request.csr
+         % opentls req -key private.key -new -out request.csr
                Generating a 2048 bit RSA private key
                 ...............+++
                 ..........................+++
@@ -227,7 +227,7 @@ Certificate Signing Request (.csr)
 		private.key  public.crt  request.csr
 
 	# Verify the content of the request.csr file
-	% openssl req -text -noout -verify -in request.csr
+	% opentls req -text -noout -verify -in request.csr
       "
         checkContinue
 }	
@@ -280,7 +280,7 @@ Creating a CA
  The first step is to create a private key for our CA.
 
          # Create a private key for the CA
-         % openssl genrsa -out ca.key 2048
+         % opentls genrsa -out ca.key 2048
                 Generating RSA private key, 2048 bit long modulus
                 ......................+++
                 .................+++
@@ -292,7 +292,7 @@ Creating a CA
 
  	# When you have the private key you can then create 
 	# a CA certificate
-        % openssl req -new -x509 -key ca.key -out ca.crt
+        % opentls req -new -x509 -key ca.key -out ca.crt
                 -----
                 Country Name (2 letter code) [XX]:US
                 State or Province Name (full name) []:CA
@@ -318,7 +318,7 @@ Signing a Certificate
  and a csr. The x509 means a self-signed cert.
 
 	# Create a crt
-        % openssl x509 -req -CA ca.crt -CAkey ca.key -in request.csr -out signed.crt -days 365 -CAcreateserial
+        % opentls x509 -req -CA ca.crt -CAkey ca.key -in request.csr -out signed.crt -days 365 -CAcreateserial
                 Signature ok
                 subject=/C=US/ST=CA/L=Santa_Clara/O=Docker/OU=EDU/CN=ip-172-31-11-176.eu-central-1.compute.internal/emailAddress=wkd@cloudair.lan
                 Getting CA Private Key
@@ -328,7 +328,7 @@ Signing a Certificate
                 ca.crt ca.key private.key public.crt request.cst signed.crt
 
 	# Verify the crt
-        % openssl x509 -text -noout -in signed.crt
+        % opentls x509 -text -noout -in signed.crt
         "
         checkContinue
 }
@@ -342,27 +342,27 @@ Verifying Keys and Certs
  verify the components of SSL.
 
         # View a private key
-        % openssl rsa -check -in private.key
+        % opentls rsa -check -in private.key
                 Enter pass phrase for private.key: BadPass%1
                 RSA key ok
                 writing RSA key
                 -----BEGIN RSA PRIVATE KEY-----
 
 	# View the certificate
-        % openssl x509 -in signed.crt -noout -text
+        % opentls x509 -in signed.crt -noout -text
                 Certficate:
                         Data:
 
 	# Verify a private key
-        % openssl rsa -noout -modulus -in private.key | openssl md5
+        % opentls rsa -noout -modulus -in private.key | opentls md5
                 6c9cf8243ce2dc36acb8a198c783b82c
 
 	# Verify a certificate signing request 
-        % openssl req -noout -modulus -in request.csr | openssl md5
+        % opentls req -noout -modulus -in request.csr | opentls md5
                 6c9cf8243ce2dc36acb8a198c783b82c
 
 	# Verify a certificate  
-        % openssl x509 -noout -modulus -in signed.crt | openssl md5
+        % opentls x509 -noout -modulus -in signed.crt | opentls md5
                 6c9cf8243ce2dc36acb8a198c783b82c
         "
         checkContinue
@@ -475,11 +475,11 @@ function showSignCSR() {
 	heading
         echo "
 Signing a CSR from the Keystore
- Use the openssl tool and the CA certificate to sign this certificate
+ Use the opentls tool and the CA certificate to sign this certificate
  signing request.
 
 	# Sign the csr	
-        % openssl x509 -req -CA ca.crt -CAkey ca.key -in domain.csr -out domain.crt
+        % opentls x509 -req -CA ca.crt -CAkey ca.key -in domain.csr -out domain.crt
                 Signature ok
                 subject=/C=US/ST=CA/L=Santa_Clara/O=Docker/OU=EDU/CN=ip-172-31-11-176.eu-central-1.compute.internal
                 Getting CA Private Key
@@ -593,7 +593,7 @@ showSSL
 showCA
 showFormats
 
-# Run openssl
+# Run opentls
 showCreateKey
 showCreateCSR
 showCA
