@@ -179,7 +179,6 @@ CREATE USERS
 
 NOTE When you are going to sync between Ambari and LDAP then you should manually delete the users sysadmin and devuser and the groups admin and dev. They will be managed through LDAP.
 
-
 INSTALL HA
 1. Install HA for HDFS and YARN. Use the name cloudair.
     - Primary NameNode is already on master01
@@ -189,43 +188,9 @@ INSTALL HA
 2. OPTIONAL You can also choose to install HA for Hive, HBase, and Oozie. I normally don't put these in place except for the lecture on availability in the Admin classes.
 
 FIX TIMELINE SERVER
-NOTE: There is now a script. 
+1. Disable the timeline server alert.
+NOTE: There is now a script to be run if this actually fails. 
 	% sbin/yarn/ats-hbase.sh
-
-Manual Steps:
-Remove ats-hbase before switching between clusters
-Before you migrate between secure and non-secure clusters or HA and non-HA clusters, you must remove ats-hbase from the source cluster. Otherwise, Timeline Service 2.0 might stop working.
-
-You must destroy the ats-hbase service, remove its configuration from HDFS, and remove its specification file from HDFS.
-The following procedure explains with examples the process of removing the ats-hbase service for the yarn-ats user. If required, you must change the user based on your deployment. Similarly, you must use principal and keytab names different from those given in the following examples based on the deployment of your secure cluster.
-
-Use the yarn app -destroy command to destroy the ats-hbase service.
-On a non-secure cluster:
-	% su - yarn-ats
-	% yarn app -destroy ats-hbase
-
-On a secure cluster:
-	% su - yarn-ats
-	% kinit -kt /etc/security/keytabs/yarn-ats.hbase-client.headless.keytab yarn-ats@EXAMPLE.COM
-	% yarn app -destroy ats-hbase
-
-Remove the ats-hbase configuration from HDFS.
-On a non-secure cluster:
-	% su - yarn-ats
-	% hdfs dfs -rm -R ./{stack_version}/*  #{stack_version} is 3.0.0.0-1557
-On a secure cluster:
-	% su - yarn-ats
-	% kinit -kt /etc/security/keytabs/yarn-ats.hbase-client.headless.keytab yarn-ats@EXAMPLE.COM
-	% hdfs dfs  -rm -R ./{stack_version}/*  #{stack_version} is 3.0.0.0-1557
-Delete the specification file for ats-hbase from HDFS.
-You must be logged in as the hdfs user to perform this step.
-On a non-secure cluster:
-	% su - hdfs
-	% hdfs dfs -rm -R /services/sync/yarn-ats/hbase.yarnfile
-On a secure cluster:
-	% su - hdfs
-	% kinit -kt /etc/security/keytabs/hdfs.headless.keytab hdfs@EXAMPLE.COM
-	% hdfs dfs -rm -R /services/sync/yarn-ats/hbase.yarnfile
 
 CONFIGURE ZEPPELIN ACCESS 
 Note: The following configs for training purposes. These would never be used in production.
@@ -290,15 +255,15 @@ INSTALL SHELL INTERPRETER
 
 SETUP RDBMS DATABASE
 This is used to support Sqoop and NiFi.
-1. Import the Zeppelin notebook Psql_01-CreateCloudair from the PSQL directory.
+1. Import the Zeppelin notebook dataset_01-CreateCloudfin from the PSQL directory.
 
 2. Create the psql interpreter
     - default password
-    - default.url: jdbc:postgresql://db01.cloudair.lan:5432/cloudair
+    - default.url: jdbc:postgresql://db01.cloudfin.lan:5432/cloudfin
     - default.user: devuser
     - artifact: /usr/hdp/current/zeppelin-server/interpreter/jdbc/postgresql-9.4-1201-jdbc41.jar
 
-3. Run the notebook to create the cloudair database.
+3. Run the notebook to create the cloudfin database.
 
 IMPORT ZEPPELIN NOTEBOOKS
 1. Notebooks are found on the desktop in bin/zeppelin. There are a lot of them. Import only what is needed. These are json files.
@@ -306,13 +271,6 @@ IMPORT ZEPPELIN NOTEBOOKS
 2. Login as the user sysadmin. Import all of the notebooks for HDFS/ 
 
 3. Login as the user devuser. Import the Zeppelin notebooks for Hive. These begin with HIVE/.
-
-INSTALL DRUID
-I generally skip this step and do this in class when required.
-If you put the Druid Historical and Middlemanager, they are slaves, onto a worker then you will have to add the hdfs client. This will ensure the /etc/security/keytabls/hdfs-headless.keytab is available. Otherwise these daemons will not start.
-
-MAINTENANCE MODE DRUID
-When Druid is installed remember to turn it off when you are not using. It is a memory hog. Leave it off until needed.
 
 BUILD AMI 
 1. Run stop the cluster.
@@ -322,4 +280,4 @@ BUILD AMI
 	% run-remote-nodes.sh cleanlogs
 
 3. Create an AMI, ensure you stop the instance and then put a date on it 
-	EDU-CLOUDAIR-201024
+	EDU-CLUSTER-201024

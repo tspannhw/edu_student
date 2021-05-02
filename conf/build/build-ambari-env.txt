@@ -98,10 +98,10 @@ SETUP DATA
 2. Download the zip files from the S3 bucket.
 
 	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/book.zip 
-	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/cloudair.zip 
+	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/cloudfin.zip 
+	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/cloudtel.zip 
 	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/latin.zip 
 	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/nyse.zip 
-	% wget https://edu-data-wkd.s3-us-west-1.amazonaws.com/telco.zip 
 
 3. Unzip these files.
 
@@ -154,36 +154,31 @@ This setups for the admn environment.
 1. Run containers
 
 	% edu-docker.sh network
-	% edu-docker.sh runcluster
+	% edu-docker.sh cluster
 
 3. Validate your cli environment from ubuntu. 
 
 	% ssh sysadmin@admin01 
 	% sudo ambari-server status 
 	% exit
-	% ssh sysadmin@client01 
+	% ssh devuser@client01 
 	% exit
 
-3. Validate desktop access to Mate/XFCE4. Ensure the ssl is working.
-
+VALIDATE
+1. IMPORTANT Use AWS EC2 instancce to check with a stop/start. 
+2. Check the desktop
 	https://edu-ambari.hdplabs.com
-	login with our standard password
+	BadPass%1
+3. In Mate right click and organize icons by name
+4. Select Ambari desktop icon and login
 
 SETUP DESKTOP
 Customizations to desktop
-1. Arrange the icons on the desktop (Mate does not have grid alignment, each and every time you will have to right click and select organize by name.)
+1. For FCXE arrange the icons on the desktop (Mate does not have grid alignment, each and every time you will have to right click and select organize by name.)
 2. Menu > Systems > Mate Terminal (Pin onto desktop/put on favorites)
 3. Menu > Internet > Google Chromee (put on favorites)
 4. Change the color of the terminal to black font and white background 
 5. Select Google Chrome as default browser
-
-VALIDATE
-1. IMPORTANT Check with a restart from AWS EC2 instance. 
-2. Check the desktop
-	https://edu-ambari.hdplabs.com
-	BadPass%1
-3. Right click and organize icons by name
-4. Select Ambari and login
 
 BUILD AMI 
 1. Use AWS EC2 to stop the running instance
