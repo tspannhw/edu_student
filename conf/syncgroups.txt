@@ -1,1 +1,1 @@
-admin,biz,dev,dgov,dsci,ops,qa
+admin,biz,dev,ops,qa

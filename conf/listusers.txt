@@ -1,7 +1,7 @@
 akhan:biz
 dsmith:dev
 ekumar:ops
-nkelly:dgov
+nkelly:ops
 prose:biz
 rpatel:qa
 slee:admin
