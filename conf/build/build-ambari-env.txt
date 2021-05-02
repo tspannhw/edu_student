@@ -164,22 +164,28 @@ This setups for the admn environment.
 	% ssh sysadmin@client01 
 	% exit
 
-3. Validate desktop access to XFCE4. Ensure the ssl is working.
+3. Validate desktop access to Mate/XFCE4. Ensure the ssl is working.
 
-	https://hostname.domain
+	https://edu-ambari.hdplabs.com
 	login with our standard password
 
 SETUP DESKTOP
 Customizations to desktop
-1. Arrange the icons on the desktop
-2. Change the color of the terminal to black font and white background 
-3. Find Google chrome in applications list and select as browser 
-4. Set standard password for keychain 
-5. Set Google chrome as default browser 
-6. Restart the docker image
-	% edu-docker.sh stop
-	% edu-docker.sh start
+1. Arrange the icons on the desktop (Mate does not have grid alignment, each and every time you will have to right click and select organize by name.)
+2. Menu > Systems > Mate Terminal (Pin onto desktop/put on favorites)
+3. Menu > Internet > Google Chromee (put on favorites)
+4. Change the color of the terminal to black font and white background 
+5. Select Google Chrome as default browser
+
+VALIDATE
+1. IMPORTANT Check with a restart from AWS EC2 instance. 
+2. Check the desktop
+	https://edu-ambari.hdplabs.com
+	BadPass%1
+3. Right click and organize icons by name
+4. Select Ambari and login
 
 BUILD AMI 
-Create an AMI 
+1. Use AWS EC2 to stop the running instance
+2. Create an AMI 
 	EDU-AMBARI-200514 
