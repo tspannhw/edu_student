@@ -175,10 +175,12 @@ VALIDATE
 SETUP DESKTOP
 Customizations to desktop
 1. For FCXE arrange the icons on the desktop (Mate does not have grid alignment, each and every time you will have to right click and select organize by name.)
-2. Menu > Systems > Mate Terminal (Pin onto desktop/put on favorites)
-3. Menu > Internet > Google Chromee (put on favorites)
-4. Change the color of the terminal to black font and white background 
-5. Select Google Chrome as default browser
+2. Set password for keychain
+3. Select Ambari icon.
+4. Select Google Chrome as default browser
+5. Menu > Systems > Mate Terminal (Pin onto desktop/put on favorites)
+6. Menu > Internet > Google Chromee (put on favorites)
+7. Change the color of the terminal to black font and white background 
 
 BUILD AMI 
 1. Use AWS EC2 to stop the running instance
