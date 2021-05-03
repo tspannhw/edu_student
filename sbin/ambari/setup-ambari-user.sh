@@ -99,9 +99,9 @@ function addData() {
 
 	echo "Building data directories, please wait"
         sudo -u hdfs hdfs dfs -mkdir /data
-        sudo -u hdfs hdfs dfs -put ${HOME}/data/latin/ /data/
         sudo -u hdfs hdfs dfs -put ${HOME}/data/book/ /data/
-        sudo -u hdfs hdfs dfs -put ${HOME}/data/geolocation/ /data/
+        sudo -u hdfs hdfs dfs -put ${HOME}/data/latin/ /data/
+        sudo -u hdfs hdfs dfs -put ${HOME}/data/nyse/ /data/
         sudo -u hdfs hdfs dfs -chmod -R 777 /data
         hdfs dfs -ls /data
 }
