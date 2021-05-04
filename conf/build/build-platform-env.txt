@@ -69,9 +69,10 @@ Stage 8. Configuring NiFi and Atlas integration
 Stage 9. Configuring Knox integration
 
 DOCKER RUN PLATFORM
+Note: The install of the Kafka cluster may have already been completed.
 1. On the ubuntu server execute the command to start up 3 more containers.
 
-        edu-docker.sh runplatform
+        edu-docker.sh platform
 
 2. Validate
 

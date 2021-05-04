@@ -54,7 +54,9 @@ Instructions for setting up the EC2 for ENTR.
         % ssh -i ~/.ssh/training-keypair.pem ubuntu@hostname
         % exit
 
-### SETTING UP THE ENVIRONMENT ####
+### REVIEW PROJECT STRATEGY ###
+
+### VALIDATE THE INFRASTRUCTURE ####
 
 VALIDATE THE OS LEVEL 
 Validate the environment before you begin. Test these commands from two or three nodes. 
@@ -125,6 +127,8 @@ It is important to create standard validation practices, scripts, and other tool
         edu-docker.sh stop | start
         AWS EC2 stop and start
 
+### MASTERING SECURING AMBARI ###
+
 REVIEW AMBARI ARCH
 
 AMBARI ENCRYT PASSWORD 
@@ -175,233 +179,6 @@ Re-enter master key: BadPass%1
 Do you want to persist master key. If you choose not to persist, you need to provide the Master Key while starting the ambari server as an env variable named AMBARI_SECURITY_MASTER_KEY or the start will prompt for the master key. Persist [y/n] (y)? y
 Adjusting ambari-server permissions and ownership...
 Ambari Server 'setup-security' completed successfully.
-
-REVIEW PROJECT STRATEGY
-
-### MASTERING USERS  ####
-
-REVIEW USER REFERENCE MODEL
-
-USERS AND GROUPS
-1. We will connect services to LDAP. This is the list of users and their groups that are in LDAP.
-
-	Group: Users
-	admin: slee
-	biz: akhan, prose 
-	dev: dsmith 
-	ops: ekumar
-	qa: rpatel
-
-2. The admin group has the following privileges: Sudo to root. Administration for Ambari manager, HDP cluster, and NiFi. This includes HDFS policies allowing full access to HDFS.
-3. The dev group have the following privileges: Sudo to root. Database Administration for Postgresql, Hive and Atlas.  
-4. Review install ldap script.
-	sbin/ldap/install-ldap.sh
-
-INSTALL SSSD
-This is an important tool in integrating LDAP with our systems. We will use scripts to install it. The install script must be run on every node in the cluster. We will use one tool to deploy it across the cluster and another to run the install. It is a requirement that we have LDAP objectclass posixAccount for users and posixGroup for groups.
-1.  Check the listhosts file to ensure all hosts are listed
-
-    % vim conf/listhosts.txt
-    % run-remote-files.sh push /home/sysadmin/sbin/sssd/install-sssd-ldap.sh /tmp/
-    % run-remote-files.sh run /tmp/install-sssd-ldap.sh 
-    % run-remote-files.sh delete /tmp/install-sssd-ldap.sh
-
-2. Validate
-
-    % id prose
-    % groups slee
-    % sudo su -l dsmith
-    % id
-    % exit
-    % ssh worker03
-    % id slee
-    % groups nkelly
-    % exit
-
-CONFIGURE SSH FOR ACCESS
-There is a decision about allowing ssh access for LDAP users. This task is for classroom purposes. This will create the home directory and copy in the authorize keys to grant access using ssh. The package oddJob will create the home directories upon demand. The configs for .ssh must be setup in the /etc/skel directory. 
-
-1. Add keys to home directories.
-
-	% manage-linux-accounts.sh addkeys
-
-2. Validate ssh for LDAP users
-
-	% ssh slee@client01
-	% ssh prose@client02
-	% exit
-	% exit
-
-REFRESH HDFS AND YARN USER-GROUP 
-This script refreshes the user group mappings in HDFS and YARN. The issue with this script is these must be run on the active nodes. So you have to look it up and then use the active NN and the active RM.  Additionally, this script is setup to run with both HTTPS and Kerberos. These lines are now commented out.
-
-1. Refresh the NN, replace <ACTIVE_NN> with the active NameNode currently shown for HDFS in Ambari.
-
-    % cd sbin/sssd
-	% ./refresh-services.sh  hdfs <ACTIVE_NN>
-
-2. Refresh the RM, replace <ACTIVE_RM> with the active ResourceManager currently shown for YARN in Ambari.
-
-	% ./refresh-services.sh yarn <ACTIVE_RM>
-	% cd ~
-
-REVIEW AMBARI REST API FOR ADDING USERS
-1. Review REST API
-
-	% cd sbin/ambari
-	% vim setup-ambari-users.sh
-
-2. Review the hook for creating hdfs directories.
-3. This script has already been run.
-
-CONFIGURE AMBARI FOR LDAP 
-1. The LDAP server and db are installed on infra01 on the initial build. You will find the componets at infra01:/etc/openldap. This environment is setup out of the box for the purposes of teaching security. You can go into depth about DNS, LDAP, and the KDC.
-
-2. Login to Ambari as sysadmin/BadPass%1. 
-
-3. Login to admin01
-
-	% ssh sysadmin@admin01
-
-4. Test connection to LDAP
-
-	% ldapsearch -x -b "dc=cloudair,dc=lan" ou=users
-
-5. Run the config Ambari for LDAP script
-
-    % cd sbin/ldap
-	% ./setup-ambari-ldap.sh
-
-Using python  /usr/bin/python
-Currently 'no auth method' is configured, do you wish to use LDAP instead [y/n] (y)? y
-Enter Ambari Admin login: admin
-Enter Ambari Admin password: admin
-
-Fetching LDAP configuration from DB. No configuration.
-====================
-Review Settings
-====================
-Primary LDAP Host (ldap.ambari.apache.org):  infra01.cloudair.lan
-Primary LDAP Port (389):  389
-Use SSL [true/false] (false):  false
-User object class (posixUser):  posixAccount
-User ID attribute (uid):  uid
-Group object class (posixGroup):  posixGroup
-Group name attribute (cn):  cn
-Group member attribute (memberUid):  memberuid
-Distinguished name attribute (dn):  dn
-Search Base (dc=ambari,dc=apache,dc=org):  dc=cloudair,dc=lan
-Referral method [follow/ignore] (follow):  follow
-Bind anonymously [true/false] (false):  false
-Handling behavior for username collisions [convert/skip] for LDAP sync (skip):  convert
-ambari.ldap.connectivity.bind_dn: cn=ldapadmin,dc=cloudair,dc=lan
-ambari.ldap.connectivity.bind_password: *****
-Saving LDAP properties...
-Saving LDAP properties finished
-Ambari Server 'setup-ldap' completed successfully.
-Using python  /usr/bin/python
-Restarting ambari-server
-
-SYNC AMBARI WITH LDAP
-1. Check the conf/syncgroups.txt file for the groups to be synced.
-
-	% cat ~/conf/syncgroups.txt
-
-2. Run the sync script. Open and read this script to see the options. It pulls in both users and groups. Avoid running sync all, it brings in all of the service users.
-
-	% ./sync-ambari-ldap.sh
-	% ./sync-ambari-ldap.sh groups
-
-EXAMPLE
-Usage: sync-ambari-ldap.sh [all|exist|groups]
-sysadmin@admin01 ldap$ ./sync-ambari-ldap.sh groups
-Using python  /usr/bin/python
-Syncing with LDAP...
-
-Fetching LDAP configuration from DB.
-Syncing specified users and groups...
-
-Completed LDAP Sync.
-Summary:
-  memberships:
-    removed = 0
-    created = 10 
-  users:
-    skipped = 0
-    removed = 0
-    updated = 0
-    created = 10
-  groups:
-    updated = 0
-    removed = 0
-    created = 6
-
-Ambari Server 'sync-ldap' completed successfully.
-Ambari Sync groups ran
-
-3. Login to Ambari as sysadmin/BadPass%1 and open Ambari Manager. 
-4. This is an important task. Assign groups to roles. 
- 	admin	Cluster Admin
-	biz 	Cluster User
-	dev 	Service Admin	
-	ops	    Cluster Operator
-	qa 	    Service Operator
-
-SETUP AMBARI ADMIN
-1. Use the Ambari Tool to make slee an Ambari Admins.
-
-RESTART AMBARI
-1. Restart Ambari
-
-	% sudo ambari-server restart
-
-2. Login as various users and compare the difference in the capabilities of the users.
-3. Finally, login as sysadmin and slee. All admin functions will now be done as this admin user.
-IMPORTANT: From now on you should no longer login as admin/admin. You should only use sysadmin/BadPass%1 or slee/BadPass%1. 
-5. Recommended Practice is to disable the admin/admin user. 
-
-DELETING LDAP USERS FROM AMBARI
-1. Unfortuantely the sync does not automatically remove users when they are deleted in LDAP. There is a python script for production purposes. You can also use the CLI. Note. When the users are deleted from LDAP they will no longer have access to Ambari, as Ambari still uses the password from LDAP for SSO.
-2. Set Variables
-
-	% AMBARI_ADMIN=sysadmin
-	% AMBARI_PASSWORD=BadPass%1
-	% AMBARI_HOST=admin01.cloudair.lan	
-
-3. Run command per user
-
-	% curl -u ${AMBARI_ADMIN}:${AMBARI_PASSWORD} -H 'X-Requested-By: ambari' -X DELETE http://${AMBARI_HOST}:8080/api/v1/users/ekumar
-
-4. Validate this by returning to Ambari > Manage Ambari > users
-
-SETUP ZEPPELIN FOR LDAP
-1. Edit the Zeppelin > Config > Advance shiro.ini file. 
-2. Add comment, #, in front of the users devuser and sysadmin.
-3. Below [main] add or remove comments for LDAP authentication settings
-
-# LDAP authentication settings
-ldapRealm = org.apache.zeppelin.realm.LdapRealm
-ldapRealm.contextFactory.environment[ldap.searchBase] = DC=cloudair,DC=lan
-ldapRealm.userDnTemplate = uid={0},OU=users,DC=cloudair,DC=lan
-ldapRealm.contextFactory.url = ldap://infra01.cloudair.lan:389
-ldapRealm.contextFactory.authenticationMechanism = SIMPLE
-
-4. Add comments 
-## To be commented out when not using [user] block / paintext
-#passwordMatcher = org.apache.shiro.authc.credential.PasswordMatcher
-#iniRealm.credentialsMatcher = $passwordMatcher
-
-5. Correct comments
-# To enforce security, comment the line below and uncomment the next one
-/api/version = anon
-/api/interpreter/** = authc, roles[admin]
-/api/configurations/** = authc, roles[admin]
-/api/credential/** = authc, roles[admin]
-#/** = anon
-/** = authc
-
-4. Restart All Required and Zeppelin
-5. Validate for users dsmith, slee and sysadmin.
 
 ### AMBARI AS NON-ROOT ###
 
@@ -498,9 +275,9 @@ It is important to start and stop services, ambari, etc to ensure everything is 
 AMBARI AGENT NON ROOT 
 There is an ambari-agent sudoers file and also a script for having the agents run as the user ambari. This always requires extensive testing and checking. It is difficult to roll this back, so ensure you practice on clusters you can give the heave-ho to when things don't work.
 
-### KERBEROS ###
+### MASTERING AUTHENTICATION ###
 
-INFO:
+NOTE:
 ~/sbin/kerberos/tutorial-kerberos-install.txt is a guide to installing kerberos from scratch on a system. Kerberos is already available with the default HDP configuration, so you do not need to follow that tutorial now.
 
 ~/sbin/kerberso/tutorial-kerberos.txt is a guide to enabling and configuring kerberos on Ambari. You will use it to configure kerberos after you have enabled kerberos via Ambari.
@@ -562,7 +339,7 @@ VALIDATE KERBEROS KDC
         % exit
 
 CREATE A PRINCIPAL WITH KADMIN
-We have configured the Kerberos KDC to call on LDAP to validate users. The KDC password must match the password in LDAP.
+Create a headless principal. This stores the password in the Kerberos DB, a keytab is not required.
 1. Connect to the KDC
         % sudo kadmin -p kadmin/admin@CLOUDAIR.LAN
         BadPass%1
@@ -578,28 +355,47 @@ We have configured the Kerberos KDC to call on LDAP to validate users. The KDC p
         kadmin: quit
 
 GRANT A KERBEROS TGT
-1. Change user to slee
-        % sudo su -l slee
-2. Run klist to see there are no tickets
+1. Run klist to see there are no tickets
         % klist
-3. Run kinit to request a TGT
-        % kinit sysadmin@CLOUDAIR.LAN
-4. Run klist to see the TGT
-        klist
-5. Run kdestroy to destroy the TGT
+2. Run kinit to request a TGT
+        % kinit 
+3. Run klist to see the TGT
+        % klist
+4. Run kdestroy to destroy the TGT
         kdestroy
         
-CREATE A KERBEROS PRINCIPAL REQUIRING A KEY
-The sysadmin user is not listed in LDAP. This principal will require a keytab.
+CREATE A KERBEROS PRINCIPAL REQUIRING A KEYTAB
+The user devuser is not listed in the KDC. This script will creaate a keytab for the principal on every node.
 1. Create a principal and deploy a keytab.
         % cd sbin/kerberos
         % ./manage-principal.sh add devuser CLOUDAIR.LAN BadPass%1
+2. Validate devuser.
+	% sudo su -l devuser
+	% klist
+	% klist -ket /etc/security/keytabs/devuser.keytab
+	% kinit -kt /etc/security/keytabs/devuser.keytab devuser/admin01.cloudair.lan@CLOUDAIR.LAN
+	% klist
+	% kdestroy
+
+CREATE KERBEROS PRINCIPAL FOR LDAP USERS
+This will create headless principals for all users in listuser.txt. This way our ldap users can kinit as required. In an enterprise these two services will be integrated and this step will not be required.
+1. Add principals
+	% cd sbin/kerberos
+	% ./manage-principals.sh listprincs
+	% ./manage-principals.sh addprincs
+	% ./manage-principals.sh listprincs
+2. After we install SSSD we can validate with the following commands.
+	% sudo su -l slee
+	% klist
+	% kinit
+	% klist
+	% kdestroy
+	% exit
 
 VALIDATE KERBEROS AFTER AMBARI INSTALL
         % ssh master01
         % ls -la /etc/security/keytabs/
         % sudo klist -ket /etc/security/keytabs/nn.service.keytab
-        % sudo klist -ket /etc/security/keytabs/hdfs.headless.keytab
         % exit
 
 KERBEROS FOR THE SERVICE USER HDFS
@@ -619,10 +415,301 @@ KERBEROS FOR THE SERVICE USER HDFS
 7. Exit
         % exit
 
-### DATA GOV WITH RANGER AND ATLAS ###
+### MASTERING AUTHORIZATION  ####
 
-ADD KAFKA 
-1. Service > Kafka
+REVIEW USER REFERENCE MODEL
+
+USERS AND GROUPS
+1. We will connect services to LDAP. This is the list of users and their groups that are in LDAP.
+
+	Group: Users
+	admin: slee
+	biz: akhan, prose 
+	dev: dsmith 
+	ops: ekumar,nkelly
+	qa: rpatel
+
+2. Review install ldap script.
+	sbin/ldap/install-ldap.sh
+
+INSTALL SSSD
+The primary reason we need SSSD is the YARN Queues require Linux users and groups to assign to the queues.  
+SSSD is an important tool in integrating LDAP with our systems. We will use scripts to install it. The install script must be run on every node in the cluster. We will use one tool to deploy it across the cluster and another to run the install. 
+Note: It is a requirement that we have LDAP objectclass posixAccount for users and posixGroup for groups. Linux uses uid and gid to map to users. Check your LDAP to ensure the users have uid and gid.
+Note: This is general sysadmin practice. The rule is Do Not Manually Install. Here we will use a script to push, to run, and to cleanup.
+1.  Check the listhosts file to ensure all hosts are listed. The flow servers, added latter, do not require SSSD access for Linux users
+
+    % vim conf/listhosts.txt
+    % run-remote-file.sh push /home/sysadmin/sbin/sssd/install-sssd-ldap.sh /tmp/
+    % run-remote-file.sh run /tmp/install-sssd-ldap.sh 
+    % run-remote-file.sh delete /tmp/install-sssd-ldap.sh
+
+2. Validate
+
+    % id prose
+    % groups slee
+    % sudo su -l dsmith
+    % id
+    % exit
+    % ssh worker03
+    % id slee
+    % groups nkelly
+    % exit
+
+3. Ensure slee is a member of the admin group and he has sudo without a password acccess. If not add him to the wheel group on every node. Currently there is no script for this requirement. At least add him to the wheel group for admin01.
+	
+	% sudo usermod  -aG wheel slee
+	% sudo su -l
+	# exit
+
+DETERMINE CONFIGURE SSH FOR LDAP USERS
+General practice is not to enable this feature. There is a decision about allowing ssh access for LDAP users. This task is for classroom purposes. This will create the home directory and copy in the authorize keys to grant access using ssh. The package oddJob will create the home directories upon demand. The configs for .ssh must be setup in the /etc/skel directory. 
+
+1. Add keys to home directories.
+
+	% manage-linux-accounts.sh addkeys
+
+2. Validate ssh for LDAP users
+
+	% ssh slee@client01
+	% ssh prose@client02
+	% exit
+	% exit
+
+REFRESH HDFS AND YARN USER-GROUP 
+This script refreshes the user group mappings in HDFS and YARN. The issue with this script is these must be run on the active nodes. So you have to look it up and then use the active NN and the active RM.  Additionally, this script is setup to run with both HTTPS and Kerberos. These lines are now commented out.
+
+1. Refresh the NN, replace <ACTIVE_NN> with the active NameNode currently shown for HDFS in Ambari.
+
+    % cd sbin/sssd
+	% ./refresh-services.sh  hdfs <ACTIVE_NN>
+
+2. Refresh the RM, replace <ACTIVE_RM> with the active ResourceManager currently shown for YARN in Ambari.
+
+	% ./refresh-services.sh yarn <ACTIVE_RM>
+	% cd ~
+
+REVIEW AMBARI REST API FOR ADDING USERS
+1. Review REST API
+
+	% cd sbin/ambari
+	% vim setup-ambari-users.sh
+
+2. Review the hook for creating hdfs directories.
+3. This script has already been run.
+
+CONFIGURE AMBARI FOR LDAP 
+1. The LDAP server and db are installed on infra01 on the initial build. You will find the componets at infra01:/etc/openldap. This environment is setup out of the box for the purposes of teaching security. You can go into depth about DNS, LDAP, and the KDC.
+
+2. Login to Ambari as sysadmin/BadPass%1. 
+
+3. Login to admin01
+
+	% ssh sysadmin@admin01
+
+4. Test connection to LDAP
+
+	% ldapsearch -x -b "dc=cloudair,dc=lan" ou=users
+
+5. Run the config Ambari for LDAP script
+
+    % cd sbin/ldap
+	% ./setup-ambari-ldap.sh
+
+Using python  /usr/bin/python
+Currently 'no auth method' is configured, do you wish to use LDAP instead [y/n] (y)? y
+Enter Ambari Admin login: sysadmin
+Enter Ambari Admin password: BadPass%1
+
+Fetching LDAP configuration from DB. No configuration.
+====================
+Review Settings
+====================
+Primary LDAP Host (ldap.ambari.apache.org):  infra01.cloudair.lan
+Primary LDAP Port (389):  389
+Use TLS [true/false] (false):  false
+User object class (posixUser):  posixAccount
+User ID attribute (uid):  uid
+Group object class (posixGroup):  posixGroup
+Group name attribute (cn):  cn
+Group member attribute (memberUid):  memberuid
+Distinguished name attribute (dn):  dn
+Search Base (dc=ambari,dc=apache,dc=org):  dc=cloudair,dc=lan
+Referral method [follow/ignore] (follow):  follow
+Bind anonymously [true/false] (false):  false
+Handling behavior for username collisions [convert/skip] for LDAP sync (skip):  convert
+ambari.ldap.connectivity.bind_dn: cn=ldapadmin,dc=cloudair,dc=lan
+ambari.ldap.connectivity.bind_password: *****
+Saving LDAP properties...
+Saving LDAP properties finished
+Ambari Server 'setup-ldap' completed successfully.
+Using python  /usr/bin/python
+Restarting ambari-server
+
+SYNC AMBARI WITH LDAP
+1. Check the conf/syncgroups.txt file for the groups to be synced.
+
+	% cat ~/conf/syncgroups.txt
+
+2. Run the sync script. Open and read this script to see the options. It pulls in both users and groups. Avoid running sync all, it brings in all of the service users.
+
+	% ./sync-ambari-ldap.sh
+	% ./sync-ambari-ldap.sh groups
+
+EXAMPLE
+Usage: sync-ambari-ldap.sh [all|exist|groups]
+sysadmin@admin01 ldap$ ./sync-ambari-ldap.sh groups
+Using python  /usr/bin/python
+Syncing with LDAP...
+
+Fetching LDAP configuration from DB.
+Syncing specified users and groups...
+
+Completed LDAP Sync.
+Summary:
+  memberships:
+    removed = 2
+    created = 7
+  users:
+    skipped = 0
+    removed = 0
+    updated = 0
+    created = 7 
+  groups:
+    updated = 2
+    removed = 0
+    created = 3
+
+Ambari Server 'sync-ldap' completed successfully.
+Ambari Sync groups ran
+
+3. Login to Ambari as sysadmin/BadPass%1 and open Ambari Manager. 
+4. This is an important task. Assign groups to roles. 
+ 	admin	Cluster Admin
+	biz 	Cluster User
+	dev 	Service Admin	
+	ops	Cluster Operator
+	qa 	Service Operator
+5. Add slee as an Ambari Administrator.
+
+RESTART AMBARI
+1. Login as various users and compare the difference in the capabilities of the users.
+2. Finally, login as sysadmin and slee. All admin functions will now be done as this admin user.
+IMPORTANT: From now on you should no longer login as admin/admin. You should only use sysadmin/BadPass%1 or slee/BadPass%1. 
+3. Recommended Practice is to disable the admin/admin user. 
+
+DELETING LDAP USERS FROM AMBARI
+1. Unfortuantely the sync does not automatically remove users when they are deleted in LDAP. There is a python script for production purposes. You can also use the CLI. Note. When the users are deleted from LDAP they will no longer have access to Ambari, as Ambari still uses the password from LDAP for SSO.
+2. Set Variables
+
+	% AMBARI_ADMIN=sysadmin
+	% AMBARI_PASSWORD=BadPass%1
+	% AMBARI_HOST=admin01.cloudair.lan	
+
+3. Run command per user
+
+	% curl -u ${AMBARI_ADMIN}:${AMBARI_PASSWORD} -H 'X-Requested-By: ambari' -X DELETE http://${AMBARI_HOST}:8080/api/v1/users/ekumar
+
+4. Validate this by returning to Ambari > Manage Ambari > users
+
+SETUP ZEPPELIN FOR LDAP
+1. Edit the Zeppelin > Config > Advance shiro.ini file. 
+2. Add comment, #, in front of the users devuser and sysadmin.
+3. Below [main] add or remove comments for LDAP authentication settings
+
+# LDAP user authentication
+ldapRealm = org.apache.zeppelin.realm.LdapRealm
+ldapRealm.contextFactory.authenticationMechanism = SIMPLE
+ldapRealm.contextFactory.url = ldap://infra01.cloudair.lan:389
+ldapRealm.userDnTemplate = uid={0},OU=users,DC=cloudair,DC=lan
+ldapRealm.contextFactory.environment[ldap.searchBase] = DC=cloudair,DC=lan
+
+# LDAP group authentication
+# Ability to set ldap paging Size if needed default is 100
+ldapRealm.pagingSize = 200
+ldapRealm.authorizationEnabled=true
+ldapRealm.contextFactory.systemAuthenticationMechanism=simple
+ldapRealm.searchBase=dc=cloudair,dc=lan
+ldapRealm.userSearchBase = dc=cloudair,dc=lan
+ldapRealm.groupSearchBase = ou=groups,dc=cloudair,dc=lan
+ldapRealm.groupObjectClass=posixGroup
+# Allow userSearchAttribute to be customized
+ldapRealm.userSearchAttributeName = uid
+ldapRealm.memberAttribute=memberuid
+# ability set searchScopes subtree (default), one, base
+ldapRealm.userSearchScope = subtree;
+ldapRealm.groupSearchScope = subtree;
+ldapRealm.memberAttributeValueTemplate=cn={0},ou=users,dc=cloudair,dc=lan
+ldapRealm.contextFactory.systemUsername=uid=slee,ou=users,dc=cloudair,dc=lan
+ldapRealm.contextFactory.systemPassword=S{ALIAS=ldcSystemPassword}
+# enable support for nested groups using the LDAP_MATCHING_RULE_IN_CHAIN operator
+ldapRealm.groupSearchEnableMatchingRuleInChain = true
+# optional mapping from physical groups to logical application roles
+ldapRealm.rolesByGroup = biz: user_role, dev: user_role, ops: user_role, admin: admin_role
+# optional list of roles that are allowed to authenticate. Incase not present all groups are allowed to authenticate (login).
+# This changes nothing for url specific permissions that will continue to work as specified in [urls].
+ldapRealm.allowedRolesForAuthentication = admin_role,user_role
+ldapRealm.permissionsByRole= user_role = *:ToDoItemsJdo:*:*, *:ToDoItem:*:*; admin_role = *
+securityManager.sessionManager = $sessionManager
+securityManager.realms = $ldapRealm
+
+4. Comment out 
+## To be commented out when not using [user] block / paintext
+#passwordMatcher = org.apache.shiro.authc.credential.PasswordMatcher
+#iniRealm.credentialsMatcher = $passwordMatcher
+
+# Roles
+# admin
+# user1
+5. Correct comments
+# To enforce security, comment the line below and uncomment the next one
+/api/version = anon
+/api/interpreter/** = authc, roles[admin]
+/api/configurations/** = authc, roles[admin]
+/api/credential/** = authc, roles[admin]
+#/** = anon
+/** = authc
+
+4. Restart All Required and Zeppelin
+5. Validate for users dsmith, slee and sysadmin.
+
+### MASTERING ACCESS CONTROL ###
+
+INSTALL KAFKA CLUSTER
+Install a 3 node Kafka cluster. This will be used by Atlas. It best to deploy in front of Ranger. This way Ranger can establish a plugin to manage access to Kafka topics.
+
+DOCKER RUN PLATFORM
+1. On the ubuntu server execute the command to start up 3 more containers. These will be flow01 to 03.
+
+        edu-docker.sh platform
+
+2. Validate
+
+        docker container ls | grep flow
+
+DEPLOY FLOW NODES
+1. Use the Add Host wizard to add 3 new hosts to Ambari.
+
+         flow[01-03].cloudair.lan
+
+2. Deselect all software packages, the flow nodes only need a limited set of software. While the easy route is to install client software on all three nodes but this wastes space and it takes time.
+
+INSTALL ZOOKEEPER CLIENT
+Note: If you do not install the client software then you must install the Zookeeper client on all three nodes.
+
+1. Use the Host view to install a Zookeeper client on all 3 flow nodes.
+
+        Ambari > Hosts > flow01 > Add > Zookeeper client
+
+INSTALL KAFKA CLUSTER
+1. Use the Host view to install Kafka broker on all 3 flow nodes.
+
+        Ambari > Services > Add Service > Kafka
+
+2. Add the Kafka brokers to flow01, flow02, and flow03.
+3. Validate Kafka by creating, publishing, and consuming from Kafka topics.
+4. Review the tutorial in bin/kafka.
+5. The Kafka scripts can be found in sysadmin@flow01:/usr/hdp/current/kafka-broker/bin/ listed at the top of the tutorial
 
 RANGER PREREQS
 1. Ensure the RDBMS has a database for ranger with the user ranger-admin. You can find the create scripts in sbin/postgresql.
@@ -648,8 +735,10 @@ INSTALL RANGER
 5. IMPORTANT Under the Ranger User Info tab enter the following configurations:
 
 Common Configs
-        Sync Source         LDAP/AD
-	    Password			BadPass%1
+        Sync Source         		LDAP/AD
+   	Password			BadPass%1
+	Incremental Syn			yes
+	Enable LDAP StartTLS		no
 Users Configs
         Username Attribute              uid
         User Object Class               posixAccount
@@ -657,7 +746,8 @@ Users Configs
         User Search Filter              cn=*
         User Search Scope               sub
         User Group Name Attribute       gidNumber 
-        Group User Map sync             no
+        Group User Map sync             yes
+	Enable User Search		yes
 Group Configs
         Enable Group Sync               yes
         Group Member Attribute          memberuid
@@ -665,10 +755,10 @@ Group Configs
         Group Object Class              posixGroup
         Group Search Base               ou=groups,dc=cloudair,dc=lan
         Group Search Filter             cn=*
-        Enable Group Search First       no
+        Enable Group Search First       yes
         Sync Nested Groups              no
 
-6. Enable Ranger plugin's for HDFS YARN, Hive, and HBase
+6. Enable all Ranger plugin's 
 7. Ranger Audit is good
 8. Skip Ranger Tagsync. This will be configued with the install of Atlas.
 9. Advance. There are 5 sets of passwords. Set all 5 to BadPass%1.Recommend also resetting the password for Ranger Admin user to BadPass%1.
@@ -680,11 +770,13 @@ VALIDATE USERS
 3. Validate the list of users synced with LDAP.
 
 RANGER ADMIN USER
-NOTE: Ranger requires admins to have on board accounts. They can not be an external user coming from LDAP.
+NOTE: Ranger requires admins to have on board accounts. 
 1. Go to Settings > Users/Groups
-2. Select user slee
-3. Grant admin role to slee 
-4. In production you would then disable the Ranger admin user.
+2. Add user sysadmin/BadPass%1/Admin role
+3. Grant Admin role to sysadmin
+4. Select user slee, this will work after we enable Knox. 
+5. Grant admin role to slee 
+6. In production you would then disable the Ranger "admin" user.
 
 VALIDATE RANGER PLUGINS
 1. Go to the Access Manager.
@@ -692,13 +784,8 @@ VALIDATE RANGER PLUGINS
 3. Test connection of every plugin.
 
 DELETING LDAP USERS FROM RANGER
-1. Unfortuantely Ranger does not automatically delete users from LDAP (external). You can do this manually through the Ranger Web UI.
+1. Ranger usersync does not automatically delete users from LDAP (external). You can do this manually through the Ranger Web UI.
 2. You can also use the Ranger REST API. See Cloudera Community for examples. 
-
-KAFKA PLUGIN FOR RANGER
-1. Enable Kafka plugin for ranger.
-2. Restart all required.
-3. Validate the connection of the Kafka plugin for Ranger through the Ranger UI Access Manager Service Manager.
 
 INSTALL ATLAS
 NOTE: Atlas uses Solr indexing and Kafka topics. So these must be running before you start the install.
@@ -720,25 +807,25 @@ atlas.authentication.method.ldap.user.searchfilter      (uid={0})
 atlas.authentication.method.ldap.default.role   ROLE_USER
 
 5. In Advance set the admin password to BadPass%1
-6. Restart all required
+6. Deploy and restart all required
 
 CREATE AN ADMIN USER
-1. Check the Ranger plugin for Atlas is enabled.
+1. Check the Ranger plugin for Atlas to ensure it is enabled.
 
-2. In the Ranger Configurations tab in Ambari, check it is already configured.
+2. Login to Ranger web UI as sysadmin.
 
-3. Using the Ranger UI, grant admin access to the admin group for each Atlas policy. In production you will remove the admin user. In this case leave it.
+3. Using the Service Manager policies for Atlas, grant full permissions for the admin group for each Atlas policy. Add the admin group where you see the admin user. In production you will remove the admin user. In this case leave it.
 
-4. Login to Atlas with slee/BadPass%1.
+4. Login to Atlas with slee/BadPass%1. This is enabled for LDAP only so the user sysadmin will not work. You could install file based authorization and add sysadmin and devuser there. Atlas will use both file and LDAP.
 
 TROUBLESHOOT ATLAS
-1. If there are issues logging in you have to work the Ranger policies.
+1. If there are issues logging in you should check the Ranger policies.
 
 2. You can try admin/BadPass%1.
 
 3. If there are real issues disable LDAP and create a file based authorization. 
 
-ADD USERS TO AUTH FILE
+ADD USERS TO ATLAS AUTH FILE
 Note: File authentication can be the most secure access to Atlas. This task is in the case you do not want to use LDAP with ATLAS. 
 
 1. Login to client03
@@ -758,23 +845,27 @@ Note: File authentication can be the most secure access to Atlas. This task is i
 
 	# echo -n "BadPass%1" | sha256sum 
 
-5. Copy it into the buffer
+5. Copy it into the clipboard.
 
 	Edit > copy
 
-6. Edit the users auth file
+6. Edit the users auth file. In prodution delete the admin user.
 
         # vim users-credentials.properties
      
-     nkelly=ROLE_ADMIN::e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a
+     sysadmin=ROLE_ADMIN::e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a
+     devuser=ROLE_ADMIN::e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a
 
-7. Save and deploy Atlas
+6. Ambari > Service > Atlas > Configs > Authentication
 
-8. After install Restart All Required
+7. Enable file based authentication.
 
-ATLAS import-hive.sh
-Atlas normally does the imports from Hive and HBase, but this only works for entites created after the install of Atlas. If you have historical entities in Hive and/or HBase you will need to manually execute the import.
-The issue is this must be done as the user Hive or HBase.
+8. Save and restart Atlas.
+
+9. Login as sysadmin and then exit.
+
+WORK AROUND FOR ATLAS HOOKS FOR HIVE AND HBASE
+The Atlas hook is import-hive.sh. Atlas normally does the imports from Hive and HBase, but this only works for entites created after the install of Atlas. If you have historical entities in Hive and/or HBase you will need to manually execute the import. The difference is this must be done as the user hive or hbase, not as the user atlas..
  
 If you have databases that were installed into hive or hbase prior to the installation of Atlas or you have no hive or hbase showing you will have to do a manual import into Atlas. This example is for Hive but the same pattern works for HBase..
 
@@ -830,7 +921,7 @@ If you have databases that were installed into hive or hbase prior to the instal
 
 14. Now you can validate by opening the Atlas UI and search by type for hive_db.
 
-### ENCYPT DATA AT REST ###
+### MASTERING ENCYPT DATA AT REST ###
 
 INSTALL RANGER KMS 
 1. Start the service install. 
@@ -844,6 +935,7 @@ INSTALL RANGER KMS
 	Ranger KMS DB host: db01.cloudair.lan
 	Ranger KMS DB password: BadPass%1
 	Turn off Setup Database and Database User
+	Test Connection
 
 4. Scroll down and set the KMS master password
 
@@ -876,37 +968,37 @@ hadoop.kms.proxyuser.keyadmin.hosts=*
 SETUP RANGER KMS 
 Complete the Zeppelin notebooks Admin > RangerKMS, and RangerKMSHive.
 
+### MASTERING ENCRYPT DATA IN MOTION ###
 
-### ENCRYPT DATA IN MOTION ###
-
-README FILES FOR SSL
-1. There are a number of README files to guide you through installing a full implementation of SSL for HDP. This is complex and complicated. Begin with the file at sbin/ssl/README. 
+README FILES FOR TLS
+1. There are a number of README files to guide you through installing a full implementation of TLS for HDP. This is complex and complicated. Begin with the file at sbin/ssl/README. 
 
 	% cd sbin/ssl
 	% vim README
 
 2. This is one of those projects where meticulousness counts. Follow the instructions carefully. 
 
-TUTORIAL ON SSL
+TUTORIAL ON TLS
 There is a tutorial on the openssl and keytool commands. If you unfamiliar with these tools you must take the time to practice. None of this will make sense unless you are very familar with how these two tools work.
 1. Run the tutorial.
 
 	% cd sbin/ssl/
 	% ./tutorial-ssl.sh
 
-AMBARI-SERVER SSL
-1. The two scripts in ambari-server can be run on their own. This is not a full implementation of SSL, but at least a start.
+HDP TLS
+AMBARI-SERVER TLS
+1. The two scripts in ambari-server can be run on their own. This is not a full implementation of TLS, but at least a start.
 
 2. Begin with the README.
 
 	% cd sbin/ssl/ambari-server
 	% vim README
 
-SSL NOTES FOR WIP
+TLS NOTES FOR WIP
 1. Ranger plugin for YARN requires. Set YARN REST URL = https://master02.cloudair.lan:8090. I also messed around with using yarnha.cloudair.lan and with a comma list to see if this provided HA. Failed. 
 2. Ranger KMS. I had installed keys and encrypt zones as a validation. I had issues with getting Ranger KMS running. I removed these hdfs directories and deleted the keys. We need to validate this in a future build.
 
-AMBARI METRIC COLLECTOR
+TROUBLESHOOT THE AMBARI METRIC COLLECTOR
 This may or may not be an issue. If the Ambari Metrics server stops, try these steps.
 
 1. It is important to line up the znodes for HBase and Ambari Metric Collector. 2. Review the znode for HBase.
@@ -918,7 +1010,7 @@ This may or may not be an issue. If the Ambari Metrics server stops, try these s
 	/hbase-secure
 WARNING This might require you to delete the service Ambari Metrics and reinstall.
 
-### CREATE A DMZ ###
+### MASTERING SINGLE SIGN ON ###
 
 INSTALL KNOX GATEWAY 
 1. Ambari > Add Service > Knox
@@ -1116,7 +1208,7 @@ TROUBLESHOOT KNOX GATEWAY
 	Setting up SSO authentication properties...
 	Do you want to configure SSO authentication [y/n] (y)? n
 
-3. How to renew Knox Gateway SSL certificate when it expires.
+3. How to renew Knox Gateway TLS certificate when it expires.
 
 	% cd /var/lib/knox/data/security/keystores
 	% sudo mv gateway.jks /tmp
@@ -1139,6 +1231,7 @@ RUN SPARK
 /usr/hdp/current/spark2-client/lib/spark-examples*.jar 1 1
 
 
+### MASTERING AMI BUILD ###
 BUILD  AMI Create an AMI, ensure you put a date on it.
 1. Run stop cluster
 

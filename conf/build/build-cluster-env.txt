@@ -64,7 +64,7 @@ MANUAL INSTALL OF HDP CLUSTER
 	client[01-03].cloudair.lan
 	master[01-03].cloudair.lan
 	worker[01-04].cloudair.lan
-	Use pem in desktop:/home/devuser/pki 
+	Use pem in desktop:/home/devuser/pki/cloudair.key
 	Install as user sysadmin
 
 2. Services to install:
@@ -74,7 +74,6 @@ MANUAL INSTALL OF HDP CLUSTER
 	Tez
 	Hive
 	HBase
-	Sqoop
 	ZooKeeper
 	Infra Solr
 	Ambari Metrics
@@ -82,30 +81,46 @@ MANUAL INSTALL OF HDP CLUSTER
 	Spark2
 	Zeppelin Notebook
 	
-	Use standard HDP architecture for assigning components to clients and masters 
+3. Use HDP reference architecture for assigning components to clients and masters 
 
-
-3. Customize Services
+4. Customize Services
     Credentials: use BadPass%1 for all
 
     Databases. All databases use BadPass%1 as the password.
 
-	Select Hive database to be existing postgres on db01, not client01 
-	hive.warehouse.subdir.inherit.perms=false (HDP2 only)
-	Ensure you test both Hive and Oozie (If installed)
+    Select Hive database to be existing postgres on db01, not client01 
 
+NOTE for HDP2
+	hive.warehouse.subdir.inherit.perms=false
 
-5. Configurations for memory. This is a big issue. Dockers use all of the RAM and CPU in common. We must fraction up the memory and CPU to prevent over running resources. 
+5. Complete the deployment. Deploy (40 min.)
+
+AVAILABILITY INSTALL HA w/ Auto-failover
+1. Install HA for HDFS. Use the name cloudair.
+    - Primary NameNode is already on master01
+    - HA NameNode goes on master03, SNameNode will be deleted in this process
+    - One JournalNode goes on each master
+2. Install HA for YARN
+    - YARN HA node goes on master03
+3. OPTIONAL You can also choose to install HA for Hive, Spark, HBase, and Oozie. I normally don't put these in place except for the lecture on availability in the Admin classes.
+
+CHANGE AND CONFIGURATION MANAGEMENT
+1. Delete Smartsense Service
+
+2. Add Sqoop as a client onto the client nodes. Do not put it on the admin node.
+
+3. Configurations for memory. This is a big issue. Dockers use all of the RAM and CPU in common. We must fraction up the memory and CPU to prevent over running resources. 
 YARN
 	RAM: Memory allocated for all YARN 12288 MB 
 	RAM: Max Container Size 12288  MB
 	CPU: Number of Vcores: 4
 	CPU: Max Container Vcore 2
-	GPU: Number of GPU: 4
+	GPU: Number of GPU: 2
 MAPRED
 	Map Memory: 2048 MB
 	Reduce Memory: 4096 MB
 	AppMaster Memory: 2048 MB
+	Sort Allocation Memory: 1024 MB
 TEZ
 	TEZ AppMaster Resource Memory:  2048 MB
 	TEZ Task Resource Memory: 4096 MB
@@ -114,22 +129,42 @@ HIVE
 	Hive Tez Container: 4096 MB
         HiveServer2 Heap: 4096 MB
         MetaStore Heap: 2048 MB
-	Memory for Map Join: 405306368 B
+	Memory for Map Join: 1215MB
 HBASE
+	HBase Max Region File Size: 2GB
 	HBase Master Max MB:  1024 MB
-        HBase Region Server Max Mem: 2048 MB
+        HBase Region Server Max Mem: 4096 MB
 	HBase Region Block Multiplier: 2
 	Number of Handlers: 40
-        Max Region File Size: 2147483648 B
+        Max Region File Size: 2 GB 
 	Max Client Retries 8
-AMBARI METRICS
-	Ambari Metric Collector Heap MB = 512
-	Ambari Metric HBase Master Max MB = 1280
-4. Deploy (40 min.)
 
-DELETE SMARTSENSE
-	Delete SmartSense 
-	Set auto start for all services
+INCIDENT MANAGEMENT
+1. Do various changes, restarts and rollbacks.
+
+CONFIGURE ALERT
+1. Disable ULIMITS This is reading from the underlying Ubuntu OS. Disable this alert.
+2. Disable yarn-ats. This does not work correctly. You have to go to the RM web UI to check if it is running.
+
+FIX TIMELINE SERVER
+1. Disable the timeline server alert.
+NOTE: There is now a script to be run if this actually fails. 
+	% sbin/yarn/ats-hbase.sh
+
+HIVE VERTEX
+1. We do not have the RAM to support Hive vertorization. 
+2. Turn these parameters off.
+
+    Hive > Configs > Performance (or search for 'vectorization')
+	Enable Vectorization and Map Vectorization = false
+	Enable Reduce Vectorization = false
+	
+	Hive > Configs > Advanced hive-interactive-site
+	hive.vectorized.execution.mapjoin.minmax.enabled = false
+	hive.vectorize.execution.mapjoin.native.enabled = false
+    hive.vectorized.execution.mapjoin.native.fast.hashtable.enabled = false
+	Enable Reduce Vecorization = false
+3. Restart all affected
 
 INSTALL HIVE-INTERACTIVE
 Recommend installing this after the cluster spins up and is working.
@@ -146,131 +181,121 @@ Recommend installing this after the cluster spins up and is working.
 2. Advance Configs
 
         Hive > Configs > Advanced-hive-interactive-env
-        HiveServer Interactive Heap 1024 MB
+        HiveServer Interactive Heap 2048 MB
         LLAP Max Headroom       1024 MB
-        LLAP Deamon Heap        4096 MB
+        LLAP Deamon Heap        2048 MB
 
 3. IMPORTANT Set the YARN queue for Default and for LLAP 
-	Default Capacity 40%, Max Capacity 100%
-	LLAP Capacity 60%, Max Capacity 100%
+	Default Capacity 50%, Max Capacity 100%
+	LLAP Capacity 50%, Max Capacity 100%
 
-HIVE VERTEX
-1. There is an error introduced by Hive vertex. 
-2. Turn these parameters off.
-
-    Hive > Configs > Performance (or search for 'vectorization')
-	Enable Vectorization and Map Vectorization = false
-	Enable Reduce Vectorization = false
-	
-	Hive > Configs > Advanced hive-interactive-site
-	hive.vectorized.execution.mapjoin.minmax.enabled = false
-	hive.vectorize.execution.mapjoin.native.enabled = false
-    hive.vectorized.execution.mapjoin.native.fast.hashtable.enabled = false
-	Enable Reduce Vecorization = false
-3. Restart all affected
-
-DISABLE ULIMITS ALERT
-This is reading from the underlying Ubuntu OS. Disable this alert.
+4. Restart all required. We will test after we configure Zeppelin.
 
 CREATE USERS
-1. Run the script to customize Ambari by adding the hooks to create hdfs directories every time you add users. The script will then create the Ambari users sysadmin and devuser. Be sure to check for users sysadmin and devuser, group admin with Group Access Cluster Administrator and group dev with Group Access Service Administrator. Check that a directory was created for them in hdfs:/user. There also should be a hdfs://data directory.
+1. Run the script to customize Ambari by adding the hooks to create hdfs directories every time you add users. The script will then create the Ambari users sysadmin and devuser. 
 
 	/home/sysadmin/sbin/ambari/setup-ambari-users.sh
 
-NOTE When you are going to sync between Ambari and LDAP then you should manually delete the users sysadmin and devuser and the groups admin and dev. They will be managed through LDAP.
+2. Be sure to check for users sysadmin and devuser, group admin with Group Access Cluster Administrator and group dev with Group Access Service Administrator. Check that a directory was created for them in hdfs:/user. There also should be a hdfs://data directory.
 
-INSTALL HA
-1. Install HA for HDFS and YARN. Use the name cloudair.
-    - Primary NameNode is already on master01
-    - HA NameNode goes on master03, SNameNode will be deleted in this process
-    - One JournalNode goes on each master
-    - YARN HA node goes on master03
-2. OPTIONAL You can also choose to install HA for Hive, HBase, and Oozie. I normally don't put these in place except for the lecture on availability in the Admin classes.
+3. Logout of admin and log back in as sysadmin. Use this admin user from this point forward.
 
-FIX TIMELINE SERVER
-1. Disable the timeline server alert.
-NOTE: There is now a script to be run if this actually fails. 
-	% sbin/yarn/ats-hbase.sh
+NOTE In the security class we will sync Ambari to LDAP. These two users will remain as manually added users but they will no longer be used.
 
 CONFIGURE ZEPPELIN ACCESS 
 Note: The following configs for training purposes. These would never be used in production.
 1. Change /user/zeppelin permissions to rwxrwxrwx. This will allow Hive to write into this directory. 
 
-    % sudo su - hdfs 
+    % sudo su -l hdfs 
 	% hdfs dfs -chmod -R 777 /user/zeppelin
-	% hdfs dfs -chmod -R 777 /data
 	% exit
 
 2. Add Zeppelin and Hive to the wheel group on client02.
 
 	% ssh sysadmin@client02
-	% sudo su -l
-	# vim /etc/group
+	% sudo usermod -aG wheel hive
+	% sudo usermod -aG wheel zeppelin 
+	% cat /etc/group | grep wheel
 	    wheel:x:10:sysadmin,devuser,hive,zeppelin
-	# exit
 	% exit
 
 CONFIGURE ZEPPELIN USERS 
 1. Regarding logins long term you must choose between file users, LDAP, or Knox SSO. You can only use one at a time. For this environment configure the two file based users sysadmin and devuser. 
 
 
-        Zeppelin > Configs > Advanced > Advanced zeppelin-shiro-ini
+        Zeppelin > Configs >  Advanced zeppelin-shiro-ini
 
 3. Remove the current users under [users]
 
 4. Add in the users sysadmin and devuser. You can find examples of these two lines in the conf/config_zeppelin.txt file.
-	sysadmin = BadPass%1,admin
-	devuser = BadPass%1,role1
+sysadmin = BadPass%1,admin
+devuser = BadPass%1,admin
 
 5. Ensure you comment out the lines with passwordMatcher.
+#passwordMatcher = org.apache.shiro.authc.credential.PasswordMatcher
+#iniRealm.credentialsMatcher = $passwordMatcher
+
+6. Remove the # from interpreter, configurations, credential
+# To enfore security, comment the line below and uncomment the next one
+/api/version = anon
+/api/interpreter/** = authc, roles[admin]
+/api/configurations/** = authc, roles[admin]
+/api/credential/** = authc, roles[admin]
+#/** = anon
+/** = authc
 
 6. Save and Restart Zeppelin
 
-7. Validate by logging in as sysadmin and devuser.
+7. Validate by logging in as sysadmin and devuser. Check access to interpreter and configurations.
 
 INSTALL SHELL INTERPRETER
-1. Install the shell interpreter. I have found the base command does not work. But the jar files are there. Try:
-
-2. ssh to client02
+1. ssh to client02
 
 	% ssh client02
 	% sudo su -l
 
-3. Change directory
+2. Change directory
 
 	# cd /usr/hdp/current/zeppelin-server
 
-4. Run this command
+3. Run this command
 
 	# ./bin/install-interpreter.sh --name shell --artifact interpreter/sh/zeppelin-shell-0.8.0.3.1.5.0-152.jar
 	# exit
 	% exit
 
-5. Restart Zeppelin
+4. Restart Zeppelin
 
-6. Create interpreter setting in 'Interpreter' menu on Zeppelin GUI.
-   - artifact: /usr/hdp/current/zeppelin-server/interpreter/sh/zeppelin-shell-0.8.0.3.1.5.0-152.jar
+5. Create interpreter setting in 'Interpreter' menu on Zeppelin GUI.
+	Interpreter Name: sh
+	Intepreter Group: sh
+   	Artifact: /usr/hdp/current/zeppelin-server/interpreter/sh/zeppelin-shell-0.8.0.3.1.5.0-152.jar
 
-7. Then bind the interpreter on your notebook.
+6. Then bind the interpreter on your notebook.
 
-SETUP RDBMS DATABASE
-This is used to support Sqoop and NiFi.
-1. Import the Zeppelin notebook dataset_01-CreateCloudfin from the PSQL directory.
+7. Test with a paragraph 
+	%sh
+	ls /tmp
 
-2. Create the psql interpreter
-    - default password
-    - default.url: jdbc:postgresql://db01.cloudfin.lan:5432/cloudfin
-    - default.user: devuser
+CREATE PSQL INTERPRETER 
+1. Create the psql interpreter. 
+    - Interpreter Name: psql
+    - Interpreter Group: jdbc
+    - default password: BadPass%1
+    - default.url: jdbc:postgresql://db01.cloudfin.lan:5432
+    - default.user: gpadmin 
     - artifact: /usr/hdp/current/zeppelin-server/interpreter/jdbc/postgresql-9.4-1201-jdbc41.jar
-
-3. Run the notebook to create the cloudfin database.
 
 IMPORT ZEPPELIN NOTEBOOKS
 1. Notebooks are found on the desktop in bin/zeppelin. There are a lot of them. Import only what is needed. These are json files.
 
-2. Login as the user sysadmin. Import all of the notebooks for HDFS/ 
+2. Login as the user devuser. 
 
-3. Login as the user devuser. Import the Zeppelin notebooks for Hive. These begin with HIVE/.
+3. Import the Zeppelin notebook dataset_01-CreateCloudfin from the DATASET directory.
+
+4. Use this notebook to test sh, hive, and psql.
+
+4. Run the notebook to create the cloudfin database.
 
 BUILD AMI 
 1. Run stop the cluster.
