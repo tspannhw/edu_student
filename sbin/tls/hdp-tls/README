@@ -11,7 +11,7 @@
 
 Note: This work was built on scripts provided by Cloudera PS. They have been modified for classroom purposes.
 
-Purpose: This goal is to install SSL across a HDP cluster. The first task is to generate the required signing certificates from a CA. The second tasks is to use this certificate to sign certs and keystores on all nodes. This must be done for the local host and for Ranger. The third task is to use a python script to load the JSON file into Ambari. The fourth task is to restart both Ambari and the HDP cluster.
+Purpose: This goal is to install TLS across a HDP cluster. The first task is to generate the required signing certificates from a CA. The second tasks is to use this certificate to sign certs and keystores on all nodes. This must be done for the local host and for Ranger. The third task is to use a python script to load the JSON file into Ambari. The fourth task is to restart both Ambari and the HDP cluster.
 
 GENERATE YOUR OWN CA CERTS
 1. We are using certificates created on Microsoft Certificate Services. 
@@ -25,9 +25,9 @@ EDIT THE CONFIGS FILE
 
 	% vim configs 
 
-2. Copy the configs file into ambari-ssl. Ensure these are both in sync.
+2. Copy the configs file into ambari-tls. Ensure these are both in sync.
 
-	% cp configs ../ambari-ssl/
+	% cp configs ../ambari-tls/
 
 GENERATE CA CERTS
 1. IMPORTANT: This task needs to be done once on the admin host. This does not need to be repeated on every host.
@@ -40,47 +40,47 @@ GENERATE CA CERTS
 
 3. Copy in the cert files.
 
-	% sudo ./generate-hdp-ssl.sh GenerateCACert configs
+	% sudo ./generate-hdp-tls.sh GenerateCACert configs
 
-PREPARE TO GENERATE-HDP-SSL
+PREPARE TO GENERATE-HDP-TLS
 1. Go to the directory for ssl.
 
-	% cd ~/sbin/ssl/hdp-ssl
+	% cd ~/sbin/ssl/hdp-tls
 
 2. Create a tar file.
 
 	% cd ..
-	% tar cvf /tmp/hdp-ssl.tar hdp-ssl
+	% tar cvf /tmp/hdp-tls.tar hdp-tls
 
 PUSH AND EXTRACT 
 1. Push the tar file to all hosts
 
-	% run-remote-files.sh push /tmp/hdp-ssl.tar /tmp
+	% run-remote-files.sh push /tmp/hdp-tls.tar /tmp
 
 2. Extract the tar file on all hosts 
 
-	% run-remote-files.sh extract /tmp/hdp-ssl.tar  /tmp
+	% run-remote-files.sh extract /tmp/hdp-tls.tar  /tmp
 
 3. Clean up the tar file on all hosts
 
-	% run-remote-files.sh delete /tmp/hdp-ssl.tar
+	% run-remote-files.sh delete /tmp/hdp-tls.tar
 
-RUN GENERATE-SSL
-IMPORTANT: The setup-hdp-ssl.sh has a DIR variable set to /tmp/hdp-ssl. The
+RUN GENERATE-TLS
+IMPORTANT: The setup-hdp-tls.sh has a DIR variable set to /tmp/hdp-tls. The
 script expects to find the generate file in this directory.
 
 1. Run the install command on all hosts
 
-	% run-remote-files.sh run /tmp/hdp-ssl/setup-hdp-ssl.sh
+	% run-remote-files.sh run /tmp/hdp-tls/setup-hdp-tls.sh
 
-2. The setup-hdp-ssl.sh will run the generate-hdp-ssl.sh with the options:
+2. The setup-hdp-tls.sh will run the generate-hdp-tls.sh with the options:
 
 	GenerateKeys
 	GenerateTruststore
 	GenerateRanger
 	GenerateJCEKS
 	
-VALIDATE GENERATE-SSL
+VALIDATE GENERATE-TLS
 1. Check various nodes the certs and keys. Check the following directories:
 
 	% ls /etc/security/keystores/
@@ -90,9 +90,9 @@ VALIDATE GENERATE-SSL
 	% ls /etc/security/pki/
 		server.crt server.key server.p12
 
-ROLLBACK GENERATE-SSL
+ROLLBACK GENERATE-TLS
 1. If you need to rollback on all hosts you must run the rollback script. This is important to do as the cacerts keystore has been updated with the generate script. This will set this file back to the original state.
 
-	% run-remote-files.sh run /tmp/hdp-ssl/rollback-hdp-ssl.sh
+	% run-remote-files.sh run /tmp/hdp-tls/rollback-hdp-tls.sh
 
-2. You can then run the setup-hdp-ssl.sh script again.
+2. You can then run the setup-hdp-tls.sh script again.

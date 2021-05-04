@@ -91,6 +91,8 @@ function runScript() {
 # Run a script on a remote node
 
 	FILE=${INPUT}
+	
+	echo "Begin installing sssd, this takes time"
 
         for HOST in $(cat ${HOSTS}); do
                 ssh -tt ${HOST} "sudo ${FILE}" < /dev/null >> ${LOGFILE} 2>&1
@@ -113,7 +115,7 @@ function deleteFile() {
 		ssh -tt ${HOST} "sudo rm -r ${FILE}" < /dev/null >> ${LOGFILE} 2>&1
 		RESULT=$?
 		if [ ${RESULT} -eq 0 ]; then
-			echo "Removed ${FILE} on ${HOST}" | tee -a ${LOGFILE}
+			echo "Delete ${FILE} on ${HOST}" | tee -a ${LOGFILE}
 		else
                 	echo "ERROR: Failed to remove ${FILE} on ${HOST}" | tee -a ${LOGFILE}
 		fi
