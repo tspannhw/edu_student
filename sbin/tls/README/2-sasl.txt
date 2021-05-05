@@ -18,4 +18,9 @@ CLIENT RPC ENCRYPTION HDFS, YARN, and Ranger use SASL QOP to secure RPC traffic.
 
 	hadoop.rpc.protection=privacy
 
+DATA TRANSFER PROTOCOL The NameNode gives the client the address of the first DataNode to read or write the block. The actual data transfer between the client and the DataNode is over Hadoop's Data Transfer Protocol. To encrypt this protocol you must set dfs.encryt.data.transfer=true on the NameNode and all DataNodes. The actual algorithm used for encryption can be customized with dfs.encrypt.data.transfer.algorithm set to either "3des" or "rc4". If nothing is set, then the default on the system is used (usually 3DES.) While 3DES is more cryptographically secure, RC4 is substantially faster.
+
+	dfs.encrypt.data.transfer=true
+	dfs.encrypt.data.transfer.algorithm=3des
+
 RANGER HDFS ENCRYPTION  When you install Ranger KMS it will set the parameters to encypt HDFS traffic. The parameters dfs.encrypt.data.transfer.cipher.suites and dfs.encryption.key.provider.uri are automatically set. 

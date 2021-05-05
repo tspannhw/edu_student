@@ -12,8 +12,8 @@
 # Author: WKD # Date: 200406
 # Purpose: Detailed instructions on building enterprise services (ENTR) lab class.
 
-WARNING 
-This is not a step by step guide. You must have familiarity with installing security on Ambari and HDP. One good source is to use the github.com/hortonworksuniversity/security. There you will find a number of different pdf's with instructions for deploying security into different configurations of HDP.
+CAUTION
+This is not a step by step guide. You must have familiarity with installing software on Ambari for HDP. 
 
 DEPENDENCIES
 Edu Docker is depenting upon a RDBMS, postgresql, located on db01.cloudair.lan. This contains all of the required databases.
@@ -28,25 +28,23 @@ Instructions for setting up the EC2 for ENTR.
 
 3. Complete the build page. This will create all of the required tags and use the correct AMI. Use the EDU-ADMN AMI.
 
-        tol
-        JIRA ticket number TINFRA-35
         PROJECT devops
-        TICKET NUMBER  35
+        TICKET NUMBER  3333
         LOCATION ncalifornia
         NO_OF_VMS 1
         TRAINER_INTIALS WKD
-        CUSTOMER ENTR 
+        CUSTOMER SECURITY 
         AUTO TERM 14
-        PURPOSE DEVOPS_Development
+        PURPOSE DEVOPS
         AWS_AMI_ID "Select AMI for latest BASE env"
         AWS_Instance_Size r5.4xlarge
- 	AWS_root_volume_size 256
+ 	AWS_root_volume_size 512
 
 4. Recommend associating an EIP in Route53 under hdplabs. This makes life easier as you stop and start the instance.
 
         Route 53
         Zone hdplabs.com
-        DNS  dev-entr.hdplabs.com
+        DNS  edu-security.hdplabs.com
 
 5. Add your Internet Gateway IP Address to the security group
 6. Login and validate your private key. I have set my default id_rsa to the training-keypair.pem.
@@ -789,41 +787,6 @@ DELETING LDAP USERS FROM RANGER
 
 INSTALL ATLAS
 NOTE: Atlas uses Solr indexing and Kafka topics. So these must be running before you start the install.
-1. Use Ambari > Service > Add Service > Atlas
-2. Add Atlas to client03.
-3. Add Atlas client software to all hosts.
-4. Enable LDAP Authentication with the following configurations: 
-
-atlas.authentication.method.ldap.url    ldap://infra01.cloudair.lan:389
-atlas.authentication.method.ldap.userDNpattern  uid={0},ou=users,dc=cloudair,dc=lan
-atlas.authentication.method.ldap.groupSearchBase        dc=cloudair,dc=lan
-atlas.authentication.method.ldap.groupSearchFilter      (memberid=cn={0},ou=users,dc=cloudair,dc=lan)
-atlas.authentication.method.ldap.groupRoleAttribute     cn
-atlas.authentication.method.ldap.base.dn        dc=cloudair,dc=lan
-atlas.authentication.method.ldap.bind.dn        cn=ldapadmin,dc=cloudair,dc=lan
-atlas.authentication.method.ldap.bind.password  BadPass%1
-atlas.authentication.method.ldap.referral       ignore
-atlas.authentication.method.ldap.user.searchfilter      (uid={0})
-atlas.authentication.method.ldap.default.role   ROLE_USER
-
-5. In Advance set the admin password to BadPass%1
-6. Deploy and restart all required
-
-CREATE AN ADMIN USER
-1. Check the Ranger plugin for Atlas to ensure it is enabled.
-
-2. Login to Ranger web UI as sysadmin.
-
-3. Using the Service Manager policies for Atlas, grant full permissions for the admin group for each Atlas policy. Add the admin group where you see the admin user. In production you will remove the admin user. In this case leave it.
-
-4. Login to Atlas with slee/BadPass%1. This is enabled for LDAP only so the user sysadmin will not work. You could install file based authorization and add sysadmin and devuser there. Atlas will use both file and LDAP.
-
-TROUBLESHOOT ATLAS
-1. If there are issues logging in you should check the Ranger policies.
-
-2. You can try admin/BadPass%1.
-
-3. If there are real issues disable LDAP and create a file based authorization. 
 
 ADD USERS TO ATLAS AUTH FILE
 Note: File authentication can be the most secure access to Atlas. This task is in the case you do not want to use LDAP with ATLAS. 
@@ -856,13 +819,44 @@ Note: File authentication can be the most secure access to Atlas. This task is i
      sysadmin=ROLE_ADMIN::e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a
      devuser=ROLE_ADMIN::e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a
 
-6. Ambari > Service > Atlas > Configs > Authentication
 
-7. Enable file based authentication.
+INSTALL ATLAS WITH LDAP
+1. Use Ambari > Service > Add Service > Atlas
 
-8. Save and restart Atlas.
+2. Add Atlas to client03.
 
-9. Login as sysadmin and then exit.
+3. Add Atlas client software to all hosts.
+
+4. Enable file based authentication.
+
+5. Enable LDAP Authentication with the following configurations: 
+
+atlas.authentication.method.ldap.url    ldap://infra01.cloudair.lan:389
+atlas.authentication.method.ldap.userDNpattern  uid={0},ou=users,dc=cloudair,dc=lan
+atlas.authentication.method.ldap.groupSearchBase        dc=cloudair,dc=lan
+atlas.authentication.method.ldap.groupSearchFilter      (memberid=cn={0},ou=users,dc=cloudair,dc=lan)
+atlas.authentication.method.ldap.groupRoleAttribute     cn
+atlas.authentication.method.ldap.base.dn        dc=cloudair,dc=lan
+atlas.authentication.method.ldap.bind.dn        cn=ldapadmin,dc=cloudair,dc=lan
+atlas.authentication.method.ldap.bind.password  BadPass%1
+atlas.authentication.method.ldap.referral       ignore
+atlas.authentication.method.ldap.user.searchfilter      (uid={0})
+atlas.authentication.method.ldap.default.role   ROLE_USER
+
+6. In Advance set the admin password to BadPass%1. This is for troubleshootting purposes. In production set the admin password to a string of junk.
+
+7. Deploy Atlas.
+
+CREATE RANGER POLICIES FOR ADMIN USER
+1. Check the Ranger plugin for Atlas to ensure it is enabled.
+
+2. Login to Ranger web UI as sysadmin.
+
+3. Using the Service Manager policies for Atlas, grant full permissions for the admin group for each Atlas policy. Add the admin group where you see the admin user. In production you will remove the admin user. In this case leave it.
+
+4. Validate by logging in as sysadmin and then exit.
+
+5. Login to Atlas with slee/BadPass%1. This is enabled for LDAP only so the user sysadmin will not work. You could install file based authorization and add sysadmin and devuser there. Atlas will use both file and LDAP.
 
 WORK AROUND FOR ATLAS HOOKS FOR HIVE AND HBASE
 The Atlas hook is import-hive.sh. Atlas normally does the imports from Hive and HBase, but this only works for entites created after the install of Atlas. If you have historical entities in Hive and/or HBase you will need to manually execute the import. The difference is this must be done as the user hive or hbase, not as the user atlas..
@@ -971,10 +965,10 @@ Complete the Zeppelin notebooks Admin > RangerKMS, and RangerKMSHive.
 ### MASTERING ENCRYPT DATA IN MOTION ###
 
 README FILES FOR TLS
-1. There are a number of README files to guide you through installing a full implementation of TLS for HDP. This is complex and complicated. Begin with the file at sbin/ssl/README. 
+1. There are a number of README files to guide you through installing a full implementation of TLS for HDP. This is complex and complicated. Change into the README directory and read the files.
 
-	% cd sbin/ssl
-	% vim README
+	% cd sbin/tls/README
+	% vim 1-intro.txt 
 
 2. This is one of those projects where meticulousness counts. Follow the instructions carefully. 
 
@@ -982,22 +976,11 @@ TUTORIAL ON TLS
 There is a tutorial on the openssl and keytool commands. If you unfamiliar with these tools you must take the time to practice. None of this will make sense unless you are very familar with how these two tools work.
 1. Run the tutorial.
 
-	% cd sbin/ssl/
-	% ./tutorial-ssl.sh
-
-HDP TLS
-AMBARI-SERVER TLS
-1. The two scripts in ambari-server can be run on their own. This is not a full implementation of TLS, but at least a start.
-
-2. Begin with the README.
-
-	% cd sbin/ssl/ambari-server
-	% vim README
+	% cd sbin/tls/
+	% ./tutorial-tls.sh
 
 TLS NOTES FOR WIP
 1. Ranger plugin for YARN requires. Set YARN REST URL = https://master02.cloudair.lan:8090. I also messed around with using yarnha.cloudair.lan and with a comma list to see if this provided HA. Failed. 
-2. Ranger KMS. I had installed keys and encrypt zones as a validation. I had issues with getting Ranger KMS running. I removed these hdfs directories and deleted the keys. We need to validate this in a future build.
-
 TROUBLESHOOT THE AMBARI METRIC COLLECTOR
 This may or may not be an issue. If the Ambari Metrics server stops, try these steps.
 

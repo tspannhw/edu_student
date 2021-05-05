@@ -41,7 +41,7 @@ Instructions for setting up the Ubuntu Docker Server. We use Ubuntu 16.04 as thi
 
 3. Complete the build page. This will create all of the required tags and use the correct AMI.
 
-        PROJECT tinfra
+        PROJECT devops
         TICKET NUMBER  3333
         LOCATION ncalifornia
         NO_OF_VMS 1 

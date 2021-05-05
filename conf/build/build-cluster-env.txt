@@ -29,8 +29,7 @@ SETUP EC2 INSTANCE
 3. Complete the Jenkins build page. This will create all of the required tags. 
 IMPORTANT: The AMI must be the EDU-ADMN.
 
-        JIRA ticket number EDUOPS
-        PROJECT tinfra
+        PROJECT DEVOPS
         TICKET NUMBER  3333
         LOCATION ncalifornia
         NO_OF_VMS 1
