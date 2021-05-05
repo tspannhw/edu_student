@@ -1,7 +1,5 @@
 <topology>
-
     <gateway>
-
 	<provider>
 		<role>authentication</role>
 		<name>ShiroProvider</name>
@@ -87,11 +85,9 @@
 			<value>cn</value>
 		</param>
 	</provider>
-
     </gateway>
 
 	<service>
  		<role>KNOX</role>
 	</service>
-
 </topology>

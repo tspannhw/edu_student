@@ -1,7 +1,5 @@
 <topology>
-
 	<gateway>
-
 		<provider>
 			<role>identity-assertion</role>
 			<name>Default</name>
@@ -52,7 +50,6 @@
 				<value>authcBasic</value>
 			</param>
 		</provider>
-
 	</gateway>
 
             <service>
@@ -102,36 +99,6 @@
             </service>
 
             <service>
-                <role>DRUID-COORDINATOR-UI</role>
-
-            </service>
-
-            <service>
-                <role>DRUID-COORDINATOR</role>
-
-            </service>
-
-            <service>
-                <role>DRUID-OVERLORD-UI</role>
-
-            </service>
-
-            <service>
-                <role>DRUID-OVERLORD</role>
-
-            </service>
-
-            <service>
-                <role>DRUID-ROUTER</role>
-
-            </service>
-
-            <service>
-                <role>DRUID-BROKER</role>
-
-            </service>
-
-            <service>
                 <role>ZEPPELINUI</role>
                 <url>http://client02.cloudair.lan:9995</url>
 
@@ -140,7 +107,5 @@
             <service>
                 <role>ZEPPELINWS</role>
                 <url>ws://client02.cloudair.lan:9995/ws</url>
-
             </service>
-
 </topology>
