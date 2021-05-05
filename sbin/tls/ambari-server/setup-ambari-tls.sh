@@ -125,7 +125,7 @@ checkArg 0
 checkSudo
 
 # Run install
-#installExpect
+installExpect
 
 # Run functions 
 createExpect

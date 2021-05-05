@@ -247,13 +247,13 @@
     },
     "RANGER_KMS": {
         "kms-env": {
-	    "kms-port": "9293"
+	    "kms_port": "9293"
         },
         "kms-site": {
 	    "hadoop.kms.key.provider.uri": "dbks://https@client03.cloudair.lan:9293/kms",
-	    "ranger.service.https.port": "9293"
         },
         "ranger-kms-site": {
+	    "ranger.service.https.port": "9293"
             "ranger.service.https.attrib.keystore.file": "KEYSTORELOC",
             "ranger.service.https.attrib.client.auth": "want",
             "ranger.service.https.attrib.keystore.keyalias": "gateway-identity",

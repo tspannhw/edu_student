@@ -62,7 +62,7 @@ script expects to find the generate file in this directory.
 
 1. Run the install command on all hosts
 
-	% run-remote-files.sh run /tmp/hdp-tls/setup-hdp-tls.sh
+	% run-remote-file.sh run /tmp/hdp-tls/setup-hdp-tls.sh
 
 2. The setup-hdp-tls.sh will run the generate-hdp-tls.sh with the options:
 

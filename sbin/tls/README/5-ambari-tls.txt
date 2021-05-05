@@ -45,11 +45,11 @@ HTTPS:
 	% rm doSet_*
 
 CUSTOM TLS DEFINITIONS
-1. In the json directory are all of the definition files. The definitions.json.master is the base install. You may have to modify it to map to your selection of hosts by either removing or adding in services.
+1. In the json directory are all of the definition files. The definitions.json.hdp is the master properties file. You will have to modify it to map to your selection of hosts by either removing or adding in services.
 
-2. In the json directory there are custom definitions for additional services, these include Knox, NiFi and Storm.
+2. In the json directory there are custom definitions for additional services, these include Knox, NiFi, and Storm.
 
 3. In all cases you must copy the json of your choice over to the definitions.json file located in ambari-tls.
 
-	% cd ~/ambari-tls/json
-	% cp definitions.json.master ../definitions.json
+	% cd ~/ambari-tls
+	% cp json/definitions.json.nifi definitions.json
