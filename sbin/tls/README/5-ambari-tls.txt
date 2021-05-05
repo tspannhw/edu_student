@@ -5,15 +5,13 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: README
+# Title: 5-ambari-tls.sh
 # Author: WKD
 # Date: 200530
 
 Note: This work was built on scripts provided by Cloudera PS. They have been modified for classroom purposes.
 
-Purpose: This goal is to install SSL across a HDP cluster. The first task is to generate the required signing certificates from a CA. The second tasks is to use this certificate to sign certs and keystores on all nodes. This must be done for the local host and for Ranger. The third task is to use a python script to load the JSON file into Ambari. The fourth task is to restart both Ambari and the HDP cluster.
-
-INSTALL PYTHON PACKAGE
+INSTALL REQUESTS PYTHON PACKAGE
 1. Install this package.
 
 	pip
@@ -23,36 +21,35 @@ if there is an error run:
 	sudo yum remove python-pip
 	sudo yum install python-pip
 
-RUN PYTHON AMBARI TO CONFIGURE SSL FOR HDP
-1. On the Ambari host change directory to the ambari-ssl
+RUN PYTHON SCRIPT TO CONFIGURE TLS IN AMBARI 
+1. On the Ambari host change directory to the ambari-tls
 
-	% sudo chmod 777 ~/sbin/ssl/ambari-ssl/
-	% cd ~/sbin/ssl/ambari-ssl
+	% sudo chmod 777 ~/sbin/tls/ambari-tls/
 
 2. Validate the config file and the definitions file. Ensure you are using the json/definitions.json.master file.
 
-	% cat  configs
+	% cd ~/sbin/tls/ambari-tls
+	% cat configs
 	% cat definitions.json
 
-3. Run the python script to configure Ambari for SSL for either http or https.
+3. Run the python script to configure Ambari for TLS for either http or https.
 
 HTTP:
-	% python ambari-ssl.py --protocol http --port 8080 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-ssl.log
+	% python ambari-tls.py --protocol http --port 8080 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-tls.log
 
 HTTPS:
-	% python ambari-ssl.py --protocol https --port 8443 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-ssl.log
+	% python ambari-tls.py --protocol https --port 8443 --username sysadmin --password BadPass%1 --host admin01.cloudair.lan --configfile configs | tee /tmp/ambari-tls.log
 
 4. Delete the toSet up files.
 
 	% rm doSet_*
 
-CUSTOM SSL DEFINITIONS
+CUSTOM TLS DEFINITIONS
 1. In the json directory are all of the definition files. The definitions.json.master is the base install. You may have to modify it to map to your selection of hosts by either removing or adding in services.
 
 2. In the json directory there are custom definitions for additional services, these include Knox, NiFi and Storm.
 
-3. In all cases you must copy the json of your choice over to the definitions.json file located in ambari-ssl.
+3. In all cases you must copy the json of your choice over to the definitions.json file located in ambari-tls.
 
-	% cd ~/ambari-ssl/json
+	% cd ~/ambari-tls/json
 	% cp definitions.json.master ../definitions.json
-

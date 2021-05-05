@@ -10,7 +10,7 @@
 # Title: tutorial-tls.sh
 # Author: WKD
 # Date: 1MAR18
-# Purpose: This file contains useful commands for opentls and keytool.
+# Purpose: This file contains useful commands for openssl and keytool.
 # This will assist students who are unfamiliar with these two complex
 # and sophisticated commands to gain a basic understanding of their use.
 
@@ -50,17 +50,17 @@ function heading() {
         echo "---------------------------------------------------------------"
 }
 
-function showSSL() {
+function showTLS() {
 	clear
 	heading
 	echo "
-Secure Socket Layer (SSL)
- SSL is a security protocol for the network transport layer. It was
+Transport Layer Security (TLS)
+ TLS is a security protocol for the network transport layer. It was
  purposely designed for the unique requirements of HTTP, i.e. for
- securing communications on the Internet. SSL uses Public-key
+ securing communications on the Internet. TLS uses Public-key
  cryptography. This is asymetrical encryption, meaning two different
  keys are required to encrypt or to decrypt communications. The primary
- purpose of SSL is to encrypt traffic between two points, preventing 
+ purpose of TLS is to encrypt traffic between two points, preventing 
  a man in the middle attack. It is also commonly used for digital 
  signature. In both cases the private key is closely guarded and 
  the public key is broadly distributed. As both keys are required
@@ -93,13 +93,13 @@ function showCA() {
 	clear
 	heading
 	echo "
-A private key is one half of the public/private key pair used in digital certificates. The private key is created before or during the time in which the Certificate Signing Request (CSR) is created. A CSR is a public key that is generated on a server or device according to the server software instructions. The CSR is required during the SSL certificate enrollment process because it validates the specific information about the web server and the organization. The CSR is submitted to a Certificate Authority (CA) which uses it to create a public key to match the private key without compromising the key itself.
+A private key is one half of the public/private key pair used in digital certificates. The private key is created before or during the time in which the Certificate Signing Request (CSR) is created. A CSR is a public key that is generated on a server or device according to the server software instructions. The CSR is required during the TLS certificate enrollment process because it validates the specific information about the web server and the organization. The CSR is submitted to a Certificate Authority (CA) which uses it to create a public key to match the private key without compromising the key itself.
 
-The CA never has access to the private key. The private key remains on the server and is never shared. The public key is incorporated into the SSL certificate and shared with clients, which could be a browser, mobile device, or another server. Although the makeup of an SSL certificate consists of a private and public key, the SSL certificate itself is sometimes referred to as "the public key."  The SSL certificate is also referred to as the "end entity" certificate since it sits at the bottom of the certificate chain and is not used for signing/issuing other certificates.
+The CA never has access to the private key. The private key remains on the server and is never shared. The public key is incorporated into the TLS certificate and shared with clients, which could be a browser, mobile device, or another server. Although the makeup of an TLS certificate consists of a private and public key, the TLS certificate itself is sometimes referred to as "the public key."  The TLS certificate is also referred to as the "end entity" certificate since it sits at the bottom of the certificate chain and is not used for signing/issuing other certificates.
 
-Note: Do not confuse the servers private key with the session key. This is a symmetric key which is created by the browser when it connects to a server. Session keys are typically 128 or 256-bit. The size used depends on the encryption capability of the client and server. The symmetric key is used to encrypt and decrypt information sent back and forth during the SSL session
+Note: Do not confuse the servers private key with the session key. This is a symmetric key which is created by the browser when it connects to a server. Session keys are typically 128 or 256-bit. The size used depends on the encryption capability of the client and server. The symmetric key is used to encrypt and decrypt information sent back and forth during the TLS session
 
-The 2048-bit SSL certificate and private key (server) is called an asymmetrical key pair.  This means that one key is used to encrypt data (the public key/SSL certificate) and the other is used to decrypt data (the private key stored on the server)."
+The 2048-bit TLS certificate and private key (server) is called an asymmetrical key pair.  This means that one key is used to encrypt data (the public key/TLS certificate) and the other is used to decrypt data (the private key stored on the server)."
 
         checkContinue
 }
@@ -153,10 +153,10 @@ Create a Working Directory
 	% cd tutorial
 
 Creating a Private Key
- The opentls tool can be used to also create private keys.
+ The openssl tool can be used to also create private keys.
 
         # Create a private key, the output will be private.key
-        % opentls genrsa -out private.key 2048
+        % openssl genrsa -out private.key 2048
 
 	# Check output
 	% ls
@@ -164,14 +164,14 @@ Creating a Private Key
 
         # Verify the  private key
 	% cat private.key
-        % opentls rsa -check -in private.key
+        % openssl rsa -check -in private.key
                 -----BEGIN RSA PRIVATE KEY-----
                 -----END RSA PRIVATE KEY-----
 
 Creating a Public Key
 
 	# Export a public key from the private key
-	% opentls rsa -in private.key -outform PEM -pubout -out public.crt 
+	% openssl rsa -in private.key -outform PEM -pubout -out public.crt 
 
 	# Check output
 	% ls
@@ -202,7 +202,7 @@ Certificate Signing Request (.csr)
  file. This file is the certificate signing request. 
 
 	 # Generate a domain CSR from an existing private key
-         % opentls req -key private.key -new -out request.csr
+         % openssl req -key private.key -new -out request.csr
                Generating a 2048 bit RSA private key
                 ...............+++
                 ..........................+++
@@ -227,7 +227,7 @@ Certificate Signing Request (.csr)
 		private.key  public.crt  request.csr
 
 	# Verify the content of the request.csr file
-	% opentls req -text -noout -verify -in request.csr
+	% openssl req -text -noout -verify -in request.csr
       "
         checkContinue
 }	
@@ -267,7 +267,7 @@ Self-Signed Certificates
 
 Enterprise CA
  Additionally, most enterprises setup and use an internal CA. This
- is what we will do for enabling SSL for HDP.
+ is what we will do for enabling TLS for HDP.
 "
 	checkContinue
 }
@@ -280,7 +280,7 @@ Creating a CA
  The first step is to create a private key for our CA.
 
          # Create a private key for the CA
-         % opentls genrsa -out ca.key 2048
+         % openssl genrsa -out ca.key 2048
                 Generating RSA private key, 2048 bit long modulus
                 ......................+++
                 .................+++
@@ -292,7 +292,7 @@ Creating a CA
 
  	# When you have the private key you can then create 
 	# a CA certificate
-        % opentls req -new -x509 -key ca.key -out ca.crt
+        % openssl req -new -x509 -key ca.key -out ca.crt
                 -----
                 Country Name (2 letter code) [XX]:US
                 State or Province Name (full name) []:CA
@@ -318,7 +318,7 @@ Signing a Certificate
  and a csr. The x509 means a self-signed cert.
 
 	# Create a crt
-        % opentls x509 -req -CA ca.crt -CAkey ca.key -in request.csr -out signed.crt -days 365 -CAcreateserial
+        % openssl x509 -req -CA ca.crt -CAkey ca.key -in request.csr -out signed.crt -days 365 -CAcreateserial
                 Signature ok
                 subject=/C=US/ST=CA/L=Santa_Clara/O=Docker/OU=EDU/CN=ip-172-31-11-176.eu-central-1.compute.internal/emailAddress=wkd@cloudair.lan
                 Getting CA Private Key
@@ -328,7 +328,7 @@ Signing a Certificate
                 ca.crt ca.key private.key public.crt request.cst signed.crt
 
 	# Verify the crt
-        % opentls x509 -text -noout -in signed.crt
+        % openssl x509 -text -noout -in signed.crt
         "
         checkContinue
 }
@@ -339,30 +339,30 @@ function showVerify() {
         echo "
 Verifying Keys and Certs
  The RSA key algorithm is a public-key encryption technology. View and 
- verify the components of SSL.
+ verify the components of TLS.
 
         # View a private key
-        % opentls rsa -check -in private.key
+        % openssl rsa -check -in private.key
                 Enter pass phrase for private.key: BadPass%1
                 RSA key ok
                 writing RSA key
                 -----BEGIN RSA PRIVATE KEY-----
 
 	# View the certificate
-        % opentls x509 -in signed.crt -noout -text
+        % openssl x509 -in signed.crt -noout -text
                 Certficate:
                         Data:
 
 	# Verify a private key
-        % opentls rsa -noout -modulus -in private.key | opentls md5
+        % openssl rsa -noout -modulus -in private.key | openssl md5
                 6c9cf8243ce2dc36acb8a198c783b82c
 
 	# Verify a certificate signing request 
-        % opentls req -noout -modulus -in request.csr | opentls md5
+        % openssl req -noout -modulus -in request.csr | openssl md5
                 6c9cf8243ce2dc36acb8a198c783b82c
 
 	# Verify a certificate  
-        % opentls x509 -noout -modulus -in signed.crt | opentls md5
+        % openssl x509 -noout -modulus -in signed.crt | openssl md5
                 6c9cf8243ce2dc36acb8a198c783b82c
         "
         checkContinue
@@ -373,7 +373,7 @@ function showJKS() {
 	heading
         echo "
 Java Keystore
- When a large complex enterprise embraces SSL as a solution one result
+ When a large complex enterprise embraces TLS as a solution one result
  will be a large number of keys and certificates to manage. A large
  number of such files can become a management challenge. The Java
  commmunity create a solution called Java Keystores. As the name 
@@ -475,11 +475,11 @@ function showSignCSR() {
 	heading
         echo "
 Signing a CSR from the Keystore
- Use the opentls tool and the CA certificate to sign this certificate
+ Use the openssl tool and the CA certificate to sign this certificate
  signing request.
 
 	# Sign the csr	
-        % opentls x509 -req -CA ca.crt -CAkey ca.key -in domain.csr -out domain.crt
+        % openssl x509 -req -CA ca.crt -CAkey ca.key -in domain.csr -out domain.crt
                 Signature ok
                 subject=/C=US/ST=CA/L=Santa_Clara/O=Docker/OU=EDU/CN=ip-172-31-11-176.eu-central-1.compute.internal
                 Getting CA Private Key
@@ -589,11 +589,11 @@ END OF TUTORIAL
 callInclude
 
 # Explain 
-showSSL
+showTLS
 showCA
 showFormats
 
-# Run opentls
+# Run openssl
 showCreateKey
 showCreateCSR
 showCA

@@ -7,10 +7,10 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 #
-# Title: rollback-ssl.sh
+# Title: rollback-tls.sh
 # Author:  WKD
 # Date: 200524
-# Purpose: Master script for rolling back the changes from the generate-ssl-hdp.sh script. This is used during troubleshooting.
+# Purpose: Master script for rolling back the changes from the generate-tls-hdp.sh script. This is used during troubleshooting.
 
 # DEBUG
 #set -x
@@ -19,7 +19,7 @@
 
 # VARIABLES
 NUMARGS=$#
-DIR=/tmp/hdp-ssl
+DIR=/tmp/hdp-tls
 AUTHDIR=auth
 KEYSDIR=keys
 

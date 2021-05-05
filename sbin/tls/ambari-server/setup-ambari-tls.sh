@@ -29,7 +29,7 @@ AMBARI_KEY=/etc/security/pki/server.key
 KEYPASS="BadPass%1"
 DATETIME=$(date +%Y%m%d%H%M)
 LOGDIR=/home/sysadmin/log
-LOGFILE=${LOGDIR}/setup-ambari-ssl.log
+LOGFILE=${LOGDIR}/setup-ambari-tls.log
 
 # FUNCTIONS
 function usage() {
@@ -125,7 +125,7 @@ checkArg 0
 checkSudo
 
 # Run install
-installExpect
+#installExpect
 
 # Run functions 
 createExpect

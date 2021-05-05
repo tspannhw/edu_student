@@ -92,7 +92,7 @@ function runScript() {
 
 	FILE=${INPUT}
 	
-	echo "Begin installing sssd, this takes time"
+	echo "Begin installing, this takes time"
 
         for HOST in $(cat ${HOSTS}); do
                 ssh -tt ${HOST} "sudo ${FILE}" < /dev/null >> ${LOGFILE} 2>&1

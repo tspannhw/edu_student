@@ -5,24 +5,18 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: README.txt 
+# Title: 4-hdp-tls.txt 
 # Author: WKD
 # Date: 200530
 
 Note: This work was built on scripts provided by Cloudera PS. They have been modified for classroom purposes.
 
-Purpose: This goal is to install TLS across a HDP cluster. The first task is to generate the required signing certificates from a CA. The second tasks is to use this certificate to sign certs and keystores on all nodes. This must be done for the local host and for Ranger. The third task is to use a python script to load the JSON file into Ambari. The fourth task is to restart both Ambari and the HDP cluster.
-
-GENERATE YOUR OWN CA CERTS
-1. We are using certificates created on Microsoft Certificate Services. 
-
-2. Instructions for generating a request and passing them to the CA are found in the certificates README. 
-
-3. You will need to contact your local Certificate Authority and request support for signed keys.
+Note: You must generate the required certs and load them into hdp-tls/auth directory before you begin.
 
 EDIT THE CONFIGS FILE
 1. Edit the config file to add the domain and certificate info.
 
+	% cd hdp-tls
 	% vim configs 
 
 2. Copy the configs file into ambari-tls. Ensure these are both in sync.
@@ -30,42 +24,39 @@ EDIT THE CONFIGS FILE
 	% cp configs ../ambari-tls/
 
 GENERATE CA CERTS
-1. IMPORTANT: This task needs to be done once on the admin host. This does not need to be repeated on every host.
-
-2. This task will copy over a domain signed certificate signing request (cer) in to the ca directory. It will also copy over a domain signing keys into the keys directory. The name of these files are:
+IMPORTANT: This task needs to be done once on the admin node. This does not need to be repeated on every host. This task will copy over a domain signed certificate signing request (cer) in to the ca directory. It will also copy over a domain signing keys into the keys directory. The name of these files are:
 
 	cloudair.lan.crt
 	cloudair.lan.key
 	cloudair.lan.der
 
-3. Copy in the cert files.
+1. Generate the cert files.
 
 	% sudo ./generate-hdp-tls.sh GenerateCACert configs
 
 PREPARE TO GENERATE-HDP-TLS
 1. Go to the directory for ssl.
 
-	% cd ~/sbin/ssl/hdp-tls
+	% cd ~/sbin/tls
 
 2. Create a tar file.
 
-	% cd ..
-	% tar cvf /tmp/hdp-tls.tar hdp-tls
+	% tar -cvf /tmp/hdp-tls.tar hdp-tls
 
-PUSH AND EXTRACT 
+PUSH AND EXTRACT THE TAR FILE TO ALL NODES
 1. Push the tar file to all hosts
 
-	% run-remote-files.sh push /tmp/hdp-tls.tar /tmp
+	% run-remote-file.sh push /tmp/hdp-tls.tar /tmp
 
 2. Extract the tar file on all hosts 
 
-	% run-remote-files.sh extract /tmp/hdp-tls.tar  /tmp
+	% run-remote-file.sh extract /tmp/hdp-tls.tar  /tmp
 
 3. Clean up the tar file on all hosts
 
-	% run-remote-files.sh delete /tmp/hdp-tls.tar
+	% run-remote-file.sh delete /tmp/hdp-tls.tar
 
-RUN GENERATE-TLS
+RUN GENERATE-TLS ON ALL NODES
 IMPORTANT: The setup-hdp-tls.sh has a DIR variable set to /tmp/hdp-tls. The
 script expects to find the generate file in this directory.
 

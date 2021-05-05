@@ -7,10 +7,10 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 #
-# Title: setup-hdp-ssl.sh
+# Title: setup-hdp-tls.sh
 # Author:  WKD
 # Date: 190410
-# Purpose: Master script for running generate-ssl.sh.
+# Purpose: Master script for running generate-tls.sh
 
 # DEBUG
 # set -x
@@ -18,7 +18,7 @@
 #set >> /root/setvar.txt
 
 # VARIABLES
-DIR=/tmp/hdp-ssl
+DIR=/tmp/hdp-tls
 
 # FUNCTIONS
 function usage() {
@@ -38,37 +38,37 @@ function checkRoot() {
 function runCACert() {
 # Run the certificate generator for local authority and for Ranger
 
-	./generate-hdp-ssl.sh GenerateCACert ./configs
+	./generate-hdp-tls.sh GenerateCACert ./configs
 }
 
 function runKeystore() {
 # Run the certificate generator for local authority and for Ranger
 
-	./generate-hdp-ssl.sh GenerateKeystore ./configs
+	./generate-hdp-tls.sh GenerateKeystore ./configs
 }
 
 function runTruststore() {
 # Run the certificate generator for local authority and for Ranger
 
-	./generate-hdp-ssl.sh GenerateTruststore ./configs
+	./generate-hdp-tls.sh GenerateTruststore ./configs
 }
 
 function runJCEKS() {
 # Run the certificate generator for local authority and for Ranger
 
-	./generate-hdp-ssl.sh GenerateJCEKS ./configs
+	./generate-hdp-tls.sh GenerateJCEKS ./configs
 }
 
 function runKeyPair() {
 # Run the certificate generator for local authority and for Ranger
 
-	./generate-hdp-ssl.sh GenerateKeyPair ./configs
+	./generate-hdp-tls.sh GenerateKeyPair ./configs
 }
 
 function runRanger() {
 # Run the certificate generator for local authority and for Ranger
 
-	./generate-hdp-ssl.sh GenerateRanger ./configs
+	./generate-hdp-tls.sh GenerateRanger ./configs
 }
 
 # MAIN

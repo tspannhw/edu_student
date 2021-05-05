@@ -1,4 +1,4 @@
-#Config File for Ambari and HDP ssl
+#Config File for Ambari and HDP TLS 
 [Configs]
 OrgUnit=EDU
 Organization=Cloudair

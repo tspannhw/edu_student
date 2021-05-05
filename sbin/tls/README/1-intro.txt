@@ -5,22 +5,23 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: README.txt 
+# Title: 1-intro.txt 
 # Author: WKD
 # Date: 200530
 
-Note: This work was built on scripts provided by Cloudera PS. They have been modified for classroom purposes.
+NOTES
+This work was built on scripts provided by Cloudera PS. They have been modified for classroom purposes.
 
-Purpose: This goal is to install TLS across a HDP cluster. 
-Task 1. Install wireless encryption for RPC and Data Transfer Protocol. Use the instructions in this README.
-Task 2. Generate and submit a request for the required certificates from a CA. Use the instructions in the htp-tls/README and the htp-tls/auth/README.
-Task 3. Use the CA certificate to generate the certs and keystores on all nodes. This must be done for the local host and for Ranger plugins. Use the instructions in the htp-tls/README. 
-Task 4. Use a python script to load the JSON file containing all of the required properties and values into the Ambari CMDB. Use the instructions in the ambari-tls/README. 
-Task 5. Install tls and truststore for the Ambari Server. Use the instructions in the ambari-server/README.
+### TASKS ###
+Task 1. Install wireless encryption for RPC and Data Transfer Protocol.
+Task 2. Generate and submit a request for the required certificates from a CA. 
+Task 3. Use the CA certificate to generate the certs and keystores on all nodes. This must be done for the local host and for Ranger plugins. 
+Task 4. Use a python script and the JSON file to load all of the required TLS properties into the Ambari CMDB. 
+Task 5. Setup TLS https and truststore for the Ambari Server.
 Task 6. Restart both Ambari and the HDP cluster.
 Task 7. Time to troubleshoot
 
-OVERVIEW OF WIRE ENCRYPTION FOR HDP
+### OVERVIEW OF WIRE ENCRYPTION FOR HDP ###
 
 CLIENT TRAFFIC Clients typically communicate directly with the Hadoop cluster. Data can be protected using RPC encryption or Data Transfer Protocol.
 
@@ -37,29 +38,3 @@ JDBC ENCRYPTION HiveServer2 implements encryption with Java SASL protocolbs qual
 JOB TRAFFIC Additionally, within-cluster communication between processes can be protected using HTTPS encryption during MapReduce shuffle.
 
 SHUFFLE ENCRYPTION When data moves between the Mappers and the Reducers over the HTTP protocol, this step is called shuffle. Reducer initiates the connection to the Mapper to ask for data; it acts as an TLS client.
-
-CONFIGURE SASL ENCRYPTION
-CLIENT RPC ENCRYPTION HDFS, YARN, and Ranger use SASL QOP to secure RPC traffic. The parmeter hadoop.rpc.protection is set to privacy, this will encrypt RPC traffic.
-
-	Ambari > HDFS > Configs > Advance > 
-
-	hadoop.rpc.protection=privacy
-
-CLIENT HDFS ENCRYPTION The parameters dfs.encrypt.data.transfer and dfs.encrypt.transfer.algorith must be set. (3DES is more secure, while RC4 is faster)
-
-	Ambari > HDFS > Configs > Advance >
-
-	dfs.encrypt.data.transfer=true
-	dfs.encrypt.data.transfer.algorithm=3des
-
-RANGER HDFS ENCRYPTION  When you install Ranger KMS it will set the parameters to encypt HDFS traffic. The parameters dfs.encrypt.data.transfer.cipher.suites and dfs.encryption.key.provider.uri are automatically set. 
-
-NEXT TASKS
-1. Complete the install of tls by following the README files in sub directories. 
-2. The installation must be completed in the following order:
-
-	hdp-tls
-	ambari-tls
-	ambari-server
-
-3. When this is all completed you will need to restart the ambari-server, all o f the ambari-agents, and the cluster. i.e. shutdown and restart everything.

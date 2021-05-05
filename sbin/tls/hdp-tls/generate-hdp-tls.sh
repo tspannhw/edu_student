@@ -7,11 +7,11 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: generate-hdp-ssl.sh
+# Title: generate-hdp-tls.sh
 # Author: WKD
 # Date: 1MAR18
 # Purpose: This script will generate the keystores and key pairs required
-# to install SSL on a HDP cluster. This script needs to be locally run 
+# to install TLS on a HDP cluster. This script needs to be locally run 
 # on every node in the cluster. 
 # There is a function to generate a creds.jceks file. This is intended 
 # for use with the Knox Gateway. 
@@ -35,8 +35,8 @@ KEYDIR=keys
 OPTION=$1
 CONFIG=$2
 DATETIME=$(date +%Y%m%d%H%M)
-LOGDIR=/var/log/hdp-ssl
-LOGFILE=${LOGDIR}/generate-hdp-ssl.log
+LOGDIR=/var/log/hdp-tls
+LOGFILE=${LOGDIR}/generate-hdp-tls.log
 
 # FUNCTIONS 
 function usage() {

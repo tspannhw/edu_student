@@ -7,7 +7,7 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 # OR CONDITIONS OF ANY KIND, either express or implied.
 
-# Title: setup-ambari-ssl.sh
+# Title: setup-ambari-truststore.sh
 # Author: WKD
 # Date: 1MAR18
 # Purpose: This script setups Ambari HTTPS and truststore.
@@ -24,7 +24,7 @@ DIR=/home/sysadmin
 TRUSTSTOREPASS=BadPass%1
 DATETIME=$(date +%Y%m%d%H%M)
 LOGDIR=/home/sysadmin/log
-LOGFILE=${LOGDIR}/setup-ambari-ssl.log
+LOGFILE=${LOGDIR}/setup-ambari-truststore.log
 
 # FUNCTIONS
 function usage() {
