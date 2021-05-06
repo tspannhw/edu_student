@@ -189,25 +189,6 @@
             "infra_solr_truststore_type": "JKS"
         }
     },
-    "LOGSEARCH": {
-        "logfeeder-env": {
-            "logfeeder_keystore_location": "KEYSTORELOC",
-            "logfeeder_keystore_password": "KEYSTOREPASS",
-            "logfeeder_keystore_type": "JKS",
-            "logfeeder_truststore_location": "TRUSTSTORELOC",
-            "logfeeder_truststore_password": "TRUSTSTOREPASS",
-            "logfeeder_truststore_type": "JKS"
-        },
-        "logsearch-env": {
-            "logsearch_ui_protocol": "https",
-            "logsearch_keystore_location": "KEYSTORELOC",
-            "logsearch_keystore_password": "KEYSTOREPASS",
-            "logsearch_keystore_type": "JKS",
-            "logsearch_truststore_location": "TRUSTSTORELOC",
-            "logsearch_truststore_password": "TRUSTSTOREPASS",
-            "logsearch_truststore_type": "JKS"
-        }
-    },
     "RANGER": {
         "admin-properties": {
             "policymgr_external_url": "RANGERURL"
@@ -281,7 +262,6 @@
             "spark.ssl.protocol": "TLS",
             "spark.ssl.trustStore": "TRUSTSTORELOC",
             "spark.ssl.trustStorePassword": "TRUSTSTOREPASS",
-            "spark.ssl.enabledAlgorithms": "TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA"
         }
     },
     "ZEPPELIN": {
